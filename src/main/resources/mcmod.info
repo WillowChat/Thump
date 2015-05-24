@@ -1,0 +1,18 @@
+[{
+    "modid": "Thump",
+    "name": "Thump",
+    "description": "A Minecraft IRC bridge using the Warren library.",
+    "version": "${version}",
+    "mcversion": "${mcversion}",
+    "url": "https://github.com/voxelcarrot/Thump",
+    "updateUrl": "",
+    "authorList": ["voxelcarrot"],
+    "credits": "voxelcarrot",
+    "logoFile": "assets/thump/textures/logo.png",
+    "screenshots": [],
+    "parent": "",
+    "requiredMods": [],
+    "dependencies": [],
+    "dependants": [],
+    "useDependencyInformation": "false"
+}]
