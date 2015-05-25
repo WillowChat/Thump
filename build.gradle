@@ -17,6 +17,13 @@ buildscript {
     }
 }
 
+repositories {
+    maven { // Hopper Maven repo
+        name 'Hopper'
+        url "http://maven.hopper.bunnies.io/"
+    }
+}
+
 apply plugin: 'forge'
 
 task wrapper(type: Wrapper) {
@@ -63,6 +70,10 @@ configurations {
     compile.extendsFrom shade
 }
 
+dependencies {
+    shade('engineer.carrot.warren:warren:0.0.1.25:all') { transitive = false }
+}
+
 group = "engineer.carrot.warren.thump"
 version = config.mod_version
 archivesBaseName = "Thump"
@@ -97,6 +108,8 @@ minecraft {
         replace "@FINGERPRINT@", keystore_config.key_sha1
 
     replace "@VERSION@", "${config.minecraft_version}-${config.mod_version}.${project.buildInfo.build_number}"
+
+    srgExtra "PK: engineer/carrot/warren/warren engineer/carrot/warren/thump/repack/warren"
 }
 
 version = "${config.minecraft_version}-${config.mod_version}.${project.buildInfo.build_number}"
