@@ -5,6 +5,8 @@ Thump is a Minecraft IRC bridge that uses the [Warren](https://github.com/voxelc
 
 It will provide an API for plugins so others can integrate their own functionality relatively easily.
 
+It's more of an experiment and a tool to drive Warren development right now - not safe for general usage.
+
 ## Building
 This mod uses Forge's Gradle wrapper for pretty easy setup and building. There are better guides around the internet for using it, and I don't do anything particularly special.
 
