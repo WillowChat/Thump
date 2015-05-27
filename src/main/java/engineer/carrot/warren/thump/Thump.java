@@ -1,17 +1,18 @@
 package engineer.carrot.warren.thump;
 
+import com.google.common.collect.Lists;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
-import cpw.mods.fml.common.event.FMLInitializationEvent;
-import cpw.mods.fml.common.event.FMLPostInitializationEvent;
-import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.common.event.*;
 import engineer.carrot.warren.thump.config.ConfigUtils;
 import engineer.carrot.warren.thump.config.Configuration;
+import engineer.carrot.warren.thump.config.ServerConfiguration;
 import engineer.carrot.warren.thump.listener.MessageListener;
 import engineer.carrot.warren.thump.proxy.CommonProxy;
 import engineer.carrot.warren.thump.reference.Reference;
 import engineer.carrot.warren.thump.util.helper.LogHelper;
-import engineer.carrot.warren.warren.IRCServerConnection;
+
+import java.util.Set;
 
 @Mod(modid = Reference.MOD_ID, name = Reference.MOD_NAME, version = Reference.VERSION_NUMBER, certificateFingerprint = Reference.FINGERPRINT, dependencies = "")
 public class Thump {
@@ -20,6 +21,8 @@ public class Thump {
 
     @SidedProxy(clientSide = "engineer.carrot.warren.thump.proxy.ClientProxy", serverSide = "engineer.carrot.warren.thump.proxy.CommonProxy")
     public static CommonProxy proxy;
+
+    private final ConnectionManager connectionManager = new ConnectionManager();
 
     @Mod.EventHandler
     @SuppressWarnings("unused")
@@ -32,30 +35,17 @@ public class Thump {
             throw new RuntimeException("Created a new config.json - fill it with details");
         }
 
-        Configuration configuration = ConfigUtils.readConfig();
+        Configuration allConfigurations = ConfigUtils.readConfig();
 
         LogHelper.info("IRC bot starting up");
-        LogHelper.info("Connecting to {}:{} as {}", configuration.server, configuration.port, configuration.nickname);
 
-        IRCServerConnection ircServerConnection = new IRCServerConnection(configuration.server, configuration.port, configuration.nickname);
-        if (configuration.identifyWithNickServ) {
-            ircServerConnection.setNickservPassword(configuration.nickServPassword);
+        MessageListener messageListener = new MessageListener();
+
+        for (ServerConfiguration configuration : allConfigurations.serverConfigurations) {
+            LogHelper.info("Adding to connection manager: {}:{} as {}", configuration.server, configuration.port, configuration.nickname);
+
+            this.connectionManager.addNewConnection(configuration, Lists.<Object>newArrayList(messageListener));
         }
-
-        if (!configuration.autoJoinChannels.isEmpty()) {
-            ircServerConnection.setAutoJoinChannels(configuration.autoJoinChannels);
-        }
-
-        if (configuration.forceAcceptCertificates) {
-            if (!configuration.forciblyAcceptedCertificates.isEmpty()) {
-                ircServerConnection.setForciblyAcceptedCertificates(configuration.forciblyAcceptedCertificates);
-            }
-        }
-
-        ircServerConnection.registerListener(new MessageListener());
-
-        ircServerConnection.connect();
-        // TODO: Blocks forever
     }
 
     @Mod.EventHandler
@@ -68,5 +58,19 @@ public class Thump {
     @SuppressWarnings("unused")
     public void postInit(FMLPostInitializationEvent event) {
 
+    }
+
+    @Mod.EventHandler
+    public void onServerStarting(FMLServerStartingEvent event) {
+        Set<String> connections = this.connectionManager.getAllConnections();
+        for (String connection : connections) {
+            LogHelper.info("Starting connection '{}'", connection);
+            this.connectionManager.startConnection(connection);
+        }
+    }
+
+    @Mod.EventHandler
+    public void onServerStopped(FMLServerStoppedEvent event) {
+        this.connectionManager.stopAllConnections();
     }
 }

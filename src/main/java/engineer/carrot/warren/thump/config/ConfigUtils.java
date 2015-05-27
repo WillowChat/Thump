@@ -1,5 +1,6 @@
 package engineer.carrot.warren.thump.config;
 
+import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import engineer.carrot.warren.thump.util.helper.LogHelper;
@@ -25,7 +26,7 @@ public class ConfigUtils {
             return false;
         }
 
-        String defaultConfig = createConfigGson().toJson(new Configuration());
+        String defaultConfig = createConfigGson().toJson(new Configuration(Lists.newArrayList(new ServerConfiguration())));
         if (defaultConfig.isEmpty()) {
             LogHelper.error("Failed to turn default Configuration in to a String");
             return false;
