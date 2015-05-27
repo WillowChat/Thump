@@ -104,4 +104,16 @@ public class ConnectionManager {
     public Set<String> getAllConnections() {
         return this.connectionMap.keySet();
     }
+
+    public void sendMessageToAllChannels(String message) {
+        for (String id : this.getAllConnections()) {
+            ConnectionWrapper wrapper = this.connectionMap.get(id);
+            if (wrapper.getConnectionState() != ConnectionState.CONNECTED) {
+                LogHelper.warn("Not sending message to '{}' as it is not connected yet: {}", id, message);
+                continue;
+            }
+
+            wrapper.sendMessageToAllChannels(message);
+        }
+    }
 }

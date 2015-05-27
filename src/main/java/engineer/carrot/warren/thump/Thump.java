@@ -7,10 +7,12 @@ import cpw.mods.fml.common.event.*;
 import engineer.carrot.warren.thump.config.ConfigUtils;
 import engineer.carrot.warren.thump.config.Configuration;
 import engineer.carrot.warren.thump.config.ServerConfiguration;
+import engineer.carrot.warren.thump.handler.ChatEventHandler;
 import engineer.carrot.warren.thump.listener.MessageListener;
 import engineer.carrot.warren.thump.proxy.CommonProxy;
 import engineer.carrot.warren.thump.reference.Reference;
 import engineer.carrot.warren.thump.util.helper.LogHelper;
+import net.minecraftforge.common.MinecraftForge;
 
 import java.util.Set;
 
@@ -46,6 +48,8 @@ public class Thump {
 
             this.connectionManager.addNewConnection(configuration, Lists.<Object>newArrayList(messageListener));
         }
+
+        MinecraftForge.EVENT_BUS.register(new ChatEventHandler(this.connectionManager));
     }
 
     @Mod.EventHandler
