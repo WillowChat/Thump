@@ -98,7 +98,11 @@ public class ConnectionWrapper implements Runnable {
             this.connection.sendMessageToChannel(channel, message);
         }
 
-        LogHelper.info("Sent message to channels '{}': {}", Strings.join(Lists.newArrayList(channels.keySet()), ","));
+        LogHelper.info("Sent message to channels '{}': {}", Strings.join(Lists.newArrayList(channels.keySet()), ","), message);
+    }
+
+    public String getUsername() {
+        return this.connection.getBotNickname();
     }
 
     // Runnable

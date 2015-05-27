@@ -1,4 +1,4 @@
-package engineer.carrot.warren.thump.handler;
+package engineer.carrot.warren.thump.handler.minecraft;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import engineer.carrot.warren.thump.ConnectionManager;

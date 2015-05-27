@@ -116,4 +116,15 @@ public class ConnectionManager {
             wrapper.sendMessageToAllChannels(message);
         }
     }
+
+    public boolean usernameMatchesAnyConnection(String username) {
+        for (String id : this.getAllConnections()) {
+            ConnectionWrapper wrapper = this.connectionMap.get(id);
+            if (username.equalsIgnoreCase(wrapper.getUsername())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

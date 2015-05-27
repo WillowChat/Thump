@@ -7,7 +7,7 @@ import cpw.mods.fml.common.event.*;
 import engineer.carrot.warren.thump.config.ConfigUtils;
 import engineer.carrot.warren.thump.config.Configuration;
 import engineer.carrot.warren.thump.config.ServerConfiguration;
-import engineer.carrot.warren.thump.handler.ChatEventHandler;
+import engineer.carrot.warren.thump.handler.minecraft.ChatEventHandler;
 import engineer.carrot.warren.thump.listener.MessageListener;
 import engineer.carrot.warren.thump.proxy.CommonProxy;
 import engineer.carrot.warren.thump.reference.Reference;
@@ -41,7 +41,7 @@ public class Thump {
 
         LogHelper.info("IRC bot starting up");
 
-        MessageListener messageListener = new MessageListener();
+        MessageListener messageListener = new MessageListener(this.connectionManager);
 
         for (ServerConfiguration configuration : allConfigurations.serverConfigurations) {
             LogHelper.info("Adding to connection manager: {}:{} as {}", configuration.server, configuration.port, configuration.nickname);
