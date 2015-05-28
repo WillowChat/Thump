@@ -1,9 +1,14 @@
 package engineer.carrot.warren.thump.command.handler;
 
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import engineer.carrot.warren.thump.connection.ConnectionManager;
 import engineer.carrot.warren.thump.connection.ConnectionState;
+import engineer.carrot.warren.thump.util.helper.PredicateHelper;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.util.ChatComponentText;
+
+import java.util.List;
 
 public class DisconnectCommandHandler implements ICommandHandler {
     private ConnectionManager manager;
@@ -57,5 +62,18 @@ public class DisconnectCommandHandler implements ICommandHandler {
     @Override
     public String getUsage() {
         return COMMAND_NAME + " " + COMMAND_USAGE;
+    }
+
+    @Override
+    public List<String> addTabCompletionOptions(ICommandSender sender, String[] parameters) {
+        if (parameters.length <= 1) {
+            String handlerId = (parameters[0] == null) ? "" : parameters[0];
+            return Lists.newArrayList(Iterables.filter(
+                    this.manager.getAllConnections(),
+                    new PredicateHelper.StartsWithPredicate(handlerId)
+            ));
+        }
+
+        return null;
     }
 }

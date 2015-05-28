@@ -1,5 +1,6 @@
 package engineer.carrot.warren.thump.command;
 
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import engineer.carrot.warren.thump.command.handler.ConnectCommandHandler;
@@ -7,13 +8,16 @@ import engineer.carrot.warren.thump.command.handler.DisconnectCommandHandler;
 import engineer.carrot.warren.thump.command.handler.ICommandHandler;
 import engineer.carrot.warren.thump.command.handler.StatusCommandHandler;
 import engineer.carrot.warren.thump.connection.ConnectionManager;
+import engineer.carrot.warren.thump.util.helper.PredicateHelper;
 import joptsimple.internal.Strings;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.util.ChatComponentText;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class CommandThump extends CommandBase {
     private ConnectionManager manager;
@@ -53,5 +57,23 @@ public class CommandThump extends CommandBase {
         }
 
         this.handlers.get(parameters[0]).processParameters(sender, Arrays.copyOfRange(parameters, 1, parameters.length));
+    }
+
+    @Override
+    public List<String> addTabCompletionOptions(ICommandSender sender, String[] parameters) {
+        if (parameters.length <= 1) {
+            String handlerId = (parameters[0] == null) ? "" : parameters[0];
+            return Lists.newArrayList(Iterables.filter(
+                    this.handlers.keySet(),
+                    new PredicateHelper.StartsWithPredicate(handlerId)
+            ));
+        }
+
+        String handlerId = parameters[0];
+        if (!this.handlers.containsKey(handlerId)) {
+            return null;
+        }
+
+        return this.handlers.get(handlerId).addTabCompletionOptions(sender, Arrays.copyOfRange(parameters, 1, parameters.length));
     }
 }

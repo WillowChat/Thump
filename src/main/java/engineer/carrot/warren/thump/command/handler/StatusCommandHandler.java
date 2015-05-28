@@ -1,10 +1,14 @@
 package engineer.carrot.warren.thump.command.handler;
 
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import engineer.carrot.warren.thump.connection.ConnectionManager;
 import engineer.carrot.warren.thump.connection.ConnectionState;
+import engineer.carrot.warren.thump.util.helper.PredicateHelper;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.util.ChatComponentText;
 
+import java.util.List;
 import java.util.Set;
 
 public class StatusCommandHandler implements ICommandHandler {
@@ -42,5 +46,10 @@ public class StatusCommandHandler implements ICommandHandler {
     @Override
     public String getUsage() {
         return COMMAND_NAME + " " + COMMAND_USAGE;
+    }
+
+    @Override
+    public List<String> addTabCompletionOptions(ICommandSender sender, String[] parameters) {
+        return null;
     }
 }
