@@ -1,6 +1,7 @@
 package engineer.carrot.warren.thump;
 
 import com.google.common.collect.Lists;
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.*;
@@ -16,7 +17,7 @@ import net.minecraftforge.common.MinecraftForge;
 
 import java.util.Set;
 
-@Mod(modid = Reference.MOD_ID, name = Reference.MOD_NAME, version = Reference.VERSION_NUMBER, certificateFingerprint = Reference.FINGERPRINT, dependencies = "")
+@Mod(modid = Reference.MOD_ID, name = Reference.MOD_NAME, version = Reference.VERSION_NUMBER, certificateFingerprint = Reference.FINGERPRINT, dependencies = "", acceptableRemoteVersions = "*")
 public class Thump {
     @Mod.Instance(Reference.MOD_ID)
     public static Thump instance;
@@ -49,7 +50,9 @@ public class Thump {
             this.connectionManager.addNewConnection(configuration, Lists.<Object>newArrayList(messageListener));
         }
 
-        MinecraftForge.EVENT_BUS.register(new ChatEventHandler(this.connectionManager));
+        ChatEventHandler handler = new ChatEventHandler(this.connectionManager);
+        MinecraftForge.EVENT_BUS.register(handler);
+        FMLCommonHandler.instance().bus().register(handler);
     }
 
     @Mod.EventHandler
