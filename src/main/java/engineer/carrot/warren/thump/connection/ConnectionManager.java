@@ -44,7 +44,7 @@ public class ConnectionManager {
             return false;
         }
 
-        if (this.connectionThreads.containsKey(id)) {
+        if (this.connectionThreads.containsKey(id) && this.getConnectionState(id) != ConnectionState.DISCONNECTED) {
             LogHelper.error("Tried to start connection '{}' which already has a thread", id);
             return false;
         }

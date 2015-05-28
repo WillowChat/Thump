@@ -21,12 +21,18 @@ public class ChatEventHandler {
 
     @SubscribeEvent
     public void onCommandEvent(CommandEvent event) {
-        if (!event.command.getCommandName().equalsIgnoreCase("me")) {
+        String commandName = event.command.getCommandName();
+        if (commandName.equalsIgnoreCase("me")) {
+            String message = " * " + event.sender.getCommandSenderName() + " " + Strings.join(event.parameters, " ");
+            this.connectionManager.sendMessageToAllChannels(message);
+
             return;
         }
 
-        String message = " * " + event.sender.getCommandSenderName() + " " + Strings.join(event.parameters, " ");
-        this.connectionManager.sendMessageToAllChannels(message);
+        if (commandName.equalsIgnoreCase("say")) {
+            String message = "<" + event.sender.getCommandSenderName() + "> " + Strings.join(event.parameters, " ");
+            this.connectionManager.sendMessageToAllChannels(message);
+        }
     }
 
     @SubscribeEvent

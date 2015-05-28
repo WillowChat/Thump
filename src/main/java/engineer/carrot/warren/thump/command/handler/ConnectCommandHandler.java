@@ -1,6 +1,5 @@
 package engineer.carrot.warren.thump.command.handler;
 
-import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import engineer.carrot.warren.thump.connection.ConnectionManager;

@@ -39,12 +39,9 @@ public class Thump {
             throw new RuntimeException("Created a new config.json - fill it with details");
         }
 
-        Configuration allConfigurations = ConfigUtils.readConfig();
-
-        LogHelper.info("IRC bot starting up");
-
         MessageListener messageListener = new MessageListener(this.connectionManager);
 
+        Configuration allConfigurations = ConfigUtils.readConfig();
         for (ServerConfiguration configuration : allConfigurations.serverConfigurations) {
             LogHelper.info("Adding to connection manager: {}:{} as {}", configuration.server, configuration.port, configuration.nickname);
 

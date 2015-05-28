@@ -3,6 +3,7 @@ package engineer.carrot.warren.thump.connection;
 import com.google.common.eventbus.Subscribe;
 import engineer.carrot.warren.thump.util.helper.LogHelper;
 import engineer.carrot.warren.warren.event.EndOfMOTDEvent;
+import engineer.carrot.warren.warren.event.ServerDisconnectedEvent;
 
 public class ConnectionStateListener {
     private ConnectionWrapper wrapper;

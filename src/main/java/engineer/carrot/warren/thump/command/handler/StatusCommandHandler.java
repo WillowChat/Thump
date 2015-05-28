@@ -1,10 +1,7 @@
 package engineer.carrot.warren.thump.command.handler;
 
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import engineer.carrot.warren.thump.connection.ConnectionManager;
 import engineer.carrot.warren.thump.connection.ConnectionState;
-import engineer.carrot.warren.thump.util.helper.PredicateHelper;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.util.ChatComponentText;
 

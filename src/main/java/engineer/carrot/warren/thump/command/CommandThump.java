@@ -17,7 +17,6 @@ import net.minecraft.util.ChatComponentText;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class CommandThump extends CommandBase {
     private ConnectionManager manager;
