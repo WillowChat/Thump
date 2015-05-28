@@ -5,10 +5,13 @@ import cpw.mods.fml.common.gameevent.PlayerEvent;
 import engineer.carrot.warren.thump.connection.ConnectionManager;
 import joptsimple.internal.Strings;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.IChatComponent;
 import net.minecraftforge.event.CommandEvent;
 import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.player.AchievementEvent;
 
 public class ChatEventHandler {
     private ConnectionManager connectionManager;
@@ -63,5 +66,20 @@ public class ChatEventHandler {
         }
 
         this.connectionManager.sendMessageToAllChannels(deathMessage.getUnformattedText());
+    }
+
+    @SubscribeEvent
+    public void onAchievementEvent(AchievementEvent event) {
+        if (!(event.entityPlayer instanceof EntityPlayerMP)) {
+            return;
+        }
+
+        boolean hasAchievementUnlocked = ((EntityPlayerMP) event.entityPlayer).func_147099_x().hasAchievementUnlocked(event.achievement);
+        if (hasAchievementUnlocked) {
+            return;
+        }
+
+        IChatComponent achievementMessage = new ChatComponentTranslation("chat.type.achievement", new Object[]{event.entityPlayer.getDisplayName(), event.achievement.func_150955_j()});
+        this.connectionManager.sendMessageToAllChannels(achievementMessage.getUnformattedText());
     }
 }
