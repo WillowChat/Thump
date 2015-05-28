@@ -33,6 +33,8 @@ public class ConnectionWrapper implements Runnable {
 
     private void initialiseFromConfiguration(ServerConfiguration configuration) {
         this.connection = new IRCServerConnection(configuration.server, configuration.port, configuration.nickname);
+        this.connection.setSocketShouldUsePlaintext(configuration.usePlaintextSocket);
+
         if (configuration.identifyWithNickServ) {
             connection.setNickservPassword(configuration.nickServPassword);
         }

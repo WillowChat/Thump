@@ -10,6 +10,7 @@ public class ServerConfiguration {
 
     public String server = "";
     public int port = 6697;
+    public boolean usePlaintextSocket = false;
     public String nickname = "";
 
     public boolean identifyWithNickServ = false;
