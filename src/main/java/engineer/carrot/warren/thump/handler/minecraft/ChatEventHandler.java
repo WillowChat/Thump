@@ -2,7 +2,7 @@ package engineer.carrot.warren.thump.handler.minecraft;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent;
-import engineer.carrot.warren.thump.ConnectionManager;
+import engineer.carrot.warren.thump.connection.ConnectionManager;
 import joptsimple.internal.Strings;
 import net.minecraftforge.event.CommandEvent;
 import net.minecraftforge.event.ServerChatEvent;

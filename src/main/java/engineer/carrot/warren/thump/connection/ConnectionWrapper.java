@@ -1,7 +1,8 @@
-package engineer.carrot.warren.thump;
+package engineer.carrot.warren.thump.connection;
 
 import com.google.common.collect.Lists;
 import engineer.carrot.warren.thump.config.ServerConfiguration;
+import engineer.carrot.warren.thump.listener.ServerEventListener;
 import engineer.carrot.warren.thump.util.helper.LogHelper;
 import engineer.carrot.warren.warren.ChannelManager;
 import engineer.carrot.warren.warren.IRCServerConnection;
@@ -53,6 +54,7 @@ public class ConnectionWrapper implements Runnable {
         //  ServerDisconnectedEvent
 
         this.connection.registerListener(new ConnectionStateListener(this));
+        this.connection.registerListener(new ServerEventListener(id));
     }
 
     private void registerExternalListeners(List<Object> listeners) {

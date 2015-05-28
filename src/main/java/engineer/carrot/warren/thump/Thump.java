@@ -5,9 +5,11 @@ import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.*;
+import engineer.carrot.warren.thump.command.CommandThump;
 import engineer.carrot.warren.thump.config.ConfigUtils;
 import engineer.carrot.warren.thump.config.Configuration;
 import engineer.carrot.warren.thump.config.ServerConfiguration;
+import engineer.carrot.warren.thump.connection.ConnectionManager;
 import engineer.carrot.warren.thump.handler.minecraft.ChatEventHandler;
 import engineer.carrot.warren.thump.listener.MessageListener;
 import engineer.carrot.warren.thump.proxy.CommonProxy;
@@ -28,7 +30,6 @@ public class Thump {
     private final ConnectionManager connectionManager = new ConnectionManager();
 
     @Mod.EventHandler
-    @SuppressWarnings("unused")
     public void preInit(FMLPreInitializationEvent event) {
         boolean hasConfiguration = ConfigUtils.doesConfigFileExist();
         if (!hasConfiguration) {
@@ -56,19 +57,19 @@ public class Thump {
     }
 
     @Mod.EventHandler
-    @SuppressWarnings("unused")
     public void init(FMLInitializationEvent event) {
 
     }
 
     @Mod.EventHandler
-    @SuppressWarnings("unused")
     public void postInit(FMLPostInitializationEvent event) {
 
     }
 
     @Mod.EventHandler
     public void onServerStarting(FMLServerStartingEvent event) {
+        event.registerServerCommand(new CommandThump(this.connectionManager));
+
         Set<String> connections = this.connectionManager.getAllConnections();
         for (String connection : connections) {
             LogHelper.info("Starting connection '{}'", connection);

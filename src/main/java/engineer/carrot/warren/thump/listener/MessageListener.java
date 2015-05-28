@@ -1,8 +1,9 @@
 package engineer.carrot.warren.thump.listener;
 
 import com.google.common.eventbus.Subscribe;
-import engineer.carrot.warren.thump.ConnectionManager;
+import engineer.carrot.warren.thump.connection.ConnectionManager;
 import engineer.carrot.warren.thump.util.helper.LogHelper;
+import engineer.carrot.warren.thump.util.helper.PlayerHelper;
 import engineer.carrot.warren.warren.event.ChannelMessageEvent;
 import engineer.carrot.warren.warren.event.PrivateMessageEvent;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -29,10 +30,7 @@ public class MessageListener {
         String output = event.channel.toString() + ": <" + user + "> " + event.contents;
         LogHelper.info(output);
 
-        List<EntityPlayerMP> players = MinecraftServer.getServer().getConfigurationManager().playerEntityList;
-        for (EntityPlayerMP player : players) {
-            player.addChatMessage(new ChatComponentText(output));
-        }
+        PlayerHelper.sendMessageToAllPlayers(output);
     }
 
     @Subscribe

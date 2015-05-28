@@ -1,7 +1,8 @@
-package engineer.carrot.warren.thump;
+package engineer.carrot.warren.thump.connection;
 
 import com.google.common.eventbus.Subscribe;
 import engineer.carrot.warren.thump.util.helper.LogHelper;
+import engineer.carrot.warren.warren.event.EndOfMOTDEvent;
 import engineer.carrot.warren.warren.event.ServerConnectedEvent;
 
 public class ConnectionStateListener {
@@ -12,7 +13,7 @@ public class ConnectionStateListener {
     }
 
     @Subscribe
-    public void onServerConnected(ServerConnectedEvent event) {
+    public void onServerConnected(EndOfMOTDEvent event) {
         if (this.wrapper.getConnectionState() != ConnectionState.CONNECTING) {
             LogHelper.error("Connection got a 'connected' event, but doesn't know it's 'connecting'");
             return;

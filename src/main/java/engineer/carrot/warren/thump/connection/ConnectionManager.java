@@ -1,4 +1,4 @@
-package engineer.carrot.warren.thump;
+package engineer.carrot.warren.thump.connection;
 
 import com.google.common.collect.Maps;
 import engineer.carrot.warren.thump.config.ServerConfiguration;
@@ -83,9 +83,6 @@ public class ConnectionManager {
         }
 
         Thread thread = this.connectionThreads.get(id);
-        ConnectionWrapper wrapper = this.connectionMap.get(id);
-
-        wrapper.stop();
         thread.interrupt();
 
         try {

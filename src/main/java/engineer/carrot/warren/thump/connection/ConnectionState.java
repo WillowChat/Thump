@@ -1,4 +1,4 @@
-package engineer.carrot.warren.thump;
+package engineer.carrot.warren.thump.connection;
 
 public enum ConnectionState {
     DISCONNECTING,
