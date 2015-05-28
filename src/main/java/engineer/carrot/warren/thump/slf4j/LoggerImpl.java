@@ -31,8 +31,7 @@ public class LoggerImpl implements Logger {
     @Override
     public void trace(String format) {
         if (this.isTraceEnabled()) {
-            LogHelper.debug(format
-);
+            LogHelper.debug(format);
         }
     }
 
