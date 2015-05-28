@@ -72,7 +72,8 @@ configurations {
 
 dependencies {
     shade('engineer.carrot.warren:warren:0.0.1.35:all') { transitive = false }
-    compile group: 'org.slf4j', name:'slf4j-api', version: '1.7.9'
+    compile group: 'org.slf4j', name:'slf4j-api', version: '1.7.12'
+    //shade group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: '2.3'
 }
 
 group = "engineer.carrot.warren.thump"
@@ -111,6 +112,7 @@ minecraft {
     replace "@VERSION@", "${config.minecraft_version}-${config.mod_version}.${project.buildInfo.build_number}"
 
     srgExtra "PK: engineer/carrot/warren/warren engineer/carrot/warren/thump/repack/warren"
+    srgExtra "PK: org/slf4j engineer/carrot/warren/thump/slf4j"
 }
 
 version = "${config.minecraft_version}-${config.mod_version}.${project.buildInfo.build_number}"
