@@ -71,7 +71,7 @@ configurations {
 }
 
 dependencies {
-    shade('engineer.carrot.warren:warren:0.0.1.39:all') { transitive = false }
+    shade('engineer.carrot.warren:warren:0.0.1.40:all') { transitive = false }
     compile group: 'org.slf4j', name:'slf4j-api', version: '1.7.12'
     //shade group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: '2.3'
 }

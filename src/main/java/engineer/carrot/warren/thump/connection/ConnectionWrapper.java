@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Map;
 
 public class ConnectionWrapper implements Runnable {
+    private static final String LOGIN = "thumpBridge";
+
     private String id;
     private ConnectionState connectionState;
     private IRCServerConnection connection;
@@ -32,7 +34,7 @@ public class ConnectionWrapper implements Runnable {
     }
 
     private void initialiseFromConfiguration(ServerConfiguration configuration) {
-        this.connection = new IRCServerConnection(configuration.server, configuration.port, configuration.nickname);
+        this.connection = new IRCServerConnection(configuration.server, configuration.port, configuration.nickname, LOGIN);
         this.connection.setSocketShouldUsePlaintext(configuration.usePlaintextSocket);
 
         if (configuration.identifyWithNickServ) {
