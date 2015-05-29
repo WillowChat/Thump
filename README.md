@@ -17,6 +17,8 @@ Current features:
 
 Check the [Issues](https://github.com/voxelcarrot/Thump/issues) for an idea of what needs doing before the next milestone is released (currently MVP).
 
+Development builds are published at https://hopper.bunnies.io/job/Thump/. Documentation will be on the [wiki](https://github.com/voxelcarrot/Thump/wiki).
+
 ## Building
 This mod uses Forge's Gradle wrapper for pretty easy setup and building. There are better guides around the internet for using it, and I don't do anything particularly special.
 
