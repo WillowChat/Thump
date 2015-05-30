@@ -18,7 +18,7 @@ public class ConnectionStateListener {
             return;
         }
 
-        LogHelper.info("Connected '{}' successfully!", wrapper.getId());
         this.wrapper.setConnectionState(ConnectionState.CONNECTED);
+        LogHelper.info("Connected '{}' successfully!", wrapper.getId());
     }
 }

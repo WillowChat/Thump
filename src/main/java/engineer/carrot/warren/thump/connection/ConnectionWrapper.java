@@ -19,8 +19,11 @@ public class ConnectionWrapper implements Runnable {
     private ConnectionState connectionState;
     private IRCServerConnection connection;
 
+    private final Object connectionLock;
+
     public ConnectionWrapper(String id, ServerConfiguration configuration, List<Object> listeners) {
         this.id = id;
+        this.connectionLock = new Object();
 
         this.initialiseFromConfiguration(configuration);
         this.registerInternalListeners();
@@ -53,10 +56,6 @@ public class ConnectionWrapper implements Runnable {
     }
 
     private void registerInternalListeners() {
-        // Must listen for:
-        //  ServerConnectedEvent
-        //  ServerDisconnectedEvent
-
         this.connection.registerListener(new ConnectionStateListener(this));
         this.connection.registerListener(new ServerEventListener(id));
     }
@@ -68,11 +67,15 @@ public class ConnectionWrapper implements Runnable {
     }
 
     public ConnectionState getConnectionState() {
-        return this.connectionState;
+        synchronized (this.connectionLock) {
+            return this.connectionState;
+        }
     }
 
     public void setConnectionState(ConnectionState connectionState) {
-        this.connectionState = connectionState;
+        synchronized (this.connectionLock) {
+            this.connectionState = connectionState;
+        }
     }
 
     public void stop() {
@@ -82,7 +85,10 @@ public class ConnectionWrapper implements Runnable {
         }
 
         this.setConnectionState(ConnectionState.DISCONNECTING);
-        this.connection.disconnect();
+
+        synchronized (this.connectionLock) {
+            this.connection.disconnect();
+        }
     }
 
     public void sendMessageToAllChannels(String message) {
@@ -91,24 +97,29 @@ public class ConnectionWrapper implements Runnable {
             return;
         }
 
-        ChannelManager channelManager = this.connection.getJoinedChannels();
-        Map<String, Channel> channels = channelManager.getAllChannels();
+        synchronized (this.connectionLock) {
+            ChannelManager channelManager = this.connection.getJoinedChannels();
 
-        if (channels.isEmpty()) {
-            LogHelper.warn("Message had nowhere to go because the bridge doesn't think it's in any channels yet: {}", id, message);
-            return;
+            Map<String, Channel> channels = channelManager.getAllChannels();
+
+            if (channels.isEmpty()) {
+                LogHelper.warn("Message had nowhere to go because the bridge doesn't think it's in any channels yet: {}", id, message);
+                return;
+            }
+
+            for (String sChannel : channels.keySet()) {
+                Channel channel = channels.get(sChannel);
+                this.connection.sendMessageToChannel(channel, message);
+            }
+
+            LogHelper.info("Sent message to channels '{}': {}", Strings.join(Lists.newArrayList(channels.keySet()), ","), message);
         }
-
-        for (String sChannel : channels.keySet()) {
-            Channel channel = channels.get(sChannel);
-            this.connection.sendMessageToChannel(channel, message);
-        }
-
-        LogHelper.info("Sent message to channels '{}': {}", Strings.join(Lists.newArrayList(channels.keySet()), ","), message);
     }
 
     public String getUsername() {
-        return this.connection.getBotNickname();
+        synchronized (this.connectionLock) {
+            return this.connection.getBotNickname();
+        }
     }
 
     // Runnable
