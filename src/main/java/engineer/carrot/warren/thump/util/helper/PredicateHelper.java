@@ -20,4 +20,22 @@ public class PredicateHelper {
             return this.equals(object);
         }
     }
+
+    public static class DoesNotContainPredicate implements Predicate<String> {
+        private String matcher;
+
+        public DoesNotContainPredicate(String matcher) {
+            this.matcher = matcher;
+        }
+
+        @Override
+        public boolean apply(String input) {
+            return !input.contains(matcher);
+        }
+
+        @Override
+        public boolean equals(Object object) {
+            return this.equals(object);
+        }
+    }
 }

@@ -2,6 +2,7 @@ package engineer.carrot.warren.thump.handler.minecraft;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent;
+import engineer.carrot.warren.thump.Thump;
 import engineer.carrot.warren.thump.connection.ConnectionManager;
 import joptsimple.internal.Strings;
 import net.minecraft.entity.player.EntityPlayer;
@@ -22,6 +23,10 @@ public class ChatEventHandler {
 
     @SubscribeEvent
     public void onServerChatEvent(ServerChatEvent event) {
+        if (!Thump.configuration.getEvents().minecraft.playerMessage) {
+            return;
+        }
+
         this.connectionManager.sendMessageToAllChannels("<" + event.username + "> " + event.message);
     }
 
@@ -29,6 +34,10 @@ public class ChatEventHandler {
     public void onCommandEvent(CommandEvent event) {
         String commandName = event.command.getCommandName();
         if (commandName.equalsIgnoreCase("me")) {
+            if (!Thump.configuration.getEvents().minecraft.serverAction) {
+                return;
+            }
+
             String message = " * " + event.sender.getCommandSenderName() + " " + Strings.join(event.parameters, " ");
             this.connectionManager.sendMessageToAllChannels(message);
 
@@ -36,6 +45,10 @@ public class ChatEventHandler {
         }
 
         if (commandName.equalsIgnoreCase("say")) {
+            if (!Thump.configuration.getEvents().minecraft.serverMessage) {
+                return;
+            }
+
             String message = "<" + event.sender.getCommandSenderName() + "> " + Strings.join(event.parameters, " ");
             this.connectionManager.sendMessageToAllChannels(message);
         }
@@ -43,18 +56,30 @@ public class ChatEventHandler {
 
     @SubscribeEvent
     public void onPlayerLoggedInEvent(PlayerEvent.PlayerLoggedInEvent event) {
+        if (!Thump.configuration.getEvents().minecraft.playerJoined) {
+            return;
+        }
+
         String message = " * " + event.player.getDisplayName() + " has joined the game";
         this.connectionManager.sendMessageToAllChannels(message);
     }
 
     @SubscribeEvent
     public void onPlayerLoggedOutEvent(PlayerEvent.PlayerLoggedOutEvent event) {
+        if (!Thump.configuration.getEvents().minecraft.playerLeft) {
+            return;
+        }
+
         String message = " * " + event.player.getDisplayName() + " has left the game";
         this.connectionManager.sendMessageToAllChannels(message);
     }
 
     @SubscribeEvent
     public void onLivingDeathEvent(LivingDeathEvent event) {
+        if (!Thump.configuration.getEvents().minecraft.playerDeath) {
+            return;
+        }
+
         if (!(event.entityLiving instanceof EntityPlayer)) {
             return;
         }
@@ -70,6 +95,10 @@ public class ChatEventHandler {
 
     @SubscribeEvent
     public void onAchievementEvent(AchievementEvent event) {
+        if (!Thump.configuration.getEvents().minecraft.playerAchievement) {
+            return;
+        }
+
         if (!(event.entityPlayer instanceof EntityPlayerMP)) {
             return;
         }

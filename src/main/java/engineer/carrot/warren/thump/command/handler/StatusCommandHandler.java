@@ -33,6 +33,12 @@ public class StatusCommandHandler implements ICommandHandler {
 
         sender.addChatMessage(new ChatComponentText("Thump connection statuses:"));
 
+        if (this.manager.getAllConnections().isEmpty()) {
+            sender.addChatMessage(new ChatComponentText(" There are no IRC connections available."));
+
+            return;
+        }
+
         for (String id : this.manager.getAllConnections()) {
             ConnectionState state = this.manager.getConnectionState(id);
 

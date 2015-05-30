@@ -1,6 +1,7 @@
 package engineer.carrot.warren.thump.listener;
 
 import com.google.common.eventbus.Subscribe;
+import engineer.carrot.warren.thump.Thump;
 import engineer.carrot.warren.thump.connection.ConnectionManager;
 import engineer.carrot.warren.thump.util.helper.LogHelper;
 import engineer.carrot.warren.thump.util.helper.PlayerHelper;
@@ -25,7 +26,14 @@ public class MessageListener {
         }
 
         String output = event.channel.toString() + ": <" + user + "> " + event.contents;
-        LogHelper.info(output);
+
+        if (Thump.configuration.getGeneral().logIrcToServerConsole) {
+            LogHelper.info(output);
+        }
+
+        if (!Thump.configuration.getEvents().irc.channelMessage) {
+            return;
+        }
 
         PlayerHelper.sendMessageToAllPlayers(output);
     }
@@ -39,18 +47,37 @@ public class MessageListener {
         }
 
         String output = event.channel.toString() + ": * " + user + " " + event.contents;
-        LogHelper.info(output);
+
+        if (Thump.configuration.getGeneral().logIrcToServerConsole) {
+            LogHelper.info(output);
+        }
+
+        if (!Thump.configuration.getEvents().irc.channelAction) {
+            return;
+        }
 
         PlayerHelper.sendMessageToAllPlayers(output);
     }
 
     @Subscribe
     public void handlePrivateMessage(PrivateMessageEvent event) {
-        LogHelper.info("PM from {}: {}", event.fromUser, event.contents);
+        String output = "PM from " + event.fromUser + ": " + event.contents;
+
+        if (!Thump.configuration.getGeneral().logIrcToServerConsole) {
+            return;
+        }
+
+        LogHelper.info(output);
     }
 
     @Subscribe
     public void handlePrivateAction(PrivateActionEvent event) {
-        LogHelper.info("PM ACTION from {}: {}", event.fromUser, event.contents);
+        String output = "PM ACTION from " + event.fromUser + ": " + event.contents;
+
+        if (!Thump.configuration.getGeneral().logIrcToServerConsole) {
+            return;
+        }
+
+        LogHelper.info(output);
     }
 }

@@ -38,14 +38,14 @@ public class ConnectionWrapper implements Runnable {
 
     private void initialiseFromConfiguration(ServerConfiguration configuration) {
         this.connection = new IRCServerConnection(configuration.server, configuration.port, configuration.nickname, LOGIN);
-        this.connection.setSocketShouldUsePlaintext(configuration.usePlaintextSocket);
+        this.connection.setSocketShouldUsePlaintext(!configuration.useTLS);
 
         if (configuration.identifyWithNickServ) {
             connection.setNickservPassword(configuration.nickServPassword);
         }
 
-        if (!configuration.autoJoinChannels.isEmpty()) {
-            connection.setAutoJoinChannels(configuration.autoJoinChannels);
+        if (!configuration.channels.isEmpty()) {
+            connection.setAutoJoinChannels(Lists.newArrayList(configuration.channels));
         }
 
         if (configuration.forceAcceptCertificates) {

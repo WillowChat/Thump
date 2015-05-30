@@ -6,8 +6,7 @@ import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.*;
 import engineer.carrot.warren.thump.command.CommandThump;
-import engineer.carrot.warren.thump.config.ConfigUtils;
-import engineer.carrot.warren.thump.config.Configuration;
+import engineer.carrot.warren.thump.config.ModConfiguration;
 import engineer.carrot.warren.thump.config.ServerConfiguration;
 import engineer.carrot.warren.thump.connection.ConnectionManager;
 import engineer.carrot.warren.thump.handler.minecraft.ChatEventHandler;
@@ -17,6 +16,8 @@ import engineer.carrot.warren.thump.reference.Reference;
 import engineer.carrot.warren.thump.util.helper.LogHelper;
 import net.minecraftforge.common.MinecraftForge;
 
+import java.io.File;
+import java.util.Map;
 import java.util.Set;
 
 @Mod(modid = Reference.MOD_ID, name = Reference.MOD_NAME, version = Reference.VERSION_NUMBER, certificateFingerprint = Reference.FINGERPRINT, dependencies = "", acceptableRemoteVersions = "*")
@@ -29,20 +30,23 @@ public class Thump {
 
     private final ConnectionManager connectionManager = new ConnectionManager();
 
+    public static final ModConfiguration configuration = new ModConfiguration();
+
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
-        boolean hasConfiguration = ConfigUtils.doesConfigFileExist();
-        if (!hasConfiguration) {
-            LogHelper.error("Configuration file did not exist, making '{}' and exiting.", ConfigUtils.configLocation);
-            ConfigUtils.createDefaultConfig();
-
-            throw new RuntimeException("Created a new config.json - fill it with details");
-        }
+        configuration.initialise(new File(event.getModConfigurationDirectory(), "thump"));
+        configuration.loadAllConfigurations();
+        configuration.saveAllConfigurations();
 
         MessageListener messageListener = new MessageListener(this.connectionManager);
 
-        Configuration allConfigurations = ConfigUtils.readConfig();
-        for (ServerConfiguration configuration : allConfigurations.serverConfigurations) {
+        Map<String, ServerConfiguration> servers = configuration.getServers().servers;
+
+        if (servers.isEmpty()) {
+            LogHelper.warn("Found no valid server configurations to load - check thump/servers.cfg!");
+        }
+
+        for (ServerConfiguration configuration : servers.values()) {
             LogHelper.info("Adding to connection manager: {}:{} as {}", configuration.server, configuration.port, configuration.nickname);
 
             this.connectionManager.addNewConnection(configuration, Lists.<Object>newArrayList(messageListener));
