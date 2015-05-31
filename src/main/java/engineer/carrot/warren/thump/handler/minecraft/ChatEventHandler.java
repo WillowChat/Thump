@@ -1,6 +1,5 @@
 package engineer.carrot.warren.thump.handler.minecraft;
 
-import com.google.common.collect.Maps;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent;
 import engineer.carrot.warren.thump.Thump;
@@ -15,8 +14,6 @@ import net.minecraftforge.event.CommandEvent;
 import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.AchievementEvent;
-
-import java.util.Map;
 
 public class ChatEventHandler {
     private ConnectionManager connectionManager;

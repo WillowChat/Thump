@@ -62,6 +62,13 @@ public class ConnectionManager {
             return false;
         }
 
+        if (this.connectionMap.get(id).getConnectionState() == ConnectionState.WAITING) {
+            LogHelper.info("Tried to start connection '{}' which is already waiting to reconnect. Reconnecting now...");
+            this.connectionThreads.get(id).interrupt();
+
+            return true;
+        }
+
         if (this.connectionThreads.containsKey(id) && this.getConnectionState(id) != ConnectionState.DISCONNECTED) {
             LogHelper.error("Tried to start connection '{}' which already has a thread", id);
             return false;
@@ -110,6 +117,9 @@ public class ConnectionManager {
             LogHelper.error("Tried to stop connection '{}' which doesn't have a thread yet", id);
             return false;
         }
+
+        ConnectionWrapper wrapper = this.connectionMap.get(id);
+        wrapper.disableNextReconnect();
 
         Thread thread = this.connectionThreads.get(id);
         thread.interrupt();

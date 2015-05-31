@@ -18,6 +18,7 @@ public class ConnectionWrapper implements Runnable {
     private String id;
     private ConnectionState connectionState;
     private IRCServerConnection connection;
+    private ReconnectPolicy reconnectPolicy;
 
     private final Object connectionLock;
 
@@ -53,6 +54,8 @@ public class ConnectionWrapper implements Runnable {
                 connection.setForciblyAcceptedCertificates(configuration.forciblyAcceptedCertificates);
             }
         }
+
+        this.reconnectPolicy = new ReconnectPolicy(configuration);
     }
 
     private void registerInternalListeners() {
@@ -76,6 +79,10 @@ public class ConnectionWrapper implements Runnable {
         synchronized (this.connectionLock) {
             this.connectionState = connectionState;
         }
+    }
+
+    public void resetReconnectCounter() {
+        this.reconnectPolicy.resetCurrentConnectionAttempts();
     }
 
     public void stop() {
@@ -122,16 +129,44 @@ public class ConnectionWrapper implements Runnable {
         }
     }
 
+    public void disableNextReconnect() {
+        this.reconnectPolicy.disableNextReconnect();
+    }
+
     // Runnable
 
     @Override
     public void run() {
-        this.setConnectionState(ConnectionState.CONNECTING);
+        this.reconnectPolicy.resetCurrentConnectionAttempts();
 
-        LogHelper.info("Entering blocking section of thread '{}'", id);
-        this.connection.connect();
-        LogHelper.info("Exiting blocking section of thread '{}'", id);
+        while (true) {
+            this.setConnectionState(ConnectionState.CONNECTING);
+            this.connection.connect();
+            this.setConnectionState(ConnectionState.DISCONNECTED);
 
-        this.setConnectionState(ConnectionState.DISCONNECTED);
+            if (!this.reconnectPolicy.shouldReconnect() || this.reconnectPolicy.getIsDisabled()) {
+                return;
+            }
+
+            this.reconnectPolicy.incrementConnectionAttempt();
+
+            if (this.reconnectPolicy.getCurrentConnectionAttempt() > this.reconnectPolicy.getMaxConsecutiveReconnects()) {
+                return;
+            }
+
+            this.setConnectionState(ConnectionState.WAITING);
+            int delay = this.reconnectPolicy.getReconnectDelaySeconds();
+            try {
+                if (Thread.currentThread().isInterrupted()) {
+                    return;
+                }
+
+                Thread.sleep(delay * 1000);
+            } catch (InterruptedException e) {
+                if (this.reconnectPolicy.getIsDisabled()) {
+                    return;
+                }
+            }
+        }
     }
 }

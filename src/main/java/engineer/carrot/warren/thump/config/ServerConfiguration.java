@@ -43,6 +43,21 @@ public class ServerConfiguration {
     public Set<String> forciblyAcceptedCertificates = new HashSet<String>();
     private static final String FORCIBLY_ACCEPTED_CERTIFICATES_KEY = "ForciblyAcceptedCertificates";
 
+    // Reconnect
+
+    public boolean shouldReconnectAutomatically = true;
+    private static final String SHOULD_RECONNECT_AUTOMATICALLY_KEY = "ShouldReconnectAutomatically";
+
+    public int automaticReconnectDelaySeconds = 60;
+    private static final String AUTOMATIC_RECONNECT_DELAY_SECONDS_KEY = "AutomaticReconnectDelaySeconds";
+    private static final int AUTOMATIC_RECONNECT_DELAY_SECONDS_MIN = 0;
+    private static final int AUTOMATIC_RECONNECT_DELAY_SECONDS_MAX = 3600;
+
+    public int maxConsecutiveReconnectAttempts = 3;
+    private static final String MAX_CONSECUTIVE_RECONNECT_ATTEMPTS_KEY = "MaxConsecutiveReconnectAttempts";
+    private static final int MAX_CONSECUTIVE_RECONNECT_ATTEMPTS_MIN = 1;
+    private static final int MAX_CONSECUTIVE_RECONNECT_ATTEMPTS_MAX = 5;
+
     public ServerConfiguration(String category, Configuration configuration) {
         this.ID = category;
 
@@ -64,5 +79,11 @@ public class ServerConfiguration {
         this.forceAcceptCertificates = configuration.getBoolean(FORCE_ACCEPT_CERTIFICATES_KEY, tlsCategory, this.forceAcceptCertificates, "");
         String[] forciblyAcceptedCertificates = configuration.getStringList(FORCIBLY_ACCEPTED_CERTIFICATES_KEY, tlsCategory, new String[]{""}, "");
         this.forciblyAcceptedCertificates = Sets.newHashSet(forciblyAcceptedCertificates);
+
+        String reconnectCategory = category + ".reconnect";
+        configuration.setCategoryPropertyOrder(reconnectCategory, Lists.newArrayList(SHOULD_RECONNECT_AUTOMATICALLY_KEY, AUTOMATIC_RECONNECT_DELAY_SECONDS_KEY, MAX_CONSECUTIVE_RECONNECT_ATTEMPTS_KEY));
+        this.shouldReconnectAutomatically = configuration.getBoolean(SHOULD_RECONNECT_AUTOMATICALLY_KEY, reconnectCategory, this.shouldReconnectAutomatically, "");
+        this.automaticReconnectDelaySeconds = configuration.getInt(AUTOMATIC_RECONNECT_DELAY_SECONDS_KEY, reconnectCategory, this.automaticReconnectDelaySeconds, AUTOMATIC_RECONNECT_DELAY_SECONDS_MIN, AUTOMATIC_RECONNECT_DELAY_SECONDS_MAX, "");
+        this.maxConsecutiveReconnectAttempts = configuration.getInt(MAX_CONSECUTIVE_RECONNECT_ATTEMPTS_KEY, reconnectCategory, this.maxConsecutiveReconnectAttempts, MAX_CONSECUTIVE_RECONNECT_ATTEMPTS_MIN, MAX_CONSECUTIVE_RECONNECT_ATTEMPTS_MAX, "");
     }
 }

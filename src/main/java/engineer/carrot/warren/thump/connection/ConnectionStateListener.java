@@ -18,6 +18,7 @@ public class ConnectionStateListener {
             return;
         }
 
+        this.wrapper.resetReconnectCounter();
         this.wrapper.setConnectionState(ConnectionState.CONNECTED);
         LogHelper.info("Connected '{}' successfully!", wrapper.getId());
     }
