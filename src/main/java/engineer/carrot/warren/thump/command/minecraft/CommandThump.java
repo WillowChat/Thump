@@ -21,6 +21,7 @@ public class CommandThump extends CommandBase {
 
     private static final String COMMAND_NAME = "thump";
     private static final String COMMAND_USAGE = "";
+    private static final int COMMAND_DEFAULT_PERMISSION_LEVEL = 2;
 
     public CommandThump(ConnectionManager manager) {
         this.manager = manager;
@@ -72,5 +73,10 @@ public class CommandThump extends CommandBase {
         }
 
         return this.handlers.get(handlerId).addTabCompletionOptions(sender, Arrays.copyOfRange(parameters, 1, parameters.length));
+    }
+
+    @Override
+    public int getRequiredPermissionLevel() {
+        return COMMAND_DEFAULT_PERMISSION_LEVEL;
     }
 }
