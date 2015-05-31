@@ -33,8 +33,14 @@ public class ChatEventHandler {
     @SubscribeEvent
     public void onCommandEvent(CommandEvent event) {
         String commandName = event.command.getCommandName();
+        boolean isServer = event.sender.getCommandSenderName().equals("Server");
+
         if (commandName.equalsIgnoreCase("me")) {
-            if (!Thump.configuration.getEvents().minecraft.serverAction) {
+            if (isServer && !Thump.configuration.getEvents().minecraft.serverAction) {
+                return;
+            }
+
+            if (!isServer && !Thump.configuration.getEvents().minecraft.playerAction) {
                 return;
             }
 
@@ -45,7 +51,11 @@ public class ChatEventHandler {
         }
 
         if (commandName.equalsIgnoreCase("say")) {
-            if (!Thump.configuration.getEvents().minecraft.serverMessage) {
+            if (isServer && !Thump.configuration.getEvents().minecraft.serverMessage) {
+                return;
+            }
+
+            if (!isServer && !Thump.configuration.getEvents().minecraft.playerMessage) {
                 return;
             }
 

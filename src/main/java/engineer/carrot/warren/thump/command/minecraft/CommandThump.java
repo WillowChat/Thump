@@ -3,10 +3,7 @@ package engineer.carrot.warren.thump.command.minecraft;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import engineer.carrot.warren.thump.command.minecraft.handler.ConnectCommandHandler;
-import engineer.carrot.warren.thump.command.minecraft.handler.DisconnectCommandHandler;
-import engineer.carrot.warren.thump.command.minecraft.handler.ICommandHandler;
-import engineer.carrot.warren.thump.command.minecraft.handler.StatusCommandHandler;
+import engineer.carrot.warren.thump.command.minecraft.handler.*;
 import engineer.carrot.warren.thump.connection.ConnectionManager;
 import engineer.carrot.warren.thump.util.helper.PredicateHelper;
 import joptsimple.internal.Strings;
@@ -32,6 +29,7 @@ public class CommandThump extends CommandBase {
         this.handlers.put("status", new StatusCommandHandler(manager));
         this.handlers.put("connect", new ConnectCommandHandler(manager));
         this.handlers.put("disconnect", new DisconnectCommandHandler(manager));
+        this.handlers.put("reload", new ReloadCommandHandler(manager));
     }
 
     // CommandBase

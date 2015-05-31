@@ -29,6 +29,24 @@ public class ConnectionManager {
         return true;
     }
 
+    public boolean removeConnection(String id) {
+        if (!this.connectionMap.containsKey(id)) {
+            LogHelper.warn("Tried to remove connection '{}', which does not exist", id);
+
+            return false;
+        }
+
+        if (this.getConnectionState(id) != ConnectionState.DISCONNECTED) {
+            LogHelper.warn("Tried to remove connection '{}' but it is not DISCONNECTED yet", id);
+
+            return false;
+        }
+
+        this.connectionMap.remove(id);
+        LogHelper.info("Removed connection '{}' successfully", id);
+        return true;
+    }
+
     @Nullable
     public ConnectionState getConnectionState(String id) {
         if (!this.connectionMap.containsKey(id)) {
@@ -69,6 +87,17 @@ public class ConnectionManager {
         for (String id : this.getAllConnections()) {
             this.stopConnection(id);
         }
+    }
+
+    public boolean removeAllConnections() {
+        LogHelper.info("Removing all connections...");
+
+        boolean successful = true;
+        for (String id : this.getAllConnections()) {
+            successful = successful && this.removeConnection(id);
+        }
+
+        return successful;
     }
 
     public boolean stopConnection(String id) {

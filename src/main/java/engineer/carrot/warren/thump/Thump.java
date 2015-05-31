@@ -38,6 +38,14 @@ public class Thump {
         configuration.loadAllConfigurations();
         configuration.saveAllConfigurations();
 
+        this.populateConnectionManager();
+
+        ChatEventHandler handler = new ChatEventHandler(this.connectionManager);
+        MinecraftForge.EVENT_BUS.register(handler);
+        FMLCommonHandler.instance().bus().register(handler);
+    }
+
+    public void populateConnectionManager() {
         MessageListener messageListener = new MessageListener(this.connectionManager);
 
         Map<String, ServerConfiguration> servers = configuration.getServers().servers;
@@ -51,10 +59,6 @@ public class Thump {
 
             this.connectionManager.addNewConnection(configuration, Lists.<Object>newArrayList(messageListener));
         }
-
-        ChatEventHandler handler = new ChatEventHandler(this.connectionManager);
-        MinecraftForge.EVENT_BUS.register(handler);
-        FMLCommonHandler.instance().bus().register(handler);
     }
 
     @Mod.EventHandler
@@ -71,6 +75,10 @@ public class Thump {
     public void onServerStarting(FMLServerStartingEvent event) {
         event.registerServerCommand(new CommandThump(this.connectionManager));
 
+        this.startAllConnections();
+    }
+
+    public void startAllConnections() {
         Set<String> connections = this.connectionManager.getAllConnections();
         for (String connection : connections) {
             LogHelper.info("Starting connection '{}'", connection);
