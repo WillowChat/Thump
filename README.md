@@ -5,15 +5,7 @@ Thump is a Minecraft IRC bridge that uses the [Warren](https://github.com/voxelc
 
 It will provide an API for plugins so others can integrate their own functionality relatively easily.
 
-Current features:
-* Basic Minecraft -> IRC integration
- * Chat, server chat, /me, join, leave, death, achievement
- * Multiple rooms, multiple networks
-* Basic IRC -> Minecraft integration
- * Chat
-* Basic connection management
- * Connect, disconnect, status
- * Tab completion support for all sections of all commands, including networks
+See the [Curse Forge](http://minecraft.curseforge.com/mc-mods/231124-thump) page for current features.
 
 Check the [Issues](https://github.com/voxelcarrot/Thump/issues) for an idea of what needs doing before the next milestone is released (currently MVP).
 
