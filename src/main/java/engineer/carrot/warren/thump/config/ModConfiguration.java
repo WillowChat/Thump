@@ -16,6 +16,7 @@ public class ModConfiguration {
     private EventsConfiguration events;
     private GeneralConfiguration general;
     private ServersConfiguration servers;
+    private CommandsConfiguration commands;
 
     public ModConfiguration() {
 
@@ -41,6 +42,7 @@ public class ModConfiguration {
 
         this.general = new GeneralConfiguration(this.generalConfiguration);
         this.events = new EventsConfiguration(this.generalConfiguration);
+        this.commands = new CommandsConfiguration(this.generalConfiguration);
     }
 
     public void loadServersConfiguration() {
@@ -64,6 +66,10 @@ public class ModConfiguration {
 
     public EventsConfiguration getEvents() {
         return this.events;
+    }
+
+    public CommandsConfiguration getCommands() {
+        return this.commands;
     }
 
     // Servers configuration

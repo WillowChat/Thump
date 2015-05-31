@@ -5,7 +5,7 @@ import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.*;
-import engineer.carrot.warren.thump.command.CommandThump;
+import engineer.carrot.warren.thump.command.minecraft.CommandThump;
 import engineer.carrot.warren.thump.config.ModConfiguration;
 import engineer.carrot.warren.thump.config.ServerConfiguration;
 import engineer.carrot.warren.thump.connection.ConnectionManager;

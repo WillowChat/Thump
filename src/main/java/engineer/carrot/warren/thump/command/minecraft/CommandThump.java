@@ -1,12 +1,12 @@
-package engineer.carrot.warren.thump.command;
+package engineer.carrot.warren.thump.command.minecraft;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import engineer.carrot.warren.thump.command.handler.ConnectCommandHandler;
-import engineer.carrot.warren.thump.command.handler.DisconnectCommandHandler;
-import engineer.carrot.warren.thump.command.handler.ICommandHandler;
-import engineer.carrot.warren.thump.command.handler.StatusCommandHandler;
+import engineer.carrot.warren.thump.command.minecraft.handler.ConnectCommandHandler;
+import engineer.carrot.warren.thump.command.minecraft.handler.DisconnectCommandHandler;
+import engineer.carrot.warren.thump.command.minecraft.handler.ICommandHandler;
+import engineer.carrot.warren.thump.command.minecraft.handler.StatusCommandHandler;
 import engineer.carrot.warren.thump.connection.ConnectionManager;
 import engineer.carrot.warren.thump.util.helper.PredicateHelper;
 import joptsimple.internal.Strings;

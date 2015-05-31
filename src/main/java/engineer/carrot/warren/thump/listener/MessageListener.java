@@ -2,6 +2,7 @@ package engineer.carrot.warren.thump.listener;
 
 import com.google.common.eventbus.Subscribe;
 import engineer.carrot.warren.thump.Thump;
+import engineer.carrot.warren.thump.command.irc.CommandPlayers;
 import engineer.carrot.warren.thump.connection.ConnectionManager;
 import engineer.carrot.warren.thump.util.helper.LogHelper;
 import engineer.carrot.warren.thump.util.helper.PlayerHelper;
@@ -29,6 +30,13 @@ public class MessageListener {
 
         if (Thump.configuration.getGeneral().logIrcToServerConsole) {
             LogHelper.info(output);
+        }
+
+        // TODO: Merge in to command system when available
+        if (event.contents.equals("!players")) {
+            if (Thump.configuration.getCommands().players) {
+                CommandPlayers.handlePlayersCommand(manager);
+            }
         }
 
         if (!Thump.configuration.getEvents().irc.channelMessage) {

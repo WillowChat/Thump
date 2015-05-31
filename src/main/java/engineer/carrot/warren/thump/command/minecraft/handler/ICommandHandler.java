@@ -1,4 +1,4 @@
-package engineer.carrot.warren.thump.command.handler;
+package engineer.carrot.warren.thump.command.minecraft.handler;
 
 import net.minecraft.command.ICommandSender;
 
