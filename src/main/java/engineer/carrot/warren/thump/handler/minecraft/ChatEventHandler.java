@@ -1,9 +1,11 @@
 package engineer.carrot.warren.thump.handler.minecraft;
 
+import com.google.common.collect.Maps;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent;
 import engineer.carrot.warren.thump.Thump;
 import engineer.carrot.warren.thump.connection.ConnectionManager;
+import engineer.carrot.warren.thump.util.helper.TokenHelper;
 import joptsimple.internal.Strings;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -13,6 +15,8 @@ import net.minecraftforge.event.CommandEvent;
 import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.AchievementEvent;
+
+import java.util.Map;
 
 public class ChatEventHandler {
     private ConnectionManager connectionManager;
@@ -27,7 +31,11 @@ public class ChatEventHandler {
             return;
         }
 
-        this.connectionManager.sendMessageToAllChannels("<" + event.username + "> " + event.message);
+        String message = new TokenHelper()
+                .addUserToken(event.username)
+                .addMessageToken(event.message)
+                .applyTokens(Thump.configuration.getFormats().minecraft.playerMessage);
+        this.connectionManager.sendMessageToAllChannels(message);
     }
 
     @SubscribeEvent
@@ -44,7 +52,10 @@ public class ChatEventHandler {
                 return;
             }
 
-            String message = " * " + event.sender.getCommandSenderName() + " " + Strings.join(event.parameters, " ");
+            String message = new TokenHelper()
+                    .addUserToken(event.sender.getCommandSenderName())
+                    .addMessageToken(Strings.join(event.parameters, " "))
+                    .applyTokens(Thump.configuration.getFormats().minecraft.playerAction);
             this.connectionManager.sendMessageToAllChannels(message);
 
             return;
@@ -59,7 +70,10 @@ public class ChatEventHandler {
                 return;
             }
 
-            String message = "<" + event.sender.getCommandSenderName() + "> " + Strings.join(event.parameters, " ");
+            String message = new TokenHelper()
+                    .addUserToken(event.sender.getCommandSenderName())
+                    .addMessageToken(Strings.join(event.parameters, " "))
+                    .applyTokens(Thump.configuration.getFormats().minecraft.playerMessage);
             this.connectionManager.sendMessageToAllChannels(message);
         }
     }
@@ -70,7 +84,9 @@ public class ChatEventHandler {
             return;
         }
 
-        String message = " * " + event.player.getDisplayName() + " has joined the game";
+        String message = new TokenHelper()
+                .addUserToken(event.player.getDisplayName())
+                .applyTokens(Thump.configuration.getFormats().minecraft.playerJoined);
         this.connectionManager.sendMessageToAllChannels(message);
     }
 
@@ -80,7 +96,9 @@ public class ChatEventHandler {
             return;
         }
 
-        String message = " * " + event.player.getDisplayName() + " has left the game";
+        String message = new TokenHelper()
+                .addUserToken(event.player.getDisplayName())
+                .applyTokens(Thump.configuration.getFormats().minecraft.playerLeft);
         this.connectionManager.sendMessageToAllChannels(message);
     }
 
@@ -100,7 +118,10 @@ public class ChatEventHandler {
             return;
         }
 
-        this.connectionManager.sendMessageToAllChannels(deathMessage.getUnformattedText());
+        String message = new TokenHelper()
+                .addMessageToken(deathMessage.getUnformattedText())
+                .applyTokens(Thump.configuration.getFormats().minecraft.playerDeath);
+        this.connectionManager.sendMessageToAllChannels(message);
     }
 
     @SubscribeEvent
@@ -119,6 +140,10 @@ public class ChatEventHandler {
         }
 
         IChatComponent achievementMessage = new ChatComponentTranslation("chat.type.achievement", new Object[]{event.entityPlayer.getDisplayName(), event.achievement.func_150955_j()});
-        this.connectionManager.sendMessageToAllChannels(achievementMessage.getUnformattedText());
+
+        String message = new TokenHelper()
+                .addMessageToken(achievementMessage.getUnformattedText())
+                .applyTokens(Thump.configuration.getFormats().minecraft.playerAchievement);
+        this.connectionManager.sendMessageToAllChannels(message);
     }
 }

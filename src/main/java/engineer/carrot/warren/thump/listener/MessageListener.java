@@ -6,6 +6,7 @@ import engineer.carrot.warren.thump.command.irc.CommandPlayers;
 import engineer.carrot.warren.thump.connection.ConnectionManager;
 import engineer.carrot.warren.thump.util.helper.LogHelper;
 import engineer.carrot.warren.thump.util.helper.PlayerHelper;
+import engineer.carrot.warren.thump.util.helper.TokenHelper;
 import engineer.carrot.warren.warren.event.ChannelActionEvent;
 import engineer.carrot.warren.warren.event.ChannelMessageEvent;
 import engineer.carrot.warren.warren.event.PrivateActionEvent;
@@ -26,7 +27,11 @@ public class MessageListener {
             return;
         }
 
-        String output = event.channel.toString() + ": <" + user + "> " + event.contents;
+        String output = new TokenHelper()
+                .addUserToken(user)
+                .addChannelToken(event.channel.toString())
+                .addMessageToken(event.contents)
+                .applyTokens(Thump.configuration.getFormats().irc.channelMessage);
 
         if (Thump.configuration.getGeneral().logIrcToServerConsole) {
             LogHelper.info(output);
@@ -54,7 +59,11 @@ public class MessageListener {
             return;
         }
 
-        String output = event.channel.toString() + ": * " + user + " " + event.contents;
+        String output = new TokenHelper()
+                .addUserToken(user)
+                .addChannelToken(event.channel.toString())
+                .addMessageToken(event.contents)
+                .applyTokens(Thump.configuration.getFormats().irc.channelAction);
 
         if (Thump.configuration.getGeneral().logIrcToServerConsole) {
             LogHelper.info(output);
