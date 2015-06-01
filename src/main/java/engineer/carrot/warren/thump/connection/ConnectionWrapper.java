@@ -145,28 +145,30 @@ public class ConnectionWrapper implements Runnable {
             this.setConnectionState(ConnectionState.DISCONNECTED);
 
             if (!this.reconnectPolicy.shouldReconnect() || this.reconnectPolicy.getIsDisabled()) {
-                return;
+                break;
             }
 
             this.reconnectPolicy.incrementConnectionAttempt();
 
             if (this.reconnectPolicy.getCurrentConnectionAttempt() > this.reconnectPolicy.getMaxConsecutiveReconnects()) {
-                return;
+                break;
             }
 
             this.setConnectionState(ConnectionState.WAITING);
             int delay = this.reconnectPolicy.getReconnectDelaySeconds();
             try {
                 if (Thread.currentThread().isInterrupted()) {
-                    return;
+                    break;
                 }
 
                 Thread.sleep(delay * 1000);
             } catch (InterruptedException e) {
                 if (this.reconnectPolicy.getIsDisabled()) {
-                    return;
+                    break;
                 }
             }
         }
+
+        this.setConnectionState(ConnectionState.DISCONNECTED);
     }
 }
