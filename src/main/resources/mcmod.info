@@ -4,7 +4,7 @@
     "description": "A Minecraft IRC bridge using the Warren library.",
     "version": "${version}",
     "mcversion": "${mcversion}",
-    "url": "https://github.com/voxelcarrot/Thump",
+    "url": "http://minecraft.curseforge.com/mc-mods/231124-thump",
     "updateUrl": "",
     "authorList": ["voxelcarrot"],
     "credits": "voxelcarrot",
