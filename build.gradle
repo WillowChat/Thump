@@ -71,7 +71,7 @@ configurations {
 }
 
 dependencies {
-    shade('engineer.carrot.warren:warren:0.0.1.43:all') { transitive = false }
+    shade('engineer.carrot.warren:warren:0.0.1.44:all') { transitive = false }
     compile group: 'org.slf4j', name:'slf4j-api', version: '1.7.12'
 }
 

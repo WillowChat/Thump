@@ -5,7 +5,7 @@ import engineer.carrot.warren.thump.config.ServerConfiguration;
 import engineer.carrot.warren.thump.listener.ServerEventListener;
 import engineer.carrot.warren.thump.util.helper.LogHelper;
 import engineer.carrot.warren.warren.ChannelManager;
-import engineer.carrot.warren.warren.IRCServerConnection;
+import engineer.carrot.warren.warren.IRCConnection;
 import engineer.carrot.warren.warren.irc.Channel;
 import joptsimple.internal.Strings;
 
@@ -17,7 +17,7 @@ public class ConnectionWrapper implements Runnable {
 
     private String id;
     private ConnectionState connectionState;
-    private IRCServerConnection connection;
+    private IRCConnection connection;
     private ReconnectPolicy reconnectPolicy;
 
     private final Object connectionLock;
@@ -26,9 +26,7 @@ public class ConnectionWrapper implements Runnable {
         this.id = id;
         this.connectionLock = new Object();
 
-        this.initialiseFromConfiguration(configuration);
-        this.registerInternalListeners();
-        this.registerExternalListeners(listeners);
+        this.initialiseFromConfiguration(configuration, listeners);
 
         this.connectionState = ConnectionState.DISCONNECTED;
     }
@@ -37,35 +35,40 @@ public class ConnectionWrapper implements Runnable {
         return this.id;
     }
 
-    private void initialiseFromConfiguration(ServerConfiguration configuration) {
-        this.connection = new IRCServerConnection(configuration.server, configuration.port, configuration.nickname, LOGIN);
-        this.connection.setSocketShouldUsePlaintext(!configuration.useTLS);
+    private void initialiseFromConfiguration(ServerConfiguration configuration, List<Object> listeners) {
+        IRCConnection.Builder builder = new IRCConnection.Builder()
+                .server(configuration.server)
+                .port(configuration.port)
+                .nickname(configuration.nickname)
+                .login(LOGIN)
+                .plaintext(!configuration.useTLS);
+
+        builder.channels(Lists.newArrayList(configuration.channels));
 
         if (configuration.identifyWithNickServ) {
-            connection.setNickservPassword(configuration.nickServPassword);
-        }
-
-        if (!configuration.channels.isEmpty()) {
-            connection.setAutoJoinChannels(Lists.newArrayList(configuration.channels));
+            builder.nickservPassword(configuration.nickServPassword);
         }
 
         if (configuration.forceAcceptCertificates) {
-            if (!configuration.forciblyAcceptedCertificates.isEmpty()) {
-                connection.setForciblyAcceptedCertificates(configuration.forciblyAcceptedCertificates);
-            }
+            builder.fingerprints(configuration.forciblyAcceptedCertificates);
         }
+
+        this.registerInternalListeners(builder);
+        this.registerExternalListeners(builder, listeners);
+
+        this.connection = builder.build();
 
         this.reconnectPolicy = new ReconnectPolicy(configuration);
     }
 
-    private void registerInternalListeners() {
-        this.connection.registerListener(new ConnectionStateListener(this));
-        this.connection.registerListener(new ServerEventListener(id));
+    private void registerInternalListeners(IRCConnection.Builder builder) {
+        builder.listener(new ConnectionStateListener(this));
+        builder.listener(new ServerEventListener(id));
     }
 
-    private void registerExternalListeners(List<Object> listeners) {
+    private void registerExternalListeners(IRCConnection.Builder builder, List<Object> listeners) {
         for (Object listener : listeners) {
-            this.connection.registerListener(listener);
+            builder.listener(listener);
         }
     }
 
