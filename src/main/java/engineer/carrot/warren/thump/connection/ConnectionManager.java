@@ -122,14 +122,20 @@ public class ConnectionManager {
         wrapper.disableNextReconnect();
 
         Thread thread = this.connectionThreads.get(id);
-        thread.interrupt();
+        if (thread.isAlive()) {
+            thread.interrupt();
 
-        try {
-            LogHelper.info("Waiting for connection thread '{}' to finish...", id);
-            thread.join();
-        } catch (InterruptedException e) {
+            try {
+                LogHelper.info("Waiting for connection thread '{}' to finish...", id);
+                thread.join();
+            } catch (InterruptedException e) {
 
+            }
+        } else {
+            LogHelper.info("Thread '{}' did not appear to be alive, not waiting for it to finish cleanly");
         }
+
+        wrapper.setConnectionState(ConnectionState.DISCONNECTED);
 
         this.connectionThreads.remove(id);
         LogHelper.info("Stopped connection '{}'", id);
