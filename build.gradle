@@ -71,13 +71,15 @@ configurations {
 }
 
 dependencies {
-    shade('engineer.carrot.warren:warren:0.0.1.67:all') { transitive = false }
+    shade('engineer.carrot.warren:warren:0.0.1.68:all') { transitive = false }
     compile group: 'org.slf4j', name:'slf4j-api', version: '1.7.12'
 }
 
 group = "engineer.carrot.warren.thump"
 version = config.mod_version
 archivesBaseName = "Thump"
+
+targetCompatibility = 1.7
 
 task buildInfo {
     if (env.BUILD_NUMBER != null) {
