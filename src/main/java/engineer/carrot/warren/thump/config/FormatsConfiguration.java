@@ -48,10 +48,10 @@ public class FormatsConfiguration {
         public String playerAction = "* {u} {m}";
         private static final String PLAYER_ACTION_KEY = "PlayerAction";
 
-        public String playerAchievement = "{m}";
+        public String playerAchievement = "{m} \uD83C\uDF1F";
         private static final String PLAYER_ACHIEVEMENT_KEY = "PlayerAchievement";
 
-        public String playerDeath = "{m}";
+        public String playerDeath = "{m} \uD83D\uDC7B";
         private static final String PLAYER_DEATH_KEY = "PlayerDeath";
 
         public String playerJoined = "{u} has joined the game";
