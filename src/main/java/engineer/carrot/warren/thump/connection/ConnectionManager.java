@@ -56,7 +56,7 @@ public class ConnectionManager {
         return this.connectionMap.get(id).getConnectionState();
     }
 
-    public boolean startConnection(String id) {
+    public boolean startConnection(final String id) {
         if (!this.connectionMap.containsKey(id)) {
             LogHelper.error("Tried to start connection '{}' which does not exist yet", id);
             return false;
@@ -82,6 +82,14 @@ public class ConnectionManager {
 
         Thread connectionThread = new Thread(wrapper);
         this.connectionThreads.put(id, connectionThread);
+        connectionThread.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+            @Override
+            public void uncaughtException(Thread t, Throwable e) {
+                LogHelper.info("Uncaught exception from Warren thread - disconnecting...");
+
+                stopConnection(id);
+            }
+        });
         connectionThread.start();
 
         LogHelper.info("Created and started new thread for connection '{}'", id);
