@@ -1,6 +1,6 @@
 package engineer.carrot.warren.thump.slf4j;
 
-import engineer.carrot.warren.thump.util.helper.LogHelper;
+import engineer.carrot.warren.thump.helper.LogHelper;
 
 public class LoggerImpl implements Logger {
     @Override
