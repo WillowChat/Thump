@@ -15,12 +15,12 @@ object StringHelper {
 
 
     fun obfuscateString(name: String): String {
-        var name = name
-        if (name.length >= 2) {
-            name = name[0] + "\u200b" + name.substring(1)
+        var nameCopy = name
+        if (nameCopy.length >= 2) {
+            nameCopy = nameCopy[0] + "\u200b" + nameCopy.substring(1)
         }
 
-        return name
+        return nameCopy
     }
 
     fun obfuscateNameIfNecessary(name: String): String {

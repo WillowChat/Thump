@@ -11,12 +11,12 @@ class TokenHelper {
     }
 
     fun applyTokens(string: String): String {
-        var string = string
+        var stringCopy = string
         for (token in this.tokens.keys) {
-            string = string.replace(token, this.tokens[token] ?: "")
+            stringCopy = stringCopy.replace(token, this.tokens[token] ?: "")
         }
 
-        return string
+        return stringCopy
     }
 
     fun addUserToken(user: String): TokenHelper {

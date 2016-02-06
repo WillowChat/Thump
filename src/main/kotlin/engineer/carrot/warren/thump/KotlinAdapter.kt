@@ -16,10 +16,11 @@ import kotlin.collections.any
  *
  * @author Arkan <arkan@drakon.io>
  */
-public class KotlinAdapter : ILanguageAdapter {
+@Suppress("UNUSED")
+class KotlinAdapter : ILanguageAdapter {
 
     companion object metadata {
-        public final val ADAPTER_VERSION: String = "@VERSION@-@KOTLIN@"
+        final val ADAPTER_VERSION: String = "@VERSION@-@KOTLIN@"
     }
 
     private val log = LogManager.getLogger("ILanguageAdapter/Kotlin")
@@ -30,11 +31,11 @@ public class KotlinAdapter : ILanguageAdapter {
 
     override fun setProxy(target: Field, proxyTarget: Class<*>, proxy: Any) {
         log.debug("Setting proxy: {}.{} -> {}", target.declaringClass.simpleName, target.name, proxy)
-        if (proxyTarget.fields.any { x -> x.name.equals("INSTANCE$") }) {
+        if (proxyTarget.fields.any { x -> x.name.equals("INSTANCE") }) {
             // Singleton
             try {
-                log.debug("Setting proxy on INSTANCE$; singleton target.")
-                val obj = proxyTarget.getField("INSTANCE$").get(null)
+                log.debug("Setting proxy on INSTANCE; singleton target.")
+                val obj = proxyTarget.getField("INSTANCE").get(null)
                 target.set(obj, proxy)
             } catch (ex: Exception) {
                 throw KotlinAdapterException(ex)
@@ -49,9 +50,9 @@ public class KotlinAdapter : ILanguageAdapter {
         log.debug("FML has asked for {} to be constructed...", objectClass.simpleName)
         try {
             // Try looking for an object type
-            val f = objectClass.getField("INSTANCE$")
+            val f = objectClass.getField("INSTANCE")
             val obj = f.get(null) ?: throw NullPointerException()
-            log.debug("Found an object INSTANCE$ reference in {}, using that. ({})", objectClass.simpleName, obj)
+            log.debug("Found an object INSTANCE reference in {}, using that. ({})", objectClass.simpleName, obj)
             return obj
         } catch (ex: Exception) {
             // Try looking for a class type

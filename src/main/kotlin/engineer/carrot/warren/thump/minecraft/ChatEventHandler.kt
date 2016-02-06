@@ -18,6 +18,7 @@ import net.minecraftforge.event.entity.player.AchievementEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import net.minecraftforge.fml.common.gameevent.PlayerEvent
 
+@Suppress("UNUSED")
 class ChatEventHandler(private val connectionManager: ConnectionManager) {
 
     @SubscribeEvent
@@ -90,19 +91,11 @@ class ChatEventHandler(private val connectionManager: ConnectionManager) {
             return
         }
 
-        if (event.entityLiving !is EntityPlayer) {
-            return
-        }
-
-        val player = event.entityLiving as EntityPlayer
+        val player = event.entityLiving as? EntityPlayer ?: return
 
         var deathMessage: IChatComponent? = player.combatTracker.deathMessage
         if (deathMessage == null) {
             deathMessage = generateNewDeathMessageFromLastDeath(player, event.source)
-        }
-
-        if (deathMessage == null) {
-            return
         }
 
         var unformattedText = deathMessage.unformattedText
@@ -127,11 +120,9 @@ class ChatEventHandler(private val connectionManager: ConnectionManager) {
             return
         }
 
-        if (event.entityPlayer !is EntityPlayerMP) {
-            return
-        }
+        val entityPlayer = event.entityPlayer as? EntityPlayerMP ?: return
 
-        val hasAchievementUnlocked = (event.entityPlayer as EntityPlayerMP).statFile.hasAchievementUnlocked(event.achievement)
+        val hasAchievementUnlocked = entityPlayer.statFile.hasAchievementUnlocked(event.achievement)
         if (hasAchievementUnlocked) {
             return
         }

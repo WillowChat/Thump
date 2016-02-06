@@ -13,6 +13,7 @@ import engineer.carrot.warren.warren.event.ChannelMessageEvent
 import engineer.carrot.warren.warren.event.PrivateActionEvent
 import engineer.carrot.warren.warren.event.PrivateMessageEvent
 
+@Suppress("UNUSED", "UNUSED_PARAMETER")
 class MessageListener(private val manager: ConnectionManager) {
 
     @Subscribe

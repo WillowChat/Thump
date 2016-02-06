@@ -15,16 +15,16 @@ import net.minecraftforge.fml.common.SidedProxy
 import net.minecraftforge.fml.common.event.*
 import java.io.File
 
+@Suppress("UNUSED", "UNUSED_PARAMETER")
 @Mod(modid = Reference.MOD_ID, name = Reference.MOD_ID, version = Reference.MOD_VERSION, modLanguage = "kotlin", modLanguageAdapter = "engineer.carrot.warren.thump.KotlinAdapter", acceptableRemoteVersions = "*")
-public object Thump {
+object Thump {
     @Mod.Instance(Reference.MOD_ID)
     lateinit var instance: Thump
 
     @SidedProxy(clientSide = "engineer.carrot.warren.thump.proxy.ClientProxy", serverSide = "engineer.carrot.warren.thump.proxy.CommonProxy")
     lateinit var proxy: CommonProxy
 
-    private val connectionManager = ConnectionManager()
-
+    val connectionManager = ConnectionManager()
     val configuration = ModConfiguration()
 
     @Mod.EventHandler
@@ -37,7 +37,7 @@ public object Thump {
 
         val handler = ChatEventHandler(this.connectionManager)
         MinecraftForge.EVENT_BUS.register(handler)
-        FMLCommonHandler.instance().bus().register(handler)
+        MinecraftForge.EVENT_BUS.register(handler)
     }
 
     fun populateConnectionManager() {
@@ -54,16 +54,6 @@ public object Thump {
 
             this.connectionManager.addNewConnection(configuration, Lists.newArrayList<Any>(messageListener))
         }
-    }
-
-    @Mod.EventHandler
-    fun init(event: FMLInitializationEvent) {
-
-    }
-
-    @Mod.EventHandler
-    fun postInit(event: FMLPostInitializationEvent) {
-
     }
 
     @Mod.EventHandler

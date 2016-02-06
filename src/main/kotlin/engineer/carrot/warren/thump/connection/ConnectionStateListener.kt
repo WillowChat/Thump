@@ -4,6 +4,7 @@ import com.google.common.eventbus.Subscribe
 import engineer.carrot.warren.thump.helper.LogHelper
 import engineer.carrot.warren.warren.event.MotdEvent
 
+@Suppress("UNUSED", "UNUSED_PARAMETER")
 class ConnectionStateListener(private val wrapper: ConnectionWrapper) {
 
     @Subscribe
