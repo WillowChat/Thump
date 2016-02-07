@@ -37,7 +37,6 @@ object Thump {
 
         val handler = ChatEventHandler(this.connectionManager)
         MinecraftForge.EVENT_BUS.register(handler)
-        MinecraftForge.EVENT_BUS.register(handler)
     }
 
     fun populateConnectionManager() {
