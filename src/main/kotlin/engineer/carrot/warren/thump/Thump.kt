@@ -9,14 +9,13 @@ import engineer.carrot.warren.thump.listener.MessageListener
 import engineer.carrot.warren.thump.minecraft.ChatEventHandler
 import engineer.carrot.warren.thump.proxy.CommonProxy
 import net.minecraftforge.common.MinecraftForge
-import net.minecraftforge.fml.common.FMLCommonHandler
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.common.SidedProxy
 import net.minecraftforge.fml.common.event.*
 import java.io.File
 
 @Suppress("UNUSED", "UNUSED_PARAMETER")
-@Mod(modid = Reference.MOD_ID, name = Reference.MOD_ID, version = Reference.MOD_VERSION, modLanguage = "kotlin", modLanguageAdapter = "engineer.carrot.warren.thump.KotlinAdapter", acceptableRemoteVersions = "*")
+@Mod(modid = Reference.MOD_ID, name = Reference.MOD_ID, version = Reference.MOD_VERSION, modLanguage = "kotlin", modLanguageAdapter = "engineer.carrot.warren.thump.CarrotKotlinAdapter", acceptableRemoteVersions = "*")
 object Thump {
     @Mod.Instance(Reference.MOD_ID)
     lateinit var instance: Thump

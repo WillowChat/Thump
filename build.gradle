@@ -56,7 +56,6 @@ configurations {
 
 dependencies {
     shade "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    shade "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
 
     shade('engineer.carrot.warren:warren:0.0.1.71:all') { transitive = false }
     compile group: 'org.slf4j', name:'slf4j-api', version: '1.7.12'
@@ -67,7 +66,7 @@ minecraft {
     runDir = "run"
 
     replace '@VERSION@', project.version
-    replace '@KOTLIN@', kotlin_version
+    replace '@KOTLIN_VERSION@', kotlin_version
 
     mappings = "snapshot_20160118"
 }
