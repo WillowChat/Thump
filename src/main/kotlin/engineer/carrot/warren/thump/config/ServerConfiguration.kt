@@ -65,7 +65,7 @@ class ServerConfiguration(category: String, configuration: Configuration) {
                 channels.put(configurationString, null)
             } else {
                 if (equalsLocation + 1 >= configurationString.length) {
-                    LogHelper.warn("Channel entry '{}' had an equals in it, but no password set. Check your configuration!")
+                    LogHelper.warn("Channel entry '{}' had an equals in it, but no password set. Check your configuration!", configurationString)
                     continue@stringsLoop
                 }
 
