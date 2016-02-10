@@ -1,6 +1,7 @@
 package engineer.carrot.warren.thump.config
 
 import com.google.common.collect.Lists
+import com.google.common.collect.Maps
 import com.google.common.collect.Sets
 import engineer.carrot.warren.thump.helper.LogHelper
 import net.minecraftforge.common.config.Configuration
@@ -34,8 +35,12 @@ class ServerConfiguration(category: String, configuration: Configuration) {
         this.server = configuration.getString(SERVER_KEY, category, this.server, "")
         this.port = configuration.getInt(PORT_KEY, category, this.port, PORT_MIN, PORT_MAX, "")
         this.nickname = configuration.getString(NICKNAME_KEY, category, this.nickname, "")
-        val channels = configuration.getStringList(CHANNELS_KEY, category, arrayOf(""), "")
-        this.channels = parseChannels(Sets.newHashSet(*channels))
+        val channels = configuration.getStringList(CHANNELS_KEY, category, arrayOf(), "")
+        if (channels.size == 1 && channels[0].isEmpty()) {
+            this.channels = Maps.newHashMap()
+        } else {
+            this.channels = parseChannels(Sets.newHashSet(*channels))
+        }
 
         val nickservCategory = category + ".nickserv"
         configuration.setCategoryPropertyOrder(nickservCategory, Lists.newArrayList(IDENTIFY_WITH_NICKSERV_KEY, NICKSERV_PASSWORD_KEY))

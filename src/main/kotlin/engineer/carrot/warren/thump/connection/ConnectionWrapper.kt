@@ -2,6 +2,7 @@ package engineer.carrot.warren.thump.connection
 
 import com.google.common.base.Joiner
 import com.google.common.collect.Lists
+import com.google.common.collect.Sets
 import engineer.carrot.warren.thump.config.ServerConfiguration
 import engineer.carrot.warren.thump.helper.LogHelper
 import engineer.carrot.warren.thump.listener.ServerEventListener
@@ -111,6 +112,17 @@ class ConnectionWrapper(val id: String, configuration: ServerConfiguration, list
             }
 
             LogHelper.info("Sent message to channels '{}': {}", Joiner.on(",").join(channels.keys), message)
+        }
+    }
+
+    fun getAllJoinedChannels(): Set<String> {
+        if (this.getConnectionState() != ConnectionState.CONNECTED) {
+            LogHelper.warn("Tried to get joined channels for '{}', but it isn't connected yet", id)
+            return Sets.newHashSet()
+        }
+
+        synchronized(this.connectionLock) {
+            return this.connection.joinedChannels.allChannels.keys
         }
     }
 

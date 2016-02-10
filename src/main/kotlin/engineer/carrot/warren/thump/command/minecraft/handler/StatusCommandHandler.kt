@@ -1,9 +1,15 @@
 package engineer.carrot.warren.thump.command.minecraft.handler
 
+import com.google.common.base.Joiner
 import com.google.common.collect.Lists
+import com.google.common.collect.Sets
+import engineer.carrot.warren.thump.Thump
+import engineer.carrot.warren.thump.config.ServerConfiguration
 import engineer.carrot.warren.thump.connection.ConnectionManager
+import engineer.carrot.warren.thump.connection.ConnectionState
 import net.minecraft.command.ICommandSender
 import net.minecraft.util.ChatComponentText
+import net.minecraft.util.EnumChatFormatting
 
 class StatusCommandHandler(private val manager: ConnectionManager) : ICommandHandler {
 
@@ -28,7 +34,36 @@ class StatusCommandHandler(private val manager: ConnectionManager) : ICommandHan
         for (id in this.manager.allConnections) {
             val state = this.manager.getConnectionState(id)
 
-            sender.addChatMessage(ChatComponentText(" " + id + ": " + state.toString()))
+            val statusMessage = ChatComponentText(" " + id + ": " + state.toString())
+
+            if (state == ConnectionState.CONNECTED) {
+                val channelsToJoin: Set<String> = Thump.configuration.servers.servers[id]?.channels?.keys ?: Sets.newHashSet()
+
+                val joinedChannels = this.manager.getAllJoinedChannelsForConnection(id)
+                val joinedChannelsMessage: ChatComponentText = if (channelsToJoin.isEmpty()) {
+                    ChatComponentText(", no channels configured")
+                } else {
+                    val text = ChatComponentText(", channels: ")
+
+                    val channelsOutput: MutableList<String> = Lists.newArrayList()
+
+                    for (channel in channelsToJoin) {
+                        if (joinedChannels.contains(channel)) {
+                            channelsOutput.add(EnumChatFormatting.GREEN.toString() + channel + EnumChatFormatting.RESET.toString())
+                        } else {
+                            channelsOutput.add(EnumChatFormatting.RED.toString() + channel + EnumChatFormatting.RESET.toString())
+                        }
+                    }
+
+                    text.appendText(Joiner.on(", ").join(channelsOutput))
+
+                    text
+                }
+
+                statusMessage.appendSibling(joinedChannelsMessage)
+            }
+
+            sender.addChatMessage(statusMessage)
         }
     }
 

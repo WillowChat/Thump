@@ -1,6 +1,7 @@
 package engineer.carrot.warren.thump.connection
 
 import com.google.common.collect.Maps
+import com.google.common.collect.Sets
 import engineer.carrot.warren.thump.config.ServerConfiguration
 import engineer.carrot.warren.thump.helper.LogHelper
 
@@ -180,6 +181,21 @@ class ConnectionManager {
 
             wrapper.sendMessageToAllChannels(message)
         }
+    }
+
+    fun getAllJoinedChannelsForConnection(id: String): Set<String> {
+        val wrapper = this.connectionMap[id]
+        if (wrapper == null) {
+            LogHelper.error("Tried to get joined channels for '{}' but it doesn't exist", id)
+
+            return Sets.newHashSet()
+        }
+
+        if (wrapper.getConnectionState() != ConnectionState.CONNECTED) {
+            return Sets.newHashSet()
+        }
+
+        return wrapper.getAllJoinedChannels()
     }
 
     fun usernameMatchesAnyConnection(username: String): Boolean {
