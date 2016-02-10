@@ -25,7 +25,13 @@ class ConnectionWrapper(val id: String, configuration: ServerConfiguration, list
     private fun initialiseFromConfiguration(configuration: ServerConfiguration, listeners: List<Any>) {
         val builder = IRCConnection.Builder().server(configuration.server).port(configuration.port).nickname(configuration.nickname).login(LOGIN).plaintext(!configuration.useTLS)
 
-        builder.channels(Lists.newArrayList(configuration.channels))
+        for ((channelName, channelKey) in configuration.channels) {
+            if (channelKey == null) {
+                builder.channel(channelName)
+            } else {
+                builder.channel(channelName, channelKey)
+            }
+        }
 
         if (configuration.identifyWithNickServ) {
             builder.nickservPassword(configuration.nickServPassword)

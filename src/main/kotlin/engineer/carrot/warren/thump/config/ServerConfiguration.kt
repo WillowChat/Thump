@@ -2,16 +2,16 @@ package engineer.carrot.warren.thump.config
 
 import com.google.common.collect.Lists
 import com.google.common.collect.Sets
+import engineer.carrot.warren.thump.helper.LogHelper
 import net.minecraftforge.common.config.Configuration
-
-import java.util.HashSet
+import java.util.*
 
 class ServerConfiguration(category: String, configuration: Configuration) {
     var ID = ""
     var server = ""
     var port = 6697
     var nickname = "thump-server"
-    var channels: Set<String> = HashSet()
+    var channels: Map<String, String?> = HashMap()
 
     // Nickserv
     var identifyWithNickServ = false
@@ -35,7 +35,7 @@ class ServerConfiguration(category: String, configuration: Configuration) {
         this.port = configuration.getInt(PORT_KEY, category, this.port, PORT_MIN, PORT_MAX, "")
         this.nickname = configuration.getString(NICKNAME_KEY, category, this.nickname, "")
         val channels = configuration.getStringList(CHANNELS_KEY, category, arrayOf(""), "")
-        this.channels = Sets.newHashSet(*channels)
+        this.channels = parseChannels(Sets.newHashSet(*channels))
 
         val nickservCategory = category + ".nickserv"
         configuration.setCategoryPropertyOrder(nickservCategory, Lists.newArrayList(IDENTIFY_WITH_NICKSERV_KEY, NICKSERV_PASSWORD_KEY))
@@ -54,6 +54,29 @@ class ServerConfiguration(category: String, configuration: Configuration) {
         this.shouldReconnectAutomatically = configuration.getBoolean(SHOULD_RECONNECT_AUTOMATICALLY_KEY, reconnectCategory, this.shouldReconnectAutomatically, "")
         this.automaticReconnectDelaySeconds = configuration.getInt(AUTOMATIC_RECONNECT_DELAY_SECONDS_KEY, reconnectCategory, this.automaticReconnectDelaySeconds, AUTOMATIC_RECONNECT_DELAY_SECONDS_MIN, AUTOMATIC_RECONNECT_DELAY_SECONDS_MAX, "")
         this.maxConsecutiveReconnectAttempts = configuration.getInt(MAX_CONSECUTIVE_RECONNECT_ATTEMPTS_KEY, reconnectCategory, this.maxConsecutiveReconnectAttempts, MAX_CONSECUTIVE_RECONNECT_ATTEMPTS_MIN, MAX_CONSECUTIVE_RECONNECT_ATTEMPTS_MAX, "")
+    }
+
+    fun parseChannels(configurationStrings: Iterable<String>): Map<String, String?> {
+        var channels: MutableMap<String, String?> = HashMap()
+
+        stringsLoop@ for (configurationString in configurationStrings) {
+            val equalsLocation = configurationString.indexOf('=')
+            if (equalsLocation < 0) {
+                channels.put(configurationString, null)
+            } else {
+                if (equalsLocation + 1 >= configurationString.length) {
+                    LogHelper.warn("Channel entry '{}' had an equals in it, but no password set. Check your configuration!")
+                    continue@stringsLoop
+                }
+
+                val channelName = configurationString.take(equalsLocation)
+                val channelKey = configurationString.drop(equalsLocation + 1)
+
+                channels.put(channelName, channelKey)
+            }
+        }
+
+        return channels
     }
 
     companion object {
