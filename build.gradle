@@ -9,7 +9,7 @@ buildscript {
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlin_version}"
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.1-SNAPSHOT'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT'
     }
 }
 
@@ -21,7 +21,7 @@ repositories {
 }
 
 apply plugin: 'kotlin'
-apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: 'forge'
 
 version = version_major + '.' + version_minor + '.' + version_patch
 group = "engineer.carrot.warren.thump"
@@ -68,16 +68,12 @@ minecraft {
     replace '@VERSION@', project.version
     replace '@KOTLIN_VERSION@', kotlin_version
 
-    mappings = "snapshot_20160118"
-}
+    mappings = "stable_12"
 
-reobf {
-    jar {
-        extraLines += [ 'PK: kotlin engineer/carrot/warren/thump/repack/kotlin' ]
-        extraLines += [ 'PK: org/jetbrains/annotations engineer/carrot/warren/thump/repack/org/jetbrains/annotations' ]
-        extraLines += [ 'PK: engineer/carrot/warren/warren engineer/carrot/warren/thump/repack/warren' ]
-        extraLines += [ 'PK: org/slf4j engineer/carrot/warren/thump/slf4j' ]
-    }
+    srgExtra 'PK: kotlin engineer/carrot/warren/thump/repack/kotlin'
+    srgExtra 'PK: org/jetbrains/annotations engineer/carrot/warren/thump/repack/org/jetbrains/annotations'
+    srgExtra 'PK: engineer/carrot/warren/warren engineer/carrot/warren/thump/repack/warren'
+    srgExtra 'PK: org/slf4j engineer/carrot/warren/thump/slf4j'
 }
 
 processResources {

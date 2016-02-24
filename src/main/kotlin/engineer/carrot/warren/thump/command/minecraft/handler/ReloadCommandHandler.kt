@@ -13,7 +13,7 @@ class ReloadCommandHandler(private val manager: ConnectionManager) : ICommandHan
         get() = COMMAND_NAME
 
     override fun processParameters(sender: ICommandSender, parameters: Array<String>) {
-        LogHelper.info("Player '{}' triggered a reload (disconnecting and reconnecting networks - the server might lag for a few seconds)...", sender.name)
+        LogHelper.info("Player '{}' triggered a reload (disconnecting and reconnecting networks - the server might lag for a few seconds)...", sender.commandSenderName)
         sender.addChatMessage(ChatComponentText("Reloading Thump (disconnecting and reconnecting networks - the server might lag for a few seconds)..."))
 
         this.manager.stopAllConnections()

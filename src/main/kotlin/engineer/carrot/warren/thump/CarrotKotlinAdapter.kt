@@ -1,7 +1,9 @@
 package engineer.carrot.warren.thump
 
-import net.minecraftforge.fml.common.*
-import net.minecraftforge.fml.relauncher.Side
+import cpw.mods.fml.common.FMLModContainer
+import cpw.mods.fml.common.ILanguageAdapter
+import cpw.mods.fml.common.ModContainer
+import cpw.mods.fml.relauncher.Side
 import org.apache.logging.log4j.LogManager
 
 import java.lang.reflect.Field

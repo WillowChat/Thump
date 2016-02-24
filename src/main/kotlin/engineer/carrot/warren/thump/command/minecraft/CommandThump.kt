@@ -9,7 +9,6 @@ import engineer.carrot.warren.thump.connection.ConnectionManager
 import engineer.carrot.warren.thump.helper.PredicateHelper
 import net.minecraft.command.CommandBase
 import net.minecraft.command.ICommandSender
-import net.minecraft.util.BlockPos
 import net.minecraft.util.ChatComponentText
 
 import java.util.Arrays
@@ -47,7 +46,7 @@ class CommandThump(private val manager: ConnectionManager) : CommandBase() {
         this.handlers[parameters[0]]?.processParameters(sender, Arrays.copyOfRange(parameters, 1, parameters.size))
     }
 
-    override fun addTabCompletionOptions(sender: ICommandSender, parameters: Array<String>, pos: BlockPos): List<String> {
+    override fun addTabCompletionOptions(sender: ICommandSender, parameters: Array<String>): List<String> {
         if (parameters.size <= 1) {
             val handlerId =  parameters[0]
             return Lists.newArrayList(Iterables.filter(

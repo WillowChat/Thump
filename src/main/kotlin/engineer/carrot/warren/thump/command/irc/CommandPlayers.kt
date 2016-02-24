@@ -7,6 +7,7 @@ import engineer.carrot.warren.thump.connection.ConnectionManager
 import engineer.carrot.warren.thump.helper.PlayerHelper
 import engineer.carrot.warren.thump.helper.StringHelper
 import engineer.carrot.warren.thump.helper.TokenHelper
+import net.minecraft.entity.player.EntityPlayerMP
 
 object CommandPlayers {
     fun handlePlayersCommand(manager: ConnectionManager) {
@@ -19,8 +20,9 @@ object CommandPlayers {
         }
 
         val names = Lists.newArrayList<String>()
-        for (player in players) {
-            names.add(StringHelper.obfuscateNameIfNecessary(player.displayNameString))
+        for (playerEntity in players) {
+            val player = playerEntity as? EntityPlayerMP ?: continue
+            names.add(StringHelper.obfuscateNameIfNecessary(player.displayName))
         }
 
         val message = TokenHelper().addMessageToken(Joiner.on(", ").join(names)).applyTokens(Thump.configuration.formats.minecraft.playersOnline)

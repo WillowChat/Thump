@@ -1,6 +1,11 @@
 package engineer.carrot.warren.thump
 
 import com.google.common.collect.Lists
+import cpw.mods.fml.common.Mod
+import cpw.mods.fml.common.SidedProxy
+import cpw.mods.fml.common.event.FMLPreInitializationEvent
+import cpw.mods.fml.common.event.FMLServerStartingEvent
+import cpw.mods.fml.common.event.FMLServerStoppedEvent
 import engineer.carrot.warren.thump.command.minecraft.CommandThump
 import engineer.carrot.warren.thump.config.ModConfiguration
 import engineer.carrot.warren.thump.connection.ConnectionManager
@@ -9,9 +14,6 @@ import engineer.carrot.warren.thump.listener.MessageListener
 import engineer.carrot.warren.thump.minecraft.ChatEventHandler
 import engineer.carrot.warren.thump.proxy.CommonProxy
 import net.minecraftforge.common.MinecraftForge
-import net.minecraftforge.fml.common.Mod
-import net.minecraftforge.fml.common.SidedProxy
-import net.minecraftforge.fml.common.event.*
 import java.io.File
 
 @Suppress("UNUSED", "UNUSED_PARAMETER")
