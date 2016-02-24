@@ -124,6 +124,8 @@ jar {
     // Merge Jenkins and Git manifests to form final manifest in final release jar
     manifest {
         from jenkinsManifest, gitManifest
+
+        attributes 'FMLCorePlugin': 'engineer.carrot.warren.thump.CorePlugin', 'FMLCorePluginContainsFMLMod': 'true'
     }
 }
 
