@@ -2,6 +2,7 @@ package engineer.carrot.warren.thump.connection
 
 import com.google.common.collect.Maps
 import com.google.common.collect.Sets
+import engineer.carrot.warren.thump.config.GeneralConfiguration
 import engineer.carrot.warren.thump.config.ServerConfiguration
 import engineer.carrot.warren.thump.helper.LogHelper
 
@@ -14,14 +15,14 @@ class ConnectionManager {
         this.connectionMap = Maps.newHashMap<String, ConnectionWrapper>()
     }
 
-    fun addNewConnection(configuration: ServerConfiguration, listeners: List<Any>): Boolean {
-        val id = configuration.ID
+    fun addNewConnection(serverConfiguration: ServerConfiguration, generalConfiguration: GeneralConfiguration, listeners: List<Any>): Boolean {
+        val id = serverConfiguration.ID
 
         if (this.connectionMap.containsKey(id)) {
             return false
         }
 
-        this.connectionMap.put(id, ConnectionWrapper(id, configuration, listeners))
+        this.connectionMap.put(id, ConnectionWrapper(id, serverConfiguration, generalConfiguration, listeners))
         return true
     }
 
