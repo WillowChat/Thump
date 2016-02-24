@@ -23,7 +23,7 @@ repositories {
 apply plugin: 'kotlin'
 apply plugin: 'forge'
 
-version = version_major + '.' + version_minor + '.' + version_patch
+version = minecraft_version + '-' + version_major + '.' + version_minor + '.' + version_patch
 group = "engineer.carrot.warren.thump"
 archivesBaseName = "Thump"
 
@@ -44,10 +44,10 @@ task copyKotlinFiles(type: Copy) {
     dependsOn 'sourceMainJava'
 
     from('src/main/kotlin/')
-    into('build/sources/main/java/')
+    into('build/sources/java/')
 }
 
-compileKotlin { dependsOn 'copyKotlinFiles'; source = file('build/sources/main/java') }
+compileKotlin { dependsOn 'copyKotlinFiles'; source = file('build/sources/java') }
 
 configurations {
     shade
