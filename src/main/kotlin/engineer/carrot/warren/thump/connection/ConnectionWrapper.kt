@@ -3,12 +3,14 @@ package engineer.carrot.warren.thump.connection
 import com.google.common.base.Joiner
 import com.google.common.collect.Lists
 import com.google.common.collect.Sets
+import engineer.carrot.warren.thump.config.GeneralConfiguration
 import engineer.carrot.warren.thump.config.ServerConfiguration
 import engineer.carrot.warren.thump.helper.LogHelper
+import engineer.carrot.warren.thump.listener.DebugListener
 import engineer.carrot.warren.thump.listener.ServerEventListener
 import engineer.carrot.warren.warren.IRCConnection
 
-class ConnectionWrapper(val id: String, configuration: ServerConfiguration, listeners: List<Any>) : Runnable {
+class ConnectionWrapper(val id: String, serverConfiguration: ServerConfiguration, generalConfiguration: GeneralConfiguration, listeners: List<Any>) : Runnable {
     private lateinit var connectionState: ConnectionState
     private lateinit var connection: IRCConnection
     private lateinit var reconnectPolicy: ReconnectPolicy
@@ -18,15 +20,15 @@ class ConnectionWrapper(val id: String, configuration: ServerConfiguration, list
     init {
         this.connectionLock = Object()
 
-        this.initialiseFromConfiguration(configuration, listeners)
+        this.initialiseFromConfiguration(serverConfiguration, generalConfiguration, listeners)
 
         this.connectionState = ConnectionState.DISCONNECTED
     }
 
-    private fun initialiseFromConfiguration(configuration: ServerConfiguration, listeners: List<Any>) {
-        val builder = IRCConnection.Builder().server(configuration.server).port(configuration.port).nickname(configuration.nickname).login(LOGIN).plaintext(!configuration.useTLS)
+    private fun initialiseFromConfiguration(serverConfiguration: ServerConfiguration, generalConfiguration: GeneralConfiguration, listeners: List<Any>) {
+        val builder = IRCConnection.Builder().server(serverConfiguration.server).port(serverConfiguration.port).nickname(serverConfiguration.nickname).login(LOGIN).plaintext(!serverConfiguration.useTLS).shouldFireRawLineEvents(generalConfiguration.logRawIRCLinesToServerConsole)
 
-        for ((channelName, channelKey) in configuration.channels) {
+        for ((channelName, channelKey) in serverConfiguration.channels) {
             if (channelKey == null) {
                 builder.channel(channelName)
             } else {
@@ -34,12 +36,12 @@ class ConnectionWrapper(val id: String, configuration: ServerConfiguration, list
             }
         }
 
-        if (configuration.identifyWithNickServ) {
-            builder.nickservPassword(configuration.nickServPassword)
+        if (serverConfiguration.identifyWithNickServ) {
+            builder.nickservPassword(serverConfiguration.nickServPassword)
         }
 
-        if (configuration.forceAcceptCertificates) {
-            builder.fingerprints(configuration.forciblyAcceptedCertificates)
+        if (serverConfiguration.forceAcceptCertificates) {
+            builder.fingerprints(serverConfiguration.forciblyAcceptedCertificates)
         }
 
         this.registerInternalListeners(builder)
@@ -47,12 +49,16 @@ class ConnectionWrapper(val id: String, configuration: ServerConfiguration, list
 
         this.connection = builder.build()
 
-        this.reconnectPolicy = ReconnectPolicy(configuration)
+        this.reconnectPolicy = ReconnectPolicy(serverConfiguration)
     }
 
     private fun registerInternalListeners(builder: IRCConnection.Builder) {
         builder.listener(ConnectionStateListener(this))
         builder.listener(ServerEventListener(id))
+
+        if (builder.shouldFireRawLineEvents) {
+            builder.listener(DebugListener())
+        }
     }
 
     private fun registerExternalListeners(builder: IRCConnection.Builder, listeners: List<Any>) {

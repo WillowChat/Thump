@@ -52,7 +52,7 @@ object Thump {
         for (configuration in servers.values) {
             LogHelper.info("Adding to connection manager: {}:{} as {}", configuration.server, configuration.port, configuration.nickname)
 
-            this.connectionManager.addNewConnection(configuration, Lists.newArrayList<Any>(messageListener))
+            this.connectionManager.addNewConnection(configuration, this.configuration.general, Lists.newArrayList<Any>(messageListener))
         }
     }
 
