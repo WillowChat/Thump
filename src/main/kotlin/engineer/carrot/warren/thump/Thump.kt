@@ -1,6 +1,7 @@
 package engineer.carrot.warren.thump
 
 import com.google.common.collect.Lists
+import cpw.mods.fml.common.FMLCommonHandler
 import cpw.mods.fml.common.Mod
 import cpw.mods.fml.common.SidedProxy
 import cpw.mods.fml.common.event.FMLPreInitializationEvent
@@ -38,6 +39,7 @@ object Thump {
 
         val handler = ChatEventHandler(this.connectionManager)
         MinecraftForge.EVENT_BUS.register(handler)
+        FMLCommonHandler.instance().bus().register(handler)
     }
 
     fun populateConnectionManager() {
