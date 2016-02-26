@@ -23,7 +23,7 @@ repositories {
 apply plugin: 'kotlin'
 apply plugin: 'net.minecraftforge.gradle.forge'
 
-version = version_major + '.' + version_minor + '.' + version_patch
+version = minecraft_version + '-' + version_major + '.' + version_minor + '.' + version_patch
 group = "engineer.carrot.warren.thump"
 archivesBaseName = "Thump"
 
