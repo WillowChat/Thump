@@ -68,7 +68,7 @@ minecraft {
     replace '@VERSION@', project.version
     replace '@KOTLIN_VERSION@', kotlin_version
 
-    mappings = "snapshot_20160118"
+    mappings = "snapshot_20160318"
 }
 
 reobf {

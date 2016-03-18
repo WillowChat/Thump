@@ -9,12 +9,14 @@ import engineer.carrot.warren.thump.connection.ConnectionManager
 import engineer.carrot.warren.thump.helper.PredicateHelper
 import net.minecraft.command.CommandBase
 import net.minecraft.command.ICommandSender
-import net.minecraft.util.BlockPos
-import net.minecraft.util.ChatComponentText
+import net.minecraft.server.MinecraftServer
+import net.minecraft.util.math.BlockPos
+import net.minecraft.util.text.TextComponentString
 
 import java.util.Arrays
 
 class CommandThump(private val manager: ConnectionManager) : CommandBase() {
+
     private val handlers: MutableMap<String, ICommandHandler>
 
     init {
@@ -36,10 +38,14 @@ class CommandThump(private val manager: ConnectionManager) : CommandBase() {
         return "/" + this.commandName + " " + Joiner.on(", ").join(this.handlers.keys)
     }
 
-    override fun processCommand(sender: ICommandSender, parameters: Array<String>) {
+    override fun execute(server: MinecraftServer?, sender: ICommandSender?, parameters: Array<out String>?) {
+        if (sender == null || parameters == null) {
+            return
+        }
+
         if (parameters.size < 1 || !this.handlers.containsKey(parameters[0])) {
-            sender.addChatMessage(ChatComponentText("Invalid usage."))
-            sender.addChatMessage(ChatComponentText(" Usage: " + this.getCommandUsage(sender)))
+            sender.addChatMessage(TextComponentString("Invalid usage."))
+            sender.addChatMessage(TextComponentString(" Usage: " + this.getCommandUsage(sender)))
 
             return
         }
@@ -47,7 +53,7 @@ class CommandThump(private val manager: ConnectionManager) : CommandBase() {
         this.handlers[parameters[0]]?.processParameters(sender, Arrays.copyOfRange(parameters, 1, parameters.size))
     }
 
-    override fun addTabCompletionOptions(sender: ICommandSender, parameters: Array<String>, pos: BlockPos): List<String> {
+    override fun getTabCompletionOptions(server: MinecraftServer, sender: ICommandSender, parameters: Array<String>, pos: BlockPos): List<String> {
         if (parameters.size <= 1) {
             val handlerId =  parameters[0]
             return Lists.newArrayList(Iterables.filter(

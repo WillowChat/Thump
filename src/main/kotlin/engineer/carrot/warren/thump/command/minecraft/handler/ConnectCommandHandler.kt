@@ -6,7 +6,7 @@ import engineer.carrot.warren.thump.connection.ConnectionManager
 import engineer.carrot.warren.thump.connection.ConnectionState
 import engineer.carrot.warren.thump.helper.PredicateHelper
 import net.minecraft.command.ICommandSender
-import net.minecraft.util.ChatComponentText
+import net.minecraft.util.text.TextComponentString
 
 class ConnectCommandHandler(private val manager: ConnectionManager) : ICommandHandler {
 
@@ -15,34 +15,34 @@ class ConnectCommandHandler(private val manager: ConnectionManager) : ICommandHa
 
     override fun processParameters(sender: ICommandSender, parameters: Array<String>) {
         if (parameters.size < 1) {
-            sender.addChatMessage(ChatComponentText("Incorrect usage."))
-            sender.addChatMessage(ChatComponentText(" Usage: " + this.usage))
+            sender.addChatMessage(TextComponentString("Incorrect usage."))
+            sender.addChatMessage(TextComponentString(" Usage: " + this.usage))
             return
         }
 
         val id = parameters[0]
         val state = this.manager.getConnectionState(id)
         if (state == null) {
-            sender.addChatMessage(ChatComponentText("That network ID doesn't exist."))
+            sender.addChatMessage(TextComponentString("That network ID doesn't exist."))
             return
         }
 
         if (state === ConnectionState.DISCONNECTING) {
-            sender.addChatMessage(ChatComponentText("Wait for the network to disconnect first."))
+            sender.addChatMessage(TextComponentString("Wait for the network to disconnect first."))
             return
         }
 
         if (state === ConnectionState.CONNECTING) {
-            sender.addChatMessage(ChatComponentText("That network is already connecting."))
+            sender.addChatMessage(TextComponentString("That network is already connecting."))
             return
         }
 
         if (state === ConnectionState.CONNECTED) {
-            sender.addChatMessage(ChatComponentText("That network is already connected."))
+            sender.addChatMessage(TextComponentString("That network is already connected."))
             return
         }
 
-        sender.addChatMessage(ChatComponentText("Connecting network with id: " + id))
+        sender.addChatMessage(TextComponentString("Connecting network with id: " + id))
         this.manager.startConnection(id)
     }
 

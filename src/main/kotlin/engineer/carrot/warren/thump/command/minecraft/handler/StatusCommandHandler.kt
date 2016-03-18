@@ -8,8 +8,8 @@ import engineer.carrot.warren.thump.config.ServerConfiguration
 import engineer.carrot.warren.thump.connection.ConnectionManager
 import engineer.carrot.warren.thump.connection.ConnectionState
 import net.minecraft.command.ICommandSender
-import net.minecraft.util.ChatComponentText
-import net.minecraft.util.EnumChatFormatting
+import net.minecraft.util.text.TextComponentString
+import net.minecraft.util.text.TextFormatting
 
 class StatusCommandHandler(private val manager: ConnectionManager) : ICommandHandler {
 
@@ -19,14 +19,14 @@ class StatusCommandHandler(private val manager: ConnectionManager) : ICommandHan
     override fun processParameters(sender: ICommandSender, parameters: Array<String>) {
         val connections = this.manager.allConnections
         if (connections.isEmpty()) {
-            sender.addChatMessage(ChatComponentText("Thump is not configured to connect to any servers."))
+            sender.addChatMessage(TextComponentString("Thump is not configured to connect to any servers."))
             return
         }
 
-        sender.addChatMessage(ChatComponentText("Thump connection statuses:"))
+        sender.addChatMessage(TextComponentString("Thump connection statuses:"))
 
         if (this.manager.allConnections.isEmpty()) {
-            sender.addChatMessage(ChatComponentText(" There are no IRC connections available."))
+            sender.addChatMessage(TextComponentString(" There are no IRC connections available."))
 
             return
         }
@@ -34,24 +34,24 @@ class StatusCommandHandler(private val manager: ConnectionManager) : ICommandHan
         for (id in this.manager.allConnections) {
             val state = this.manager.getConnectionState(id)
 
-            val statusMessage = ChatComponentText(" " + id + ": " + state.toString())
+            val statusMessage = TextComponentString(" " + id + ": " + state.toString())
 
             if (state == ConnectionState.CONNECTED) {
                 val channelsToJoin: Set<String> = Thump.configuration.servers.servers[id]?.channels?.keys ?: Sets.newHashSet()
 
                 val joinedChannels = this.manager.getAllJoinedChannelsForConnection(id)
-                val joinedChannelsMessage: ChatComponentText = if (channelsToJoin.isEmpty()) {
-                    ChatComponentText(", no channels configured")
+                val joinedChannelsMessage: TextComponentString = if (channelsToJoin.isEmpty()) {
+                    TextComponentString(", no channels configured")
                 } else {
-                    val text = ChatComponentText(", channels: ")
+                    val text = TextComponentString(", channels: ")
 
                     val channelsOutput: MutableList<String> = Lists.newArrayList()
 
                     for (channel in channelsToJoin) {
                         if (joinedChannels.contains(channel)) {
-                            channelsOutput.add(EnumChatFormatting.GREEN.toString() + channel + EnumChatFormatting.RESET.toString())
+                            channelsOutput.add(TextFormatting.GREEN.toString() + channel + TextFormatting.RESET.toString())
                         } else {
-                            channelsOutput.add(EnumChatFormatting.RED.toString() + channel + EnumChatFormatting.RESET.toString())
+                            channelsOutput.add(TextFormatting.RED.toString() + channel + TextFormatting.RESET.toString())
                         }
                     }
 

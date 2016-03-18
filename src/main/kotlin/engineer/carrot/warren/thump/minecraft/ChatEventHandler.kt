@@ -8,9 +8,9 @@ import engineer.carrot.warren.thump.helper.TokenHelper
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.entity.player.EntityPlayerMP
 import net.minecraft.stats.Achievement
-import net.minecraft.util.ChatComponentTranslation
 import net.minecraft.util.DamageSource
-import net.minecraft.util.IChatComponent
+import net.minecraft.util.text.ITextComponent
+import net.minecraft.util.text.TextComponentTranslation
 import net.minecraftforge.event.CommandEvent
 import net.minecraftforge.event.ServerChatEvent
 import net.minecraftforge.event.entity.living.LivingDeathEvent
@@ -93,7 +93,7 @@ class ChatEventHandler(private val connectionManager: ConnectionManager) {
 
         val player = event.entityLiving as? EntityPlayer ?: return
 
-        var deathMessage: IChatComponent? = player.combatTracker.deathMessage
+        var deathMessage: ITextComponent? = player.combatTracker.deathMessage
         if (deathMessage == null) {
             deathMessage = generateNewDeathMessageFromLastDeath(player, event.source)
         }
@@ -110,7 +110,7 @@ class ChatEventHandler(private val connectionManager: ConnectionManager) {
         this.connectionManager.sendMessageToAllChannels(message)
     }
 
-    private fun generateNewDeathMessageFromLastDeath(player: EntityPlayer, source: DamageSource): IChatComponent {
+    private fun generateNewDeathMessageFromLastDeath(player: EntityPlayer, source: DamageSource): ITextComponent {
         return source.getDeathMessage(player)
     }
 
@@ -153,7 +153,7 @@ class ChatEventHandler(private val connectionManager: ConnectionManager) {
 
         val playerDisplayNameComponent = event.entityPlayer.displayName
 
-        val achievementMessage = ChatComponentTranslation("chat.type.achievement", playerDisplayNameComponent, event.achievement.func_150955_j())
+        val achievementMessage = TextComponentTranslation("chat.type.achievement", playerDisplayNameComponent, event.achievement.createChatComponent())
 
         var unformattedText = achievementMessage.unformattedText
         if (Thump.configuration.general.obfuscateUserSourceFromMinecraft) {
