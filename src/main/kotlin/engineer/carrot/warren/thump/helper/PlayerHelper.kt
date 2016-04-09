@@ -6,7 +6,7 @@ import net.minecraftforge.fml.common.FMLCommonHandler
 
 object PlayerHelper {
     val allPlayers: List<EntityPlayerMP>
-        get() = FMLCommonHandler.instance().getMinecraftServerInstance().playerList.playerList
+        get() = FMLCommonHandler.instance().minecraftServerInstance.playerList.playerList
 
     fun sendMessageToAllPlayers(message: String) {
         for (player in allPlayers) {
