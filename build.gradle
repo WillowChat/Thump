@@ -57,7 +57,7 @@ configurations {
 dependencies {
     shade "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
-    shade('engineer.carrot.warren:warren:0.0.1.82:all') { transitive = false }
+    shade('engineer.carrot.warren:warren:0.0.1.85:all') { transitive = false }
     compile group: 'org.slf4j', name:'slf4j-api', version: '1.7.12'
 }
 
