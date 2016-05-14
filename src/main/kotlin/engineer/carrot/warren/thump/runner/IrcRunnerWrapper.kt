@@ -18,7 +18,7 @@ enum class WrapperState { READY, RUNNING, RECONNECTING }
 
 data class ReconnectionState(val shouldReconnect: Boolean, var forciblyDisabled: Boolean, val delaySeconds: Int, val maxConsecutive: Int, var currentReconnectCount: Int = 0)
 
-data class ConfigurationState(val server: String, val port: Int, val nickname: String, val password: String?, val channels: Map<String, String?>, val shouldLogIncomingLines: Boolean)
+data class ConfigurationState(val server: String, val port: Int, val nickname: String, val password: String?, val channels: Map<String, String?>, val shouldLogIncomingLines: Boolean, val dangerZoneTrustAllCertificates: Boolean)
 
 interface IWrapper {
     fun start(): Boolean
@@ -60,7 +60,9 @@ class IrcRunnerWrapper(val id: String, serverConfiguration: ServerConfiguration,
             password = serverConfiguration.nickServPassword
         }
 
-        return ConfigurationState(serverConfiguration.server, serverConfiguration.port, serverConfiguration.nickname, password, serverConfiguration.channels, generalConfiguration.logRawIRCLinesToServerConsole)
+        val dangerZoneTrustAllCertificates = (serverConfiguration.forceAcceptCertificates && serverConfiguration.forciblyAcceptedCertificates.filterNot { it.isBlank() }.isEmpty())
+
+        return ConfigurationState(serverConfiguration.server, serverConfiguration.port, serverConfiguration.nickname, password, serverConfiguration.channels, generalConfiguration.logRawIRCLinesToServerConsole, dangerZoneTrustAllCertificates)
     }
 
     private fun generateReconnectState(serverConfiguration: ServerConfiguration): ReconnectionState {
@@ -100,7 +102,11 @@ class IrcRunnerWrapper(val id: String, serverConfiguration: ServerConfiguration,
             LifecycleHandler(id).onConnectionLifecycleChanged(it)
         }
 
-        return WarrenRunner.createRunner(configuration.server, configuration.port, configuration.nickname, configuration.password, configuration.channels, eventDispatcher, configuration.shouldLogIncomingLines)
+        if (configuration.dangerZoneTrustAllCertificates) {
+            LogHelper.warn("DANGER ZONE: making runner for $id with the \"accept all certificates\" option - it's not secure! Add the expected certificate authority to your Java trust store instead!")
+        }
+
+        return WarrenRunner.createRunner(configuration.server, configuration.port, configuration.nickname, configuration.password, configuration.channels, eventDispatcher, configuration.shouldLogIncomingLines, configuration.dangerZoneTrustAllCertificates)
     }
 
     override fun sendMessage(target: String, message: String) {
