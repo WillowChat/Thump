@@ -68,7 +68,7 @@ configurations {
 dependencies {
     shade "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
-    shade "engineer.carrot.warren.warren:Warren:$warren_version"
+    shade("engineer.carrot.warren.warren:Warren:$warren_version") { exclude group: 'org.slf4j' }
     compile group: 'org.slf4j', name:'slf4j-api', version: '1.7.12'
 }
 
@@ -88,6 +88,7 @@ reobf {
         extraLines += [ 'PK: org/jetbrains/annotations engineer/carrot/warren/thump/repack/org/jetbrains/annotations' ]
         extraLines += [ 'PK: engineer/carrot/warren/warren engineer/carrot/warren/thump/repack/warren' ]
         extraLines += [ 'PK: org/slf4j engineer/carrot/warren/thump/slf4j' ]
+        extraLines += [ 'PK: com/squareup engineer/carrot/warren/thump/repack/com/squareup' ]
     }
 }
 
