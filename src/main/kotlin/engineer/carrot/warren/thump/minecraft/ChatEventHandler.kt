@@ -2,15 +2,15 @@ package engineer.carrot.warren.thump.minecraft
 
 import com.google.common.base.Joiner
 import engineer.carrot.warren.thump.Thump
-import engineer.carrot.warren.thump.connection.ConnectionManager
 import engineer.carrot.warren.thump.helper.StringHelper
 import engineer.carrot.warren.thump.helper.TokenHelper
+import engineer.carrot.warren.thump.runner.IWrappersManager
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.entity.player.EntityPlayerMP
 import net.minecraft.stats.Achievement
-import net.minecraft.util.ChatComponentTranslation
 import net.minecraft.util.DamageSource
-import net.minecraft.util.IChatComponent
+import net.minecraft.util.text.ITextComponent
+import net.minecraft.util.text.TextComponentTranslation
 import net.minecraftforge.event.CommandEvent
 import net.minecraftforge.event.ServerChatEvent
 import net.minecraftforge.event.entity.living.LivingDeathEvent
@@ -19,7 +19,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import net.minecraftforge.fml.common.gameevent.PlayerEvent
 
 @Suppress("UNUSED")
-class ChatEventHandler(private val connectionManager: ConnectionManager) {
+class ChatEventHandler(private val wrappersManager: IWrappersManager) {
 
     @SubscribeEvent
     fun onServerChatEvent(event: ServerChatEvent) {
@@ -28,7 +28,7 @@ class ChatEventHandler(private val connectionManager: ConnectionManager) {
         }
 
         val message = TokenHelper().addUserToken(StringHelper.obfuscateNameIfNecessary(event.username)).addMessageToken(event.message).applyTokens(Thump.configuration.formats.minecraft.playerMessage)
-        this.connectionManager.sendMessageToAllChannels(message)
+        wrappersManager.sendToAllChannels(message)
     }
 
     @SubscribeEvent
@@ -46,7 +46,7 @@ class ChatEventHandler(private val connectionManager: ConnectionManager) {
             }
 
             val message = TokenHelper().addUserToken(StringHelper.obfuscateNameIfNecessary(event.sender.name)).addMessageToken(Joiner.on(" ").join(event.parameters)).applyTokens(Thump.configuration.formats.minecraft.playerAction)
-            this.connectionManager.sendMessageToAllChannels(message)
+            wrappersManager.sendToAllChannels(message)
 
             return
         }
@@ -61,7 +61,7 @@ class ChatEventHandler(private val connectionManager: ConnectionManager) {
             }
 
             val message = TokenHelper().addUserToken(StringHelper.obfuscateNameIfNecessary(event.sender.name)).addMessageToken(Joiner.on(" ").join(event.parameters)).applyTokens(Thump.configuration.formats.minecraft.playerMessage)
-            this.connectionManager.sendMessageToAllChannels(message)
+            wrappersManager.sendToAllChannels(message)
         }
     }
 
@@ -72,7 +72,7 @@ class ChatEventHandler(private val connectionManager: ConnectionManager) {
         }
 
         val message = TokenHelper().addUserToken(StringHelper.obfuscateNameIfNecessary(event.player.displayNameString)).applyTokens(Thump.configuration.formats.minecraft.playerJoined)
-        this.connectionManager.sendMessageToAllChannels(message)
+        wrappersManager.sendToAllChannels(message)
     }
 
     @SubscribeEvent
@@ -82,7 +82,7 @@ class ChatEventHandler(private val connectionManager: ConnectionManager) {
         }
 
         val message = TokenHelper().addUserToken(StringHelper.obfuscateNameIfNecessary(event.player.displayNameString)).applyTokens(Thump.configuration.formats.minecraft.playerLeft)
-        this.connectionManager.sendMessageToAllChannels(message)
+        wrappersManager.sendToAllChannels(message)
     }
 
     @SubscribeEvent
@@ -93,7 +93,7 @@ class ChatEventHandler(private val connectionManager: ConnectionManager) {
 
         val player = event.entityLiving as? EntityPlayer ?: return
 
-        var deathMessage: IChatComponent? = player.combatTracker.deathMessage
+        var deathMessage: ITextComponent? = player.combatTracker.deathMessage
         if (deathMessage == null) {
             deathMessage = generateNewDeathMessageFromLastDeath(player, event.source)
         }
@@ -107,10 +107,10 @@ class ChatEventHandler(private val connectionManager: ConnectionManager) {
         }
 
         val message = TokenHelper().addMessageToken(unformattedText).applyTokens(Thump.configuration.formats.minecraft.playerDeath)
-        this.connectionManager.sendMessageToAllChannels(message)
+        wrappersManager.sendToAllChannels(message)
     }
 
-    private fun generateNewDeathMessageFromLastDeath(player: EntityPlayer, source: DamageSource): IChatComponent {
+    private fun generateNewDeathMessageFromLastDeath(player: EntityPlayer, source: DamageSource): ITextComponent {
         return source.getDeathMessage(player)
     }
 
@@ -153,7 +153,7 @@ class ChatEventHandler(private val connectionManager: ConnectionManager) {
 
         val playerDisplayNameComponent = event.entityPlayer.displayName
 
-        val achievementMessage = ChatComponentTranslation("chat.type.achievement", playerDisplayNameComponent, event.achievement.func_150955_j())
+        val achievementMessage = TextComponentTranslation("chat.type.achievement", playerDisplayNameComponent, event.achievement.createChatComponent())
 
         var unformattedText = achievementMessage.unformattedText
         if (Thump.configuration.general.obfuscateUserSourceFromMinecraft) {
@@ -164,6 +164,6 @@ class ChatEventHandler(private val connectionManager: ConnectionManager) {
         }
 
         val message = TokenHelper().addMessageToken(unformattedText).applyTokens(Thump.configuration.formats.minecraft.playerAchievement)
-        this.connectionManager.sendMessageToAllChannels(message)
+        wrappersManager.sendToAllChannels(message)
     }
 }

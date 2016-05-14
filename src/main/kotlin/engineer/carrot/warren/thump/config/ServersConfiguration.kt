@@ -3,8 +3,7 @@ package engineer.carrot.warren.thump.config
 import com.google.common.collect.Sets
 import engineer.carrot.warren.thump.helper.PredicateHelper
 import net.minecraftforge.common.config.Configuration
-
-import java.util.HashMap
+import java.util.*
 
 class ServersConfiguration(configuration: Configuration) {
     var servers: MutableMap<String, ServerConfiguration> = HashMap()

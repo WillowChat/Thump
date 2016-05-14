@@ -4,54 +4,47 @@ import com.google.common.base.Joiner
 import com.google.common.collect.Lists
 import com.google.common.collect.Sets
 import engineer.carrot.warren.thump.Thump
-import engineer.carrot.warren.thump.config.ServerConfiguration
-import engineer.carrot.warren.thump.connection.ConnectionManager
-import engineer.carrot.warren.thump.connection.ConnectionState
+import engineer.carrot.warren.thump.runner.IWrappersManager
+import engineer.carrot.warren.thump.runner.WrapperState
 import net.minecraft.command.ICommandSender
-import net.minecraft.util.ChatComponentText
-import net.minecraft.util.EnumChatFormatting
+import net.minecraft.util.text.TextComponentString
+import net.minecraft.util.text.TextFormatting
 
-class StatusCommandHandler(private val manager: ConnectionManager) : ICommandHandler {
+class StatusCommandHandler(private val manager: IWrappersManager) : ICommandHandler {
 
     override val command: String
         get() = COMMAND_NAME
 
     override fun processParameters(sender: ICommandSender, parameters: Array<String>) {
-        val connections = this.manager.allConnections
+        val connections = this.manager.wrappers.values
         if (connections.isEmpty()) {
-            sender.addChatMessage(ChatComponentText("Thump is not configured to connect to any servers."))
+            sender.addChatMessage(TextComponentString("Thump is not configured to connect to any servers."))
             return
         }
 
-        sender.addChatMessage(ChatComponentText("Thump connection statuses:"))
+        sender.addChatMessage(TextComponentString("Thump connection statuses:"))
 
-        if (this.manager.allConnections.isEmpty()) {
-            sender.addChatMessage(ChatComponentText(" There are no IRC connections available."))
+        for ((id, wrapper) in this.manager.wrappers) {
+            val state = wrapper.state
 
-            return
-        }
+            val statusMessage = TextComponentString(" $id: $state")
 
-        for (id in this.manager.allConnections) {
-            val state = this.manager.getConnectionState(id)
-
-            val statusMessage = ChatComponentText(" " + id + ": " + state.toString())
-
-            if (state == ConnectionState.CONNECTED) {
+            if (state == WrapperState.RUNNING) {
                 val channelsToJoin: Set<String> = Thump.configuration.servers.servers[id]?.channels?.keys ?: Sets.newHashSet()
 
-                val joinedChannels = this.manager.getAllJoinedChannelsForConnection(id)
-                val joinedChannelsMessage: ChatComponentText = if (channelsToJoin.isEmpty()) {
-                    ChatComponentText(", no channels configured")
+                val joinedChannels = wrapper.channels ?: setOf()
+                val joinedChannelsMessage: TextComponentString = if (channelsToJoin.isEmpty()) {
+                    TextComponentString(", no channels configured")
                 } else {
-                    val text = ChatComponentText(", channels: ")
+                    val text = TextComponentString(", channels: ")
 
                     val channelsOutput: MutableList<String> = Lists.newArrayList()
 
                     for (channel in channelsToJoin) {
                         if (joinedChannels.contains(channel)) {
-                            channelsOutput.add(EnumChatFormatting.GREEN.toString() + channel + EnumChatFormatting.RESET.toString())
+                            channelsOutput.add(TextFormatting.GREEN.toString() + channel + TextFormatting.RESET.toString())
                         } else {
-                            channelsOutput.add(EnumChatFormatting.RED.toString() + channel + EnumChatFormatting.RESET.toString())
+                            channelsOutput.add(TextFormatting.RED.toString() + channel + TextFormatting.RESET.toString())
                         }
                     }
 
@@ -64,6 +57,11 @@ class StatusCommandHandler(private val manager: ConnectionManager) : ICommandHan
             }
 
             sender.addChatMessage(statusMessage)
+
+            val ircState = manager.wrappers[id]?.ircState?.connection?.lifecycle
+            if (ircState != null) {
+                sender.addChatMessage(TextComponentString("  IRC state: $ircState"))
+            }
         }
     }
 
@@ -75,7 +73,6 @@ class StatusCommandHandler(private val manager: ConnectionManager) : ICommandHan
     }
 
     companion object {
-
         private val COMMAND_NAME = "status"
         private val COMMAND_USAGE = ""
     }

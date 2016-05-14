@@ -2,48 +2,38 @@ package engineer.carrot.warren.thump.command.minecraft.handler
 
 import com.google.common.collect.Iterables
 import com.google.common.collect.Lists
-import engineer.carrot.warren.thump.connection.ConnectionManager
-import engineer.carrot.warren.thump.connection.ConnectionState
 import engineer.carrot.warren.thump.helper.PredicateHelper
+import engineer.carrot.warren.thump.runner.IWrappersManager
+import engineer.carrot.warren.thump.runner.WrapperState
 import net.minecraft.command.ICommandSender
-import net.minecraft.util.ChatComponentText
+import net.minecraft.util.text.TextComponentString
 
-class ConnectCommandHandler(private val manager: ConnectionManager) : ICommandHandler {
+class ConnectCommandHandler(private val manager: IWrappersManager) : ICommandHandler {
 
     override val command: String
         get() = COMMAND_NAME
 
     override fun processParameters(sender: ICommandSender, parameters: Array<String>) {
         if (parameters.size < 1) {
-            sender.addChatMessage(ChatComponentText("Incorrect usage."))
-            sender.addChatMessage(ChatComponentText(" Usage: " + this.usage))
+            sender.addChatMessage(TextComponentString("Incorrect usage."))
+            sender.addChatMessage(TextComponentString(" Usage: " + this.usage))
             return
         }
 
         val id = parameters[0]
-        val state = this.manager.getConnectionState(id)
+        val state = manager.wrappers[id]?.state
         if (state == null) {
-            sender.addChatMessage(ChatComponentText("That network ID doesn't exist."))
+            sender.addChatMessage(TextComponentString("That network ID doesn't exist."))
             return
         }
 
-        if (state === ConnectionState.DISCONNECTING) {
-            sender.addChatMessage(ChatComponentText("Wait for the network to disconnect first."))
-            return
+        when (state) {
+            WrapperState.RUNNING -> sender.addChatMessage(TextComponentString("Already running that ID - disconnect it first"))
+            else -> {
+                sender.addChatMessage(TextComponentString("Connecting network with id: " + id))
+                manager.start(id)
+            }
         }
-
-        if (state === ConnectionState.CONNECTING) {
-            sender.addChatMessage(ChatComponentText("That network is already connecting."))
-            return
-        }
-
-        if (state === ConnectionState.CONNECTED) {
-            sender.addChatMessage(ChatComponentText("That network is already connected."))
-            return
-        }
-
-        sender.addChatMessage(ChatComponentText("Connecting network with id: " + id))
-        this.manager.startConnection(id)
     }
 
     override val usage: String
@@ -53,7 +43,7 @@ class ConnectCommandHandler(private val manager: ConnectionManager) : ICommandHa
         if (parameters.size <= 1) {
             val handlerId = parameters[0]
             return Lists.newArrayList(Iterables.filter(
-                    this.manager.allConnections,
+                    manager.wrappers.keys,
                     PredicateHelper.StartsWithPredicate(handlerId)))
         }
 
