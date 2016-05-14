@@ -69,7 +69,7 @@ dependencies {
     shade "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
     shade("engineer.carrot.warren.warren:Warren:$warren_version") { exclude group: 'org.slf4j' }
-    compile group: 'org.slf4j', name:'slf4j-api', version: '1.7.12'
+    compile group: 'org.slf4j', name:'slf4j-api', version: '1.7.21'
 }
 
 minecraft {
