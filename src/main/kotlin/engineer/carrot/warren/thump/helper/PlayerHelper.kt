@@ -13,4 +13,8 @@ object PlayerHelper {
             player.addChatMessage(TextComponentString(message))
         }
     }
+
+    fun sendMessageToPlayer(player: String, message: String) {
+        allPlayers.find { it.name == player }?.addChatMessage(TextComponentString(message))
+    }
 }

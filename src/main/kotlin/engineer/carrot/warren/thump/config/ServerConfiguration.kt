@@ -35,7 +35,7 @@ class ServerConfiguration(category: String, configuration: Configuration) {
         this.server = configuration.getString(SERVER_KEY, category, this.server, "")
         this.port = configuration.getInt(PORT_KEY, category, this.port, PORT_MIN, PORT_MAX, "")
         this.nickname = configuration.getString(NICKNAME_KEY, category, this.nickname, "")
-        val channels = configuration.getStringList(CHANNELS_KEY, category, arrayOf(), "")
+        val channels = configuration.getStringList(CHANNELS_KEY, category, emptyArray(), "")
         if (channels.size == 1 && channels[0].isEmpty()) {
             this.channels = Maps.newHashMap()
         } else {
@@ -51,7 +51,7 @@ class ServerConfiguration(category: String, configuration: Configuration) {
         configuration.setCategoryPropertyOrder(tlsCategory, Lists.newArrayList(USE_TLS_KEY, FORCE_ACCEPT_CERTIFICATES_KEY, FORCIBLY_ACCEPTED_CERTIFICATES_KEY))
         this.useTLS = configuration.getBoolean(USE_TLS_KEY, tlsCategory, this.useTLS, "")
         this.forceAcceptCertificates = configuration.getBoolean(FORCE_ACCEPT_CERTIFICATES_KEY, tlsCategory, this.forceAcceptCertificates, "")
-        val forciblyAcceptedCertificates = configuration.getStringList(FORCIBLY_ACCEPTED_CERTIFICATES_KEY, tlsCategory, arrayOf(""), "")
+        val forciblyAcceptedCertificates = configuration.getStringList(FORCIBLY_ACCEPTED_CERTIFICATES_KEY, tlsCategory, emptyArray(), "")
         this.forciblyAcceptedCertificates = Sets.newHashSet(*forciblyAcceptedCertificates)
 
         val reconnectCategory = category + ".reconnect"

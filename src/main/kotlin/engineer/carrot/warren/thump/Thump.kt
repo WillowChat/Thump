@@ -1,17 +1,19 @@
 package engineer.carrot.warren.thump
 
-import com.google.common.collect.Lists
 import engineer.carrot.warren.thump.command.minecraft.CommandThump
 import engineer.carrot.warren.thump.config.ModConfiguration
-import engineer.carrot.warren.thump.connection.ConnectionManager
+import engineer.carrot.warren.thump.handler.MessageHandler
 import engineer.carrot.warren.thump.helper.LogHelper
-import engineer.carrot.warren.thump.listener.MessageListener
 import engineer.carrot.warren.thump.minecraft.ChatEventHandler
 import engineer.carrot.warren.thump.proxy.CommonProxy
+import engineer.carrot.warren.thump.runner.IWrappersManager
+import engineer.carrot.warren.thump.runner.IrcRunnerWrappersManager
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.common.SidedProxy
-import net.minecraftforge.fml.common.event.*
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent
+import net.minecraftforge.fml.common.event.FMLServerStartingEvent
+import net.minecraftforge.fml.common.event.FMLServerStoppedEvent
 import java.io.File
 
 @Suppress("UNUSED", "UNUSED_PARAMETER")
@@ -23,7 +25,7 @@ object Thump {
     @SidedProxy(clientSide = "engineer.carrot.warren.thump.proxy.ClientProxy", serverSide = "engineer.carrot.warren.thump.proxy.CommonProxy")
     lateinit var proxy: CommonProxy
 
-    val connectionManager = ConnectionManager()
+    val wrappersManager: IWrappersManager = IrcRunnerWrappersManager()
     val configuration = ModConfiguration()
 
     @Mod.EventHandler
@@ -34,12 +36,12 @@ object Thump {
 
         this.populateConnectionManager()
 
-        val handler = ChatEventHandler(this.connectionManager)
+        val handler = ChatEventHandler(wrappersManager)
         MinecraftForge.EVENT_BUS.register(handler)
     }
 
     fun populateConnectionManager() {
-        val messageListener = MessageListener(this.connectionManager)
+        val messageListener = MessageHandler(wrappersManager)
 
         val servers = configuration.servers.servers
 
@@ -48,30 +50,38 @@ object Thump {
         }
 
         for (configuration in servers.values) {
-            LogHelper.info("Adding to connection manager: {}:{} as {}", configuration.server, configuration.port, configuration.nickname)
+            LogHelper.info("adding ${configuration.server}:${configuration.port} as ${configuration.nickname}")
 
-            this.connectionManager.addNewConnection(configuration, this.configuration.general, Lists.newArrayList<Any>(messageListener))
+            wrappersManager.initialise(configuration)
         }
+
+        MinecraftForge.EVENT_BUS.register(messageListener)
     }
 
     @Mod.EventHandler
     fun onServerStarting(event: FMLServerStartingEvent) {
-        val command = CommandThump(this.connectionManager)
+        LogHelper.info("server starting - initialising all connections")
+
+        val command = CommandThump(wrappersManager)
         event.registerServerCommand(command)
 
         this.startAllConnections()
     }
 
     fun startAllConnections() {
-        val connections = this.connectionManager.allConnections
-        for (connection in connections) {
-            LogHelper.info("Starting connection '{}'", connection)
-            this.connectionManager.startConnection(connection)
+        wrappersManager.wrappers.forEach { entry ->
+            LogHelper.info("Starting ${entry.key}")
+            wrappersManager.start(entry.key)
         }
     }
 
     @Mod.EventHandler
     fun onServerStopped(event: FMLServerStoppedEvent) {
-        this.connectionManager.stopAllConnections()
+        LogHelper.info("server stopping - stopping all connections")
+
+        wrappersManager.wrappers.forEach { entry ->
+            LogHelper.info("Stopping ${entry.key}")
+            wrappersManager.stop(entry.key)
+        }
     }
 }

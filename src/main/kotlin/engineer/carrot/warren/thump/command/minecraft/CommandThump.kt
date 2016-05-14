@@ -5,17 +5,16 @@ import com.google.common.collect.Iterables
 import com.google.common.collect.Lists
 import com.google.common.collect.Maps
 import engineer.carrot.warren.thump.command.minecraft.handler.*
-import engineer.carrot.warren.thump.connection.ConnectionManager
 import engineer.carrot.warren.thump.helper.PredicateHelper
+import engineer.carrot.warren.thump.runner.IWrappersManager
 import net.minecraft.command.CommandBase
 import net.minecraft.command.ICommandSender
 import net.minecraft.server.MinecraftServer
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.text.TextComponentString
+import java.util.*
 
-import java.util.Arrays
-
-class CommandThump(private val manager: ConnectionManager) : CommandBase() {
+class CommandThump(private val manager: IWrappersManager) : CommandBase() {
 
     private val handlers: MutableMap<String, ICommandHandler>
 
@@ -53,7 +52,7 @@ class CommandThump(private val manager: ConnectionManager) : CommandBase() {
         this.handlers[parameters[0]]?.processParameters(sender, Arrays.copyOfRange(parameters, 1, parameters.size))
     }
 
-    override fun getTabCompletionOptions(server: MinecraftServer, sender: ICommandSender, parameters: Array<String>, pos: BlockPos): List<String> {
+    override fun getTabCompletionOptions(server: MinecraftServer, sender: ICommandSender, parameters: Array<String>, pos: BlockPos?): List<String> {
         if (parameters.size <= 1) {
             val handlerId =  parameters[0]
             return Lists.newArrayList(Iterables.filter(
