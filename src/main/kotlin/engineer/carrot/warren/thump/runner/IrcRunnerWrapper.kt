@@ -10,9 +10,10 @@ import engineer.carrot.warren.warren.SendSomethingEvent
 import engineer.carrot.warren.warren.WarrenEventDispatcher
 import engineer.carrot.warren.warren.WarrenRunner
 import engineer.carrot.warren.warren.state.IrcState
+import engineer.carrot.warren.warren.state.LifecycleState
 import kotlin.concurrent.thread
 
-enum class WrapperState { READY, RUNNING }
+enum class WrapperState { READY, RUNNING, RECONNECTING }
 
 data class ReconnectionState(val shouldReconnect: Boolean, var forciblyDisabled: Boolean, val delaySeconds: Int, val maxConsecutive: Int, var currentReconnectCount: Int = 0)
 
@@ -20,7 +21,7 @@ data class ConfigurationState(val server: String, val port: Int, val nickname: S
 
 interface IWrapper {
     fun start(): Boolean
-    fun stop(): Boolean
+    fun stop(shouldReconnect: Boolean = true): Boolean
     fun sendMessage(target: String, message: String)
     fun sendMessageToAll(message: String)
 
@@ -84,6 +85,11 @@ class IrcRunnerWrapper(val id: String, serverConfiguration: ServerConfiguration,
         }
 
         eventDispatcher.onConnectionLifecycleListeners += {
+            when(it.lifecycle) {
+                LifecycleState.CONNECTED -> reconnectState.currentReconnectCount = 0
+                else -> Unit
+            }
+
             LifecycleHandler(id).onConnectionLifecycleChanged(it)
         }
 
@@ -112,11 +118,13 @@ class IrcRunnerWrapper(val id: String, serverConfiguration: ServerConfiguration,
         }
     }
 
-    override fun stop(): Boolean {
-        if (state != WrapperState.RUNNING) {
+    override fun stop(shouldReconnect: Boolean): Boolean {
+        if (state == WrapperState.READY) {
             LogHelper.error("$id wrapper not running - can't end it")
             return false
         }
+
+        reconnectState.forciblyDisabled = !shouldReconnect
 
         val thread = currentThread
         if (thread == null) {
@@ -129,18 +137,20 @@ class IrcRunnerWrapper(val id: String, serverConfiguration: ServerConfiguration,
                     thread.join(2000)
                     LogHelper.info("$id done")
                 } catch (e: InterruptedException) {
-                    LogHelper.info("$id didn't end thread in time, assuming it's dead")
+
                 }
             }
         }
 
-        state = WrapperState.READY
+        resetStateRunnerAndThreads()
         return true
     }
 
     override fun start(): Boolean {
+        reconnectState.forciblyDisabled = false
+
         if (state == WrapperState.RUNNING) {
-            LogHelper.error("$id wrapper is already running - can't reuse it, bailing out")
+            LogHelper.error("$id wrapper is already running/reconnecting - can't reuse it, bailing out")
             return false
         } else {
             state = WrapperState.RUNNING
@@ -149,28 +159,67 @@ class IrcRunnerWrapper(val id: String, serverConfiguration: ServerConfiguration,
         val runner = createRunner()
         currentRunner = runner
 
-        val thread = thread {
+        val thread = thread(name = "Thump - $id") {
             runner.run()
 
-            state = WrapperState.READY
-
-            currentRunner = null
-            currentThread = null
-
             LogHelper.info("$id irc runner thread ended normally")
+
+            onStoppedRunning()
         }
 
         thread.setUncaughtExceptionHandler { thread, exception ->
-            state = WrapperState.READY
-
-            currentRunner = null
-            currentThread = null
-
             LogHelper.info("$id irc runner thread ended with exception: $exception")
+
+            onStoppedRunning()
         }
 
         currentThread = thread
 
         return true
+    }
+
+    private fun onStoppedRunning() {
+        if (!reconnectState.shouldReconnect || reconnectState.forciblyDisabled) {
+            LogHelper.info("$id not reconnecting because it's (forcibly) disabled")
+
+            resetStateRunnerAndThreads()
+            return
+        }
+
+        reconnectState.currentReconnectCount += 1
+
+        if (reconnectState.currentReconnectCount > reconnectState.maxConsecutive) {
+            LogHelper.warn("$id not reconnecting because it tried too many times (${reconnectState.maxConsecutive})")
+
+            reconnectState.currentReconnectCount = 0
+            resetStateRunnerAndThreads()
+            return
+        }
+
+        state = WrapperState.RECONNECTING
+        currentRunner = null
+        currentThread = null
+
+        val delayMs = reconnectState.delaySeconds * 1000L
+        try {
+            if (Thread.currentThread().isInterrupted) {
+                resetStateRunnerAndThreads()
+                return
+            }
+
+            Thread.sleep(delayMs)
+        } catch(exception: InterruptedException) {
+            resetStateRunnerAndThreads()
+            return
+        }
+
+        start()
+    }
+
+    private fun resetStateRunnerAndThreads() {
+        state = WrapperState.READY
+
+        currentRunner = null
+        currentThread = null
     }
 }

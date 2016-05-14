@@ -8,7 +8,7 @@ interface IWrappersManager {
     fun initialise(configuration: ServerConfiguration)
     fun removeAll()
     fun start(id: String): Boolean
-    fun stop(id: String): Boolean
+    fun stop(id: String, shouldReconnect: Boolean = true): Boolean
     fun anyWrappersMatch(nickname: String): Boolean
 
     val wrappers: Map<String, IWrapper>
@@ -43,14 +43,14 @@ class IrcRunnerWrappersManager : IWrappersManager {
         return wrapper.start()
     }
 
-    override fun stop(id: String): Boolean {
+    override fun stop(id: String, shouldReconnect: Boolean): Boolean {
         val wrapper = wrappers[id]
         if (wrapper == null) {
             LogHelper.error("couldn't stop $id - wrapper not set up")
             return false
         }
 
-        return wrapper.stop()
+        return wrapper.stop(shouldReconnect = shouldReconnect)
     }
 
     override fun anyWrappersMatch(nickname: String): Boolean = wrappers.values.any { nickname.equals(it.nickname, ignoreCase = true) }

@@ -31,7 +31,7 @@ class DisconnectCommandHandler(private val manager: IWrappersManager) : ICommand
             WrapperState.READY -> sender.addChatMessage(TextComponentString("That ID isn't running yet"))
             else -> {
                 sender.addChatMessage(TextComponentString("Disconnecting network with id: " + id))
-                manager.stop(id)
+                manager.stop(id, shouldReconnect = false)
             }
         }
     }
