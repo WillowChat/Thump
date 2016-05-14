@@ -51,7 +51,7 @@ class ServerConfiguration(category: String, configuration: Configuration) {
         configuration.setCategoryPropertyOrder(tlsCategory, Lists.newArrayList(USE_TLS_KEY, FORCE_ACCEPT_CERTIFICATES_KEY, FORCIBLY_ACCEPTED_CERTIFICATES_KEY))
         this.useTLS = configuration.getBoolean(USE_TLS_KEY, tlsCategory, this.useTLS, "")
         this.forceAcceptCertificates = configuration.getBoolean(FORCE_ACCEPT_CERTIFICATES_KEY, tlsCategory, this.forceAcceptCertificates, "")
-        val forciblyAcceptedCertificates = configuration.getStringList(FORCIBLY_ACCEPTED_CERTIFICATES_KEY, tlsCategory, emptyArray(), "")
+        val forciblyAcceptedCertificates = configuration.getStringList(FORCIBLY_ACCEPTED_CERTIFICATES_KEY, tlsCategory, emptyArray(), FORCIBLY_ACCEPTED_CERTIFICATES_COMMENT)
         this.forciblyAcceptedCertificates = Sets.newHashSet(*forciblyAcceptedCertificates)
 
         val reconnectCategory = category + ".reconnect"
@@ -96,6 +96,7 @@ class ServerConfiguration(category: String, configuration: Configuration) {
         private val USE_TLS_KEY = "UseTLS"
         private val FORCE_ACCEPT_CERTIFICATES_KEY = "ForceAcceptCertificates"
         private val FORCIBLY_ACCEPTED_CERTIFICATES_KEY = "ForciblyAcceptedCertificates"
+        private val FORCIBLY_ACCEPTED_CERTIFICATES_COMMENT = "Leave blank with 'ForceAcceptCertificates' on to enter the danger zone and forcefully accept all presented certificates"
         private val SHOULD_RECONNECT_AUTOMATICALLY_KEY = "ShouldReconnectAutomatically"
         private val AUTOMATIC_RECONNECT_DELAY_SECONDS_KEY = "AutomaticReconnectDelaySeconds"
         private val AUTOMATIC_RECONNECT_DELAY_SECONDS_MIN = 0
