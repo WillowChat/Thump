@@ -1,11 +1,12 @@
 package engineer.carrot.warren.thump.runner
 
+import engineer.carrot.warren.thump.config.GeneralConfiguration
 import engineer.carrot.warren.thump.config.ServerConfiguration
 import engineer.carrot.warren.thump.helper.LogHelper
 
 interface IWrappersManager {
     fun sendToAllChannels(message: String)
-    fun initialise(configuration: ServerConfiguration)
+    fun initialise(serverConfiguration: ServerConfiguration, generalConfiguration: GeneralConfiguration)
     fun removeAll()
     fun start(id: String): Boolean
     fun stop(id: String, shouldReconnect: Boolean = true): Boolean
@@ -17,10 +18,10 @@ interface IWrappersManager {
 class IrcRunnerWrappersManager : IWrappersManager {
     override val wrappers = mutableMapOf<String, IWrapper>()
 
-    override fun initialise(configuration: ServerConfiguration) {
-        val id = configuration.ID
+    override fun initialise(serverConfiguration: ServerConfiguration, generalConfiguration: GeneralConfiguration) {
+        val id = serverConfiguration.ID
 
-        wrappers[id] = IrcRunnerWrapper(id, configuration, this)
+        wrappers[id] = IrcRunnerWrapper(id, serverConfiguration, generalConfiguration, this)
     }
 
     override fun removeAll() {

@@ -1,6 +1,7 @@
 package engineer.carrot.warren.thump.runner
 
 import engineer.carrot.warren.kale.irc.message.rfc1459.PrivMsgMessage
+import engineer.carrot.warren.thump.config.GeneralConfiguration
 import engineer.carrot.warren.thump.config.ServerConfiguration
 import engineer.carrot.warren.thump.handler.LifecycleHandler
 import engineer.carrot.warren.thump.handler.MessageHandler
@@ -17,7 +18,7 @@ enum class WrapperState { READY, RUNNING, RECONNECTING }
 
 data class ReconnectionState(val shouldReconnect: Boolean, var forciblyDisabled: Boolean, val delaySeconds: Int, val maxConsecutive: Int, var currentReconnectCount: Int = 0)
 
-data class ConfigurationState(val server: String, val port: Int, val nickname: String, val password: String?, val channels: Map<String, String?>)
+data class ConfigurationState(val server: String, val port: Int, val nickname: String, val password: String?, val channels: Map<String, String?>, val shouldLogIncomingLines: Boolean)
 
 interface IWrapper {
     fun start(): Boolean
@@ -31,7 +32,7 @@ interface IWrapper {
     val ircState: IrcState?
 }
 
-class IrcRunnerWrapper(val id: String, serverConfiguration: ServerConfiguration, private val manager: IWrappersManager): IWrapper {
+class IrcRunnerWrapper(val id: String, serverConfiguration: ServerConfiguration, generalConfiguration: GeneralConfiguration, private val manager: IWrappersManager): IWrapper {
     val reconnectState: ReconnectionState
     val configuration: ConfigurationState
     @Volatile override var state: WrapperState = WrapperState.READY
@@ -50,16 +51,16 @@ class IrcRunnerWrapper(val id: String, serverConfiguration: ServerConfiguration,
 
     init {
         reconnectState = generateReconnectState(serverConfiguration)
-        configuration = generateConfiguration(serverConfiguration)
+        configuration = generateConfiguration(serverConfiguration, generalConfiguration)
     }
 
-    private fun generateConfiguration(serverConfiguration: ServerConfiguration): ConfigurationState {
+    private fun generateConfiguration(serverConfiguration: ServerConfiguration, generalConfiguration: GeneralConfiguration): ConfigurationState {
         var password: String? = null
         if (serverConfiguration.identifyWithNickServ) {
             password = serverConfiguration.nickServPassword
         }
 
-        return ConfigurationState(serverConfiguration.server, serverConfiguration.port, serverConfiguration.nickname, password, serverConfiguration.channels)
+        return ConfigurationState(serverConfiguration.server, serverConfiguration.port, serverConfiguration.nickname, password, serverConfiguration.channels, generalConfiguration.logRawIRCLinesToServerConsole)
     }
 
     private fun generateReconnectState(serverConfiguration: ServerConfiguration): ReconnectionState {
@@ -84,6 +85,12 @@ class IrcRunnerWrapper(val id: String, serverConfiguration: ServerConfiguration,
             MessageHandler(manager).onPrivateAction(it)
         }
 
+        if (configuration.shouldLogIncomingLines) {
+            eventDispatcher.onRawLineListeners += {
+                LogHelper.info("$id >> ${it.line}")
+            }
+        }
+
         eventDispatcher.onConnectionLifecycleListeners += {
             when(it.lifecycle) {
                 LifecycleState.CONNECTED -> reconnectState.currentReconnectCount = 0
@@ -93,7 +100,7 @@ class IrcRunnerWrapper(val id: String, serverConfiguration: ServerConfiguration,
             LifecycleHandler(id).onConnectionLifecycleChanged(it)
         }
 
-        return WarrenRunner.createRunner(configuration.server, configuration.port, configuration.nickname, configuration.password, configuration.channels, eventDispatcher)
+        return WarrenRunner.createRunner(configuration.server, configuration.port, configuration.nickname, configuration.password, configuration.channels, eventDispatcher, configuration.shouldLogIncomingLines)
     }
 
     override fun sendMessage(target: String, message: String) {

@@ -49,10 +49,10 @@ object Thump {
             LogHelper.warn("Found no valid server configurations to load - check thump/servers.cfg!")
         }
 
-        for (configuration in servers.values) {
-            LogHelper.info("adding ${configuration.server}:${configuration.port} as ${configuration.nickname}")
+        for (serverConfiguration in servers.values) {
+            LogHelper.info("adding ${serverConfiguration.server}:${serverConfiguration.port} as ${serverConfiguration.nickname}")
 
-            wrappersManager.initialise(configuration)
+            wrappersManager.initialise(serverConfiguration, configuration.general)
         }
 
         MinecraftForge.EVENT_BUS.register(messageListener)

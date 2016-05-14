@@ -16,7 +16,7 @@ class ReloadCommandHandler(private val manager: IWrappersManager) : ICommandHand
         LogHelper.info("Player '{}' triggered a reload (disconnecting and reconnecting networks - the server might lag for a few seconds)...", sender.name)
         sender.addChatMessage(TextComponentString("Reloading Thump (disconnecting and reconnecting networks - the server might lag for a few seconds)..."))
 
-        manager.wrappers.forEach { entry -> entry.value.stop() }
+        manager.wrappers.forEach { entry -> entry.value.stop(shouldReconnect = false) }
         manager.removeAll()
 
         LogHelper.info("Stopped and removed connections, reloading configurations...")
