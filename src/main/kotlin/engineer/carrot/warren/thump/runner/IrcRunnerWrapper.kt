@@ -71,6 +71,18 @@ class IrcRunnerWrapper(val id: String, serverConfiguration: ServerConfiguration,
             MessageHandler(manager).onChannelMessage(it)
         }
 
+        eventDispatcher.onChannelActionListeners += {
+            MessageHandler(manager).onChannelAction(it)
+        }
+
+        eventDispatcher.onPrivateMessageListeners += {
+            MessageHandler(manager).onPrivateMessage(it)
+        }
+
+        eventDispatcher.onPrivateActionListeners += {
+            MessageHandler(manager).onPrivateAction(it)
+        }
+
         eventDispatcher.onConnectionLifecycleListeners += {
             LifecycleHandler(id).onConnectionLifecycleChanged(it)
         }

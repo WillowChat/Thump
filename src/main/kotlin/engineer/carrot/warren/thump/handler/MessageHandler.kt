@@ -7,7 +7,10 @@ import engineer.carrot.warren.thump.helper.PlayerHelper
 import engineer.carrot.warren.thump.helper.StringHelper
 import engineer.carrot.warren.thump.helper.TokenHelper
 import engineer.carrot.warren.thump.runner.IWrappersManager
+import engineer.carrot.warren.warren.ChannelActionEvent
 import engineer.carrot.warren.warren.ChannelMessageEvent
+import engineer.carrot.warren.warren.PrivateActionEvent
+import engineer.carrot.warren.warren.PrivateMessageEvent
 
 class MessageHandler(private val manager: IWrappersManager) {
 
@@ -40,52 +43,49 @@ class MessageHandler(private val manager: IWrappersManager) {
         PlayerHelper.sendMessageToAllPlayers(output)
     }
 
-//    @Subscribe
-//    fun handleChannelAction(event: ChannelActionEvent) {
-//        val user = event.fromUser.nameWithoutAccess
-//
-//        if (manager.usernameMatchesAnyConnection(user)) {
-//            return
-//        }
-//
-//        var output = TokenHelper().addUserToken(user).addChannelToken(event.channel.toString()).addMessageToken(event.contents).applyTokens(Thump.configuration.formats.irc.channelAction)
-//
-//        if (Thump.configuration.general.logIrcToServerConsole) {
-//            LogHelper.info(output)
-//        }
-//
-//        if (!Thump.configuration.events.irc.channelAction) {
-//            return
-//        }
-//
-//        output = StringHelper.stripBlacklistedIRCCharacters(output)
-//
-//        PlayerHelper.sendMessageToAllPlayers(output)
-//    }
-//
-//    @Subscribe
-//    fun handlePrivateMessage(event: PrivateMessageEvent) {
-//        var output = "PM from " + event.fromUser + ": " + event.contents
-//
-//        if (!Thump.configuration.general.logIrcToServerConsole) {
-//            return
-//        }
-//
-//        output = StringHelper.stripBlacklistedIRCCharacters(output)
-//
-//        LogHelper.info(output)
-//    }
-//
-//    @Subscribe
-//    fun handlePrivateAction(event: PrivateActionEvent) {
-//        var output = "PM ACTION from " + event.fromUser + ": " + event.contents
-//
-//        if (!Thump.configuration.general.logIrcToServerConsole) {
-//            return
-//        }
-//
-//        output = StringHelper.stripBlacklistedIRCCharacters(output)
-//
-//        LogHelper.info(output)
-//    }
+    fun onChannelAction(event: ChannelActionEvent) {
+        val nick = event.user.nick
+
+        if (manager.anyWrappersMatch(nick)) {
+            return
+        }
+
+        var output = TokenHelper().addUserToken(nick).addChannelToken(event.channel.toString()).addMessageToken(event.message).applyTokens(Thump.configuration.formats.irc.channelAction)
+
+        if (Thump.configuration.general.logIrcToServerConsole) {
+            LogHelper.info(output)
+        }
+
+        if (!Thump.configuration.events.irc.channelAction) {
+            return
+        }
+
+        output = StringHelper.stripBlacklistedIRCCharacters(output)
+
+        PlayerHelper.sendMessageToAllPlayers(output)
+    }
+
+    fun onPrivateMessage(event: PrivateMessageEvent) {
+        var output = "PM from " + event.user.nick + ": " + event.message
+
+        if (!Thump.configuration.general.logIrcToServerConsole) {
+            return
+        }
+
+        output = StringHelper.stripBlacklistedIRCCharacters(output)
+
+        LogHelper.info(output)
+    }
+
+    fun onPrivateAction(event: PrivateActionEvent) {
+        var output = "PM ACTION from " + event.user.nick + ": " + event.message
+
+        if (!Thump.configuration.general.logIrcToServerConsole) {
+            return
+        }
+
+        output = StringHelper.stripBlacklistedIRCCharacters(output)
+
+        LogHelper.info(output)
+    }
 }
