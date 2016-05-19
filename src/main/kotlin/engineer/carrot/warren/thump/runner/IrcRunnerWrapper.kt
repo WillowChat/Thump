@@ -1,6 +1,7 @@
 package engineer.carrot.warren.thump.runner
 
 import engineer.carrot.warren.kale.irc.message.rfc1459.PrivMsgMessage
+import engineer.carrot.warren.kale.irc.message.utility.RawMessage
 import engineer.carrot.warren.thump.config.GeneralConfiguration
 import engineer.carrot.warren.thump.config.ServerConfiguration
 import engineer.carrot.warren.thump.handler.LifecycleHandler
@@ -23,6 +24,7 @@ data class ConfigurationState(val server: String, val port: Int, val useTLS: Boo
 interface IWrapper {
     fun start(): Boolean
     fun stop(shouldReconnect: Boolean = true): Boolean
+    fun sendRaw(line: String): Boolean
     fun sendMessage(target: String, message: String)
     fun sendMessageToAll(message: String)
 
@@ -34,12 +36,12 @@ interface IWrapper {
 
 class IrcRunnerWrapper(val id: String, serverConfiguration: ServerConfiguration, generalConfiguration: GeneralConfiguration, private val manager: IWrappersManager): IWrapper {
     val reconnectState: ReconnectionState
+
     val configuration: ConfigurationState
     @Volatile override var state: WrapperState = WrapperState.READY
-
     @Volatile private var currentRunner: IrcRunner? = null
-    @Volatile private var currentThread: Thread? = null
 
+    @Volatile private var currentThread: Thread? = null
     override val nickname: String?
         get() = currentRunner?.lastStateSnapshot?.connection?.nickname
 
@@ -112,6 +114,17 @@ class IrcRunnerWrapper(val id: String, serverConfiguration: ServerConfiguration,
         }
 
         return WarrenRunner.createRunner(configuration.server, configuration.port, configuration.useTLS, configuration.nickname, configuration.password, configuration.channels, eventDispatcher, configuration.shouldLogIncomingLines, configuration.fingerprints)
+    }
+
+    override fun sendRaw(line: String): Boolean {
+        val runner = currentRunner
+        if (runner == null) {
+            LogHelper.info("$id not sending raw line because the irc runner isn't running: $line")
+            return false
+        }
+
+        runner.eventSink.add(SendSomethingEvent(RawMessage(line), runner.sink))
+        return true
     }
 
     override fun sendMessage(target: String, message: String) {

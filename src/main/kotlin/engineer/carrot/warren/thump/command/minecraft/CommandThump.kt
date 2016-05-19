@@ -25,6 +25,7 @@ class CommandThump(private val manager: IWrappersManager) : CommandBase() {
         this.handlers.put("connect", ConnectCommandHandler(manager))
         this.handlers.put("disconnect", DisconnectCommandHandler(manager))
         this.handlers.put("reload", ReloadCommandHandler(manager))
+        this.handlers.put("sendraw", SendRawCommandHandler(manager))
     }
 
     // CommandBase
