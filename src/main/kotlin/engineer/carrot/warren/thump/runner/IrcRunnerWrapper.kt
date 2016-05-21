@@ -7,10 +7,7 @@ import engineer.carrot.warren.thump.config.ServerConfiguration
 import engineer.carrot.warren.thump.handler.LifecycleHandler
 import engineer.carrot.warren.thump.handler.MessageHandler
 import engineer.carrot.warren.thump.helper.LogHelper
-import engineer.carrot.warren.warren.IrcRunner
-import engineer.carrot.warren.warren.SendSomethingEvent
-import engineer.carrot.warren.warren.WarrenEventDispatcher
-import engineer.carrot.warren.warren.WarrenRunner
+import engineer.carrot.warren.warren.*
 import engineer.carrot.warren.warren.state.IrcState
 import engineer.carrot.warren.warren.state.LifecycleState
 import kotlin.concurrent.thread
@@ -77,29 +74,29 @@ class IrcRunnerWrapper(val id: String, serverConfiguration: ServerConfiguration,
 
     private fun createRunner(): IrcRunner {
         val eventDispatcher = WarrenEventDispatcher()
-        eventDispatcher.onChannelMessageListeners += {
+        eventDispatcher.on(ChannelMessageEvent::class) {
             MessageHandler(manager).onChannelMessage(it)
         }
 
-        eventDispatcher.onChannelActionListeners += {
+        eventDispatcher.on(ChannelActionEvent::class) {
             MessageHandler(manager).onChannelAction(it)
         }
 
-        eventDispatcher.onPrivateMessageListeners += {
+        eventDispatcher.on(PrivateMessageEvent::class) {
             MessageHandler(manager).onPrivateMessage(it)
         }
 
-        eventDispatcher.onPrivateActionListeners += {
+        eventDispatcher.on(PrivateActionEvent::class) {
             MessageHandler(manager).onPrivateAction(it)
         }
 
         if (configuration.shouldLogIncomingLines) {
-            eventDispatcher.onRawLineListeners += {
+            eventDispatcher.on(RawIncomingLineEvent::class) {
                 LogHelper.info("$id >> ${it.line}")
             }
         }
 
-        eventDispatcher.onConnectionLifecycleListeners += {
+        eventDispatcher.on(ConnectionLifecycleEvent::class) {
             when(it.lifecycle) {
                 LifecycleState.CONNECTED -> reconnectState.currentReconnectCount = 0
                 else -> Unit
