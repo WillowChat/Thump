@@ -43,7 +43,7 @@ class IrcRunnerWrapper(val id: String, serverConfiguration: ServerConfiguration,
         get() = currentRunner?.lastStateSnapshot?.connection?.nickname
 
     override val channels: Set<String>?
-        get() = currentRunner?.lastStateSnapshot?.channels?.joined?.keys
+        get() = currentRunner?.lastStateSnapshot?.channels?.joined?.all?.keys
 
     override val ircState: IrcState?
         get() = currentRunner?.lastStateSnapshot
@@ -135,7 +135,7 @@ class IrcRunnerWrapper(val id: String, serverConfiguration: ServerConfiguration,
     }
 
     override fun sendMessageToAll(message: String) {
-        val channels = currentRunner?.lastStateSnapshot?.channels?.joined?.keys
+        val channels = currentRunner?.lastStateSnapshot?.channels?.joined?.all?.keys
         if (channels == null) {
             LogHelper.info("$id couldn't get channels, not sending message $message")
             return
