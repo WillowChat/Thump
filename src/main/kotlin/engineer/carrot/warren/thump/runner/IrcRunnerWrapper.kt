@@ -8,6 +8,8 @@ import engineer.carrot.warren.thump.handler.LifecycleHandler
 import engineer.carrot.warren.thump.handler.MessageHandler
 import engineer.carrot.warren.thump.helper.LogHelper
 import engineer.carrot.warren.warren.*
+import engineer.carrot.warren.warren.event.*
+import engineer.carrot.warren.warren.event.internal.SendSomethingEvent
 import engineer.carrot.warren.warren.state.IrcState
 import engineer.carrot.warren.warren.state.LifecycleState
 import kotlin.concurrent.thread
