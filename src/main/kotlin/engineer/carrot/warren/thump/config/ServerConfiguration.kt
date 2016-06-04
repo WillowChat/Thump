@@ -16,7 +16,13 @@ class ServerConfiguration(category: String, configuration: Configuration) {
 
     // Nickserv
     var identifyWithNickServ = false
+    var nickServAccount = ""
     var nickServPassword = ""
+
+    // SASL
+    var identifyWithSasl = false
+    var saslAccount = ""
+    var saslPassword = ""
 
     // TLS
     var useTLS = true
@@ -42,10 +48,17 @@ class ServerConfiguration(category: String, configuration: Configuration) {
             this.channels = parseChannels(Sets.newHashSet(*channels))
         }
 
-        val nickservCategory = category + ".nickserv"
+        val nickservCategory = category + ".auth.nickserv"
         configuration.setCategoryPropertyOrder(nickservCategory, Lists.newArrayList(IDENTIFY_WITH_NICKSERV_KEY, NICKSERV_PASSWORD_KEY))
         this.identifyWithNickServ = configuration.getBoolean(IDENTIFY_WITH_NICKSERV_KEY, nickservCategory, this.identifyWithNickServ, "")
+        this.nickServAccount = configuration.getString(NICKSERV_ACCOUNT_KEY, nickservCategory, this.nickServAccount, "")
         this.nickServPassword = configuration.getString(NICKSERV_PASSWORD_KEY, nickservCategory, this.nickServPassword, "")
+
+        val saslCategory = category + ".auth.sasl"
+        configuration.setCategoryPropertyOrder(nickservCategory, Lists.newArrayList(IDENTIFY_WITH_SASL_KEY, SASL_PASSWORD_KEY))
+        this.identifyWithSasl = configuration.getBoolean(IDENTIFY_WITH_SASL_KEY, saslCategory, this.identifyWithSasl, "")
+        this.saslAccount = configuration.getString(SASL_ACCOUNT_KEY, saslCategory, this.saslAccount, "")
+        this.saslPassword = configuration.getString(SASL_PASSWORD_KEY, saslCategory, this.saslPassword, "")
 
         val tlsCategory = category + ".tls"
         configuration.setCategoryPropertyOrder(tlsCategory, Lists.newArrayList(USE_TLS_KEY, FORCE_ACCEPT_CERTIFICATES_KEY, FORCIBLY_ACCEPTED_CERTIFICATES_KEY))
@@ -62,7 +75,7 @@ class ServerConfiguration(category: String, configuration: Configuration) {
     }
 
     fun parseChannels(configurationStrings: Iterable<String>): Map<String, String?> {
-        var channels: MutableMap<String, String?> = HashMap()
+        val channels: MutableMap<String, String?> = HashMap()
 
         stringsLoop@ for (configurationString in configurationStrings) {
             val equalsLocation = configurationString.indexOf('=')
@@ -92,7 +105,11 @@ class ServerConfiguration(category: String, configuration: Configuration) {
         private val NICKNAME_KEY = "Nickname"
         private val CHANNELS_KEY = "Channels"
         private val IDENTIFY_WITH_NICKSERV_KEY = "IdentifyWithNickserv"
+        private val NICKSERV_ACCOUNT_KEY = "NickservAccount"
         private val NICKSERV_PASSWORD_KEY = "NickservPassword"
+        private val IDENTIFY_WITH_SASL_KEY = "IdentifyWithSASL"
+        private val SASL_ACCOUNT_KEY = "SASLAccount"
+        private val SASL_PASSWORD_KEY = "SASLPassword"
         private val USE_TLS_KEY = "UseTLS"
         private val FORCE_ACCEPT_CERTIFICATES_KEY = "ForceAcceptCertificates"
         private val FORCIBLY_ACCEPTED_CERTIFICATES_KEY = "ForciblyAcceptedCertificates"

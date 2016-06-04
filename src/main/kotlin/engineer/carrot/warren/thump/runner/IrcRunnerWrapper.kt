@@ -18,7 +18,7 @@ enum class WrapperState { READY, RUNNING, RECONNECTING }
 
 data class ReconnectionState(val shouldReconnect: Boolean, var forciblyDisabled: Boolean, val delaySeconds: Int, val maxConsecutive: Int, var currentReconnectCount: Int = 0)
 
-data class ConfigurationState(val server: String, val port: Int, val useTLS: Boolean, val nickname: String, val password: String?, val channels: Map<String, String?>, val shouldLogIncomingLines: Boolean, val fingerprints: Set<String>?)
+data class ConfigurationState(val server: String, val port: Int, val useTLS: Boolean, val nickname: String, val channels: Map<String, String?>, val shouldLogIncomingLines: Boolean, val fingerprints: Set<String>?, val sasl: SaslConfiguration?, val nickserv: NickServConfiguration?)
 
 interface IWrapper {
     fun start(): Boolean
@@ -56,18 +56,25 @@ class IrcRunnerWrapper(val id: String, serverConfiguration: ServerConfiguration,
     }
 
     private fun generateConfiguration(serverConfiguration: ServerConfiguration, generalConfiguration: GeneralConfiguration): ConfigurationState {
-        var password: String? = null
-        if (serverConfiguration.identifyWithNickServ) {
-            password = serverConfiguration.nickServPassword
-        }
-
         val filteredFingerprints: Set<String> = serverConfiguration.forciblyAcceptedCertificates.filterNot { it.isBlank() }.toSet()
         var fingerprints: Set<String>? = null
         if (serverConfiguration.forceAcceptCertificates) {
             fingerprints = filteredFingerprints
         }
 
-        return ConfigurationState(serverConfiguration.server, serverConfiguration.port, serverConfiguration.useTLS, serverConfiguration.nickname, password, serverConfiguration.channels, generalConfiguration.logRawIRCLinesToServerConsole, fingerprints)
+        val saslConfiguration = if (serverConfiguration.identifyWithSasl) {
+            SaslConfiguration(account = serverConfiguration.saslAccount, password = serverConfiguration.saslPassword)
+        } else {
+            null
+        }
+
+        val nickservConfiguration = if (serverConfiguration.identifyWithNickServ) {
+            NickServConfiguration(account = serverConfiguration.nickServAccount, password = serverConfiguration.nickServPassword)
+        } else {
+            null
+        }
+
+        return ConfigurationState(serverConfiguration.server, serverConfiguration.port, serverConfiguration.useTLS, serverConfiguration.nickname, serverConfiguration.channels, generalConfiguration.logRawIRCLinesToServerConsole, fingerprints, saslConfiguration, nickservConfiguration)
     }
 
     private fun generateReconnectState(serverConfiguration: ServerConfiguration): ReconnectionState {
@@ -112,7 +119,7 @@ class IrcRunnerWrapper(val id: String, serverConfiguration: ServerConfiguration,
             LogHelper.warn("DANGER ZONE: making runner for $id with the \"accept all certificates\" option - it's not secure! Add the expected certificate authority to your Java trust store, or use certificate fingerprints instead!")
         }
 
-        val factory = WarrenFactory(ServerConfiguration(configuration.server, configuration.port, configuration.useTLS, configuration.fingerprints), UserConfiguration(configuration.nickname, configuration.password, sasl = true),
+        val factory = WarrenFactory(ServerConfiguration(configuration.server, configuration.port, configuration.useTLS, configuration.fingerprints), UserConfiguration(configuration.nickname, configuration.sasl, configuration.nickserv),
                                     ChannelsConfiguration(configuration.channels), EventConfiguration(events, configuration.shouldLogIncomingLines))
 
         return factory.create()
@@ -125,7 +132,7 @@ class IrcRunnerWrapper(val id: String, serverConfiguration: ServerConfiguration,
             return false
         }
 
-        runner.eventSink.add(SendSomethingEvent(RawMessage(line), runner.sink))
+        runner.eventSink.add { runner.sink.writeRaw(line) }
         return true
     }
 
