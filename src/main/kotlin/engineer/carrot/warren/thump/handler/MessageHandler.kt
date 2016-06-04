@@ -7,10 +7,10 @@ import engineer.carrot.warren.thump.helper.PlayerHelper
 import engineer.carrot.warren.thump.helper.StringHelper
 import engineer.carrot.warren.thump.helper.TokenHelper
 import engineer.carrot.warren.thump.runner.IWrappersManager
-import engineer.carrot.warren.warren.ChannelActionEvent
-import engineer.carrot.warren.warren.ChannelMessageEvent
-import engineer.carrot.warren.warren.PrivateActionEvent
-import engineer.carrot.warren.warren.PrivateMessageEvent
+import engineer.carrot.warren.warren.event.ChannelActionEvent
+import engineer.carrot.warren.warren.event.ChannelMessageEvent
+import engineer.carrot.warren.warren.event.PrivateActionEvent
+import engineer.carrot.warren.warren.event.PrivateMessageEvent
 
 class MessageHandler(private val manager: IWrappersManager) {
 

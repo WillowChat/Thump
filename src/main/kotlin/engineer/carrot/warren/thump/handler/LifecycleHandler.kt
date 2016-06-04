@@ -4,7 +4,7 @@ import engineer.carrot.warren.thump.Thump
 import engineer.carrot.warren.thump.helper.LogHelper
 import engineer.carrot.warren.thump.helper.PlayerHelper
 import engineer.carrot.warren.thump.helper.TokenHelper
-import engineer.carrot.warren.warren.ConnectionLifecycleEvent
+import engineer.carrot.warren.warren.event.ConnectionLifecycleEvent
 import engineer.carrot.warren.warren.state.LifecycleState
 
 class LifecycleHandler(private val id: String) {
