@@ -32,14 +32,14 @@ class SendRawCommandHandler(private val manager: IWrappersManager) : ICommandHan
             WrapperState.RUNNING -> {
                 val line = parameters.drop(1).joinToString(separator = " ")
                 if (wrapper.sendRaw(line)) {
-                    sender.addChatMessage(TextComponentString("Sent message to that ID: $line"))
+                    sender.addChatMessage(TextComponentString("Sent message to $id: $line"))
                 } else {
-                    sender.addChatMessage(TextComponentString("Failed to send to that ID: $line"))
+                    sender.addChatMessage(TextComponentString("Failed to send to $id: $line"))
                 }
             }
 
             else -> {
-                sender.addChatMessage(TextComponentString("That network ID isn't running - check with /thump status"))
+                sender.addChatMessage(TextComponentString("Network $id isn't running - check with /thump status"))
             }
         }
     }
