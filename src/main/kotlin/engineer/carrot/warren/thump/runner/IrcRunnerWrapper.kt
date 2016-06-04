@@ -73,30 +73,30 @@ class IrcRunnerWrapper(val id: String, serverConfiguration: ServerConfiguration,
     }
 
     private fun createRunner(): IrcRunner {
-        val eventDispatcher = WarrenEventDispatcher()
-        eventDispatcher.on(ChannelMessageEvent::class) {
+        val events = WarrenEventDispatcher()
+        events.on(ChannelMessageEvent::class) {
             MessageHandler(manager).onChannelMessage(it)
         }
 
-        eventDispatcher.on(ChannelActionEvent::class) {
+        events.on(ChannelActionEvent::class) {
             MessageHandler(manager).onChannelAction(it)
         }
 
-        eventDispatcher.on(PrivateMessageEvent::class) {
+        events.on(PrivateMessageEvent::class) {
             MessageHandler(manager).onPrivateMessage(it)
         }
 
-        eventDispatcher.on(PrivateActionEvent::class) {
+        events.on(PrivateActionEvent::class) {
             MessageHandler(manager).onPrivateAction(it)
         }
 
         if (configuration.shouldLogIncomingLines) {
-            eventDispatcher.on(RawIncomingLineEvent::class) {
+            events.on(RawIncomingLineEvent::class) {
                 LogHelper.info("$id >> ${it.line}")
             }
         }
 
-        eventDispatcher.on(ConnectionLifecycleEvent::class) {
+        events.on(ConnectionLifecycleEvent::class) {
             when(it.lifecycle) {
                 LifecycleState.CONNECTED -> reconnectState.currentReconnectCount = 0
                 else -> Unit
@@ -110,7 +110,10 @@ class IrcRunnerWrapper(val id: String, serverConfiguration: ServerConfiguration,
             LogHelper.warn("DANGER ZONE: making runner for $id with the \"accept all certificates\" option - it's not secure! Add the expected certificate authority to your Java trust store, or use certificate fingerprints instead!")
         }
 
-        return WarrenRunner.createRunner(configuration.server, configuration.port, configuration.useTLS, configuration.nickname, configuration.password, configuration.channels, eventDispatcher, configuration.shouldLogIncomingLines, configuration.fingerprints)
+        val factory = WarrenFactory(ServerConfiguration(configuration.server, configuration.port, configuration.useTLS, configuration.fingerprints), UserConfiguration(configuration.nickname, configuration.password, sasl = true),
+                                    ChannelsConfiguration(configuration.channels), EventConfiguration(events, configuration.shouldLogIncomingLines))
+
+        return factory.create()
     }
 
     override fun sendRaw(line: String): Boolean {
