@@ -12,6 +12,8 @@ import engineer.carrot.warren.warren.event.*
 import engineer.carrot.warren.warren.event.internal.SendSomethingEvent
 import engineer.carrot.warren.warren.state.IrcState
 import engineer.carrot.warren.warren.state.LifecycleState
+import net.minecraftforge.fml.common.FMLCommonHandler
+import net.minecraftforge.fml.relauncher.Side
 import kotlin.concurrent.thread
 
 enum class WrapperState { READY, RUNNING, RECONNECTING }
@@ -119,7 +121,13 @@ class IrcRunnerWrapper(val id: String, serverConfiguration: ServerConfiguration,
             LogHelper.warn("DANGER ZONE: making runner for $id with the \"accept all certificates\" option - it's not secure! Add the expected certificate authority to your Java trust store, or use certificate fingerprints instead!")
         }
 
-        val factory = WarrenFactory(ServerConfiguration(configuration.server, configuration.port, configuration.useTLS, configuration.fingerprints), UserConfiguration(configuration.nickname, configuration.sasl, configuration.nickserv),
+        val user = when (FMLCommonHandler.instance().side) {
+            Side.CLIENT -> "thumpClnt"
+            Side.SERVER -> "thumpSrv"
+            Side.CLIENT -> "thump"
+        }
+
+        val factory = WarrenFactory(ServerConfiguration(configuration.server, configuration.port, configuration.useTLS, configuration.fingerprints), UserConfiguration(configuration.nickname, user, configuration.sasl, configuration.nickserv),
                                     ChannelsConfiguration(configuration.channels), EventConfiguration(events, configuration.shouldLogIncomingLines))
 
         return factory.create()
