@@ -124,7 +124,7 @@ class IrcRunnerWrapper(val id: String, serverConfiguration: ServerConfiguration,
         val user = when (FMLCommonHandler.instance().side) {
             Side.CLIENT -> "thumpClnt"
             Side.SERVER -> "thumpSrv"
-            Side.CLIENT -> "thump"
+            else -> "thump"
         }
 
         val factory = WarrenFactory(ServerConfiguration(configuration.server, configuration.port, configuration.useTLS, configuration.fingerprints), UserConfiguration(configuration.nickname, user, configuration.sasl, configuration.nickserv),
