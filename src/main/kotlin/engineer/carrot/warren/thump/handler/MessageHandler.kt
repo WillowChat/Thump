@@ -6,7 +6,7 @@ import engineer.carrot.warren.thump.helper.LogHelper
 import engineer.carrot.warren.thump.helper.PlayerHelper
 import engineer.carrot.warren.thump.helper.StringHelper
 import engineer.carrot.warren.thump.helper.TokenHelper
-import engineer.carrot.warren.thump.runner.IWrappersManager
+import engineer.carrot.warren.thump.plugin.irc.IWrappersManager
 import engineer.carrot.warren.warren.event.ChannelActionEvent
 import engineer.carrot.warren.warren.event.ChannelMessageEvent
 import engineer.carrot.warren.warren.event.PrivateActionEvent

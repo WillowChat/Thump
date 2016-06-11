@@ -4,8 +4,8 @@ import com.google.common.base.Joiner
 import com.google.common.collect.Lists
 import com.google.common.collect.Sets
 import engineer.carrot.warren.thump.Thump
-import engineer.carrot.warren.thump.runner.IWrappersManager
-import engineer.carrot.warren.thump.runner.WrapperState
+import engineer.carrot.warren.thump.plugin.irc.IWrappersManager
+import engineer.carrot.warren.thump.plugin.irc.WrapperState
 import net.minecraft.command.ICommandSender
 import net.minecraft.util.text.TextComponentString
 import net.minecraft.util.text.TextFormatting
@@ -30,7 +30,14 @@ class StatusCommandHandler(private val manager: IWrappersManager) : ICommandHand
             val statusMessage = TextComponentString(" $id: $state")
 
             if (state == WrapperState.RUNNING) {
-                val channelsToJoin: Set<String> = Thump.configuration.servers.servers[id]?.channels?.keys ?: Sets.newHashSet()
+                val ircPlugin = Thump.firstIrcPlugin
+
+                // fixme: remove hack
+                val channelsToJoin: Set<String> = if (ircPlugin != null) {
+                    ircPlugin.configWrapper.config.servers[id]?.channels?.keys ?: Sets.newHashSet()
+                } else {
+                    Sets.newHashSet()
+                }
 
                 val joinedChannels = wrapper.channels ?: setOf()
                 val joinedChannelsMessage: TextComponentString = if (channelsToJoin.isEmpty()) {

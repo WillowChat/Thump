@@ -1,36 +1,34 @@
 package engineer.carrot.warren.thump.config
 
+import engineer.carrot.warren.thump.plugin.irc.config.IrcServersConfiguration
 import net.minecraftforge.common.config.Configuration
 
 import java.io.File
 
 class ModConfiguration {
     private lateinit var generalConfiguration: Configuration
-    private lateinit var serversConfiguration: Configuration
 
     lateinit var events: EventsConfiguration
 
     // Mod configuration
     lateinit var general: GeneralConfiguration
-
-    // Servers configuration
-    lateinit var servers: ServersConfiguration
     lateinit var commands: CommandsConfiguration
     lateinit var formats: FormatsConfiguration
 
     fun initialise(configDirectory: File) {
         this.generalConfiguration = Configuration(File(configDirectory, GENERAL_NAME), GENERAL_VERSION)
-        this.serversConfiguration = Configuration(File(configDirectory, SERVERS_NAME), SERVERS_VERSION)
     }
 
     fun loadAllConfigurations() {
         this.loadGeneralConfiguration()
-        this.loadServersConfiguration()
+
+        // fixme: tell plugins to load
     }
 
     fun saveAllConfigurations() {
         this.saveGeneralConfiguration()
-        this.saveServersConfiguration()
+
+        // fixme: tell plugins to save
     }
 
     fun loadGeneralConfiguration() {
@@ -42,25 +40,14 @@ class ModConfiguration {
         this.formats = FormatsConfiguration(this.generalConfiguration)
     }
 
-    fun loadServersConfiguration() {
-        this.serversConfiguration.load()
-
-        this.servers = ServersConfiguration(this.serversConfiguration)
-    }
-
     fun saveGeneralConfiguration() {
         this.generalConfiguration.save()
-    }
-
-    fun saveServersConfiguration() {
-        this.serversConfiguration.save()
     }
 
     companion object {
 
         private val GENERAL_NAME = "general.cfg"
         private val GENERAL_VERSION = "1"
-        private val SERVERS_NAME = "servers.cfg"
-        private val SERVERS_VERSION = "1"
+
     }
 }

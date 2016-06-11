@@ -3,9 +3,11 @@ package engineer.carrot.warren.thump.command.minecraft.handler
 import com.google.common.collect.Lists
 import engineer.carrot.warren.thump.Thump
 import engineer.carrot.warren.thump.helper.LogHelper
-import engineer.carrot.warren.thump.runner.IWrappersManager
+import engineer.carrot.warren.thump.minecraft.ChatEventHandler
+import engineer.carrot.warren.thump.plugin.irc.IWrappersManager
 import net.minecraft.command.ICommandSender
 import net.minecraft.util.text.TextComponentString
+import net.minecraftforge.common.MinecraftForge
 
 class ReloadCommandHandler(private val manager: IWrappersManager) : ICommandHandler {
 
@@ -28,8 +30,12 @@ class ReloadCommandHandler(private val manager: IWrappersManager) : ICommandHand
         LogHelper.info("Repopulating connection manager...")
         sender.addChatMessage(TextComponentString("Reloading connection manager..."))
 
-        Thump.instance.populateConnectionManager()
-        Thump.instance.startAllConnections()
+        // fixme: remove hack
+        val ircPlugin = Thump.firstIrcPlugin
+        if (ircPlugin != null) {
+            ircPlugin.populateConnectionManager()
+            ircPlugin.startAllConnections()
+        }
 
         LogHelper.info("Reload complete!")
         sender.addChatMessage(TextComponentString("Thump reloaded! Check networks with /thump status"))

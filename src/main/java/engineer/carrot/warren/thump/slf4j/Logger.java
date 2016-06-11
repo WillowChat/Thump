@@ -27,63 +27,63 @@ package engineer.carrot.warren.thump.slf4j;
  */
 
 public interface Logger {
-    public boolean isTraceEnabled();
+    boolean isTraceEnabled();
 
-    public boolean isDebugEnabled();
+    boolean isDebugEnabled();
 
-    public boolean isInfoEnabled();
+    boolean isInfoEnabled();
 
-    public boolean isWarnEnabled();
+    boolean isWarnEnabled();
 
-    public boolean isErrorEnabled();
+    boolean isErrorEnabled();
 
-    public void trace(String msg);
+    void trace(String msg);
 
-    public void trace(String format, Object arg);
+    void trace(String format, Object arg);
 
-    public void trace(String format, Object arg1, Object arg2);
+    void trace(String format, Object arg1, Object arg2);
 
-    public void trace(String format, Object... arguments);
+    void trace(String format, Object... arguments);
 
-    public void trace(String msg, Throwable t);
+    void trace(String msg, Throwable t);
 
-    public void debug(String msg);
+    void debug(String msg);
 
-    public void debug(String format, Object arg);
+    void debug(String format, Object arg);
 
-    public void debug(String format, Object arg1, Object arg2);
+    void debug(String format, Object arg1, Object arg2);
 
-    public void debug(String format, Object... arguments);
+    void debug(String format, Object... arguments);
 
-    public void debug(String msg, Throwable t);
+    void debug(String msg, Throwable t);
 
-    public void info(String msg);
+    void info(String msg);
 
-    public void info(String format, Object arg);
+    void info(String format, Object arg);
 
-    public void info(String format, Object arg1, Object arg2);
+    void info(String format, Object arg1, Object arg2);
 
-    public void info(String format, Object... arguments);
+    void info(String format, Object... arguments);
 
-    public void info(String msg, Throwable t);
+    void info(String msg, Throwable t);
 
-    public void warn(String msg);
+    void warn(String msg);
 
-    public void warn(String format, Object arg);
+    void warn(String format, Object arg);
 
-    public void warn(String format, Object... arguments);
+    void warn(String format, Object... arguments);
 
-    public void warn(String format, Object arg1, Object arg2);
+    void warn(String format, Object arg1, Object arg2);
 
-    public void warn(String msg, Throwable t);
+    void warn(String msg, Throwable t);
 
-    public void error(String msg);
+    void error(String msg);
 
-    public void error(String format, Object arg);
+    void error(String format, Object arg);
 
-    public void error(String format, Object arg1, Object arg2);
+    void error(String format, Object arg1, Object arg2);
 
-    public void error(String format, Object... arguments);
+    void error(String format, Object... arguments);
 
-    public void error(String msg, Throwable t);
+    void error(String msg, Throwable t);
 }

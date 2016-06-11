@@ -1,20 +1,27 @@
 package engineer.carrot.warren.thump
 
+import engineer.carrot.warren.thump.api.IThumpServicePlugin
+import engineer.carrot.warren.thump.api.ThumpPluginContext
 import engineer.carrot.warren.thump.command.minecraft.CommandThump
 import engineer.carrot.warren.thump.config.ModConfiguration
 import engineer.carrot.warren.thump.handler.MessageHandler
 import engineer.carrot.warren.thump.helper.LogHelper
 import engineer.carrot.warren.thump.minecraft.ChatEventHandler
+import engineer.carrot.warren.thump.plugin.ThumpPluginDiscoverer
 import engineer.carrot.warren.thump.proxy.CommonProxy
-import engineer.carrot.warren.thump.runner.IWrappersManager
-import engineer.carrot.warren.thump.runner.IrcRunnerWrappersManager
+import engineer.carrot.warren.thump.plugin.irc.IWrappersManager
+import engineer.carrot.warren.thump.plugin.irc.IrcRunnerWrappersManager
+import engineer.carrot.warren.thump.plugin.irc.IrcServicePlugin
 import net.minecraftforge.common.MinecraftForge
+import net.minecraftforge.common.config.Configuration
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.common.SidedProxy
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent
 import net.minecraftforge.fml.common.event.FMLServerStoppedEvent
 import java.io.File
+import java.util.*
 
 @Suppress("UNUSED", "UNUSED_PARAMETER")
 @Mod(modid = Reference.MOD_ID, name = Reference.MOD_ID, version = Reference.MOD_VERSION, modLanguage = "kotlin", modLanguageAdapter = "engineer.carrot.warren.thump.CarrotKotlinAdapter", acceptableRemoteVersions = "*")
@@ -25,53 +32,51 @@ object Thump {
     @SidedProxy(clientSide = "engineer.carrot.warren.thump.proxy.ClientProxy", serverSide = "engineer.carrot.warren.thump.proxy.CommonProxy")
     lateinit var proxy: CommonProxy
 
-    val wrappersManager: IWrappersManager = IrcRunnerWrappersManager()
     val configuration = ModConfiguration()
+
+    lateinit var servicePlugins: List<IThumpServicePlugin>
 
     @Mod.EventHandler
     fun preInit(event: FMLPreInitializationEvent) {
-        configuration.initialise(File(event.modConfigurationDirectory, "thump"))
+        val modConfigDirectory = File(event.modConfigurationDirectory, "thump")
+        configuration.initialise(modConfigDirectory)
         configuration.loadAllConfigurations()
         configuration.saveAllConfigurations()
 
-        this.populateConnectionManager()
+        servicePlugins = ThumpPluginDiscoverer.discover(event.asmData)
 
-        val handler = ChatEventHandler(wrappersManager)
-        MinecraftForge.EVENT_BUS.register(handler)
-    }
+        val baseServiceConfigDirectory = File(modConfigDirectory, "service")
 
-    fun populateConnectionManager() {
-        val messageListener = MessageHandler(wrappersManager)
+        servicePlugins.forEach {
+            val configName = it.name.toLowerCase().filter { it.isLetter() }
 
-        val servers = configuration.servers.servers
+            val pluginConfig = Configuration(File(baseServiceConfigDirectory, "$configName.cfg"), "1")
+            val context = ThumpPluginContext(configuration = pluginConfig)
 
-        if (servers.isEmpty()) {
-            LogHelper.warn("Found no valid server configurations to load - check thump/servers.cfg!")
+            it.configure(context)
         }
 
-        for (serverConfiguration in servers.values) {
-            LogHelper.info("adding ${serverConfiguration.server}:${serverConfiguration.port} as ${serverConfiguration.nickname}")
-
-            wrappersManager.initialise(serverConfiguration, configuration.general)
+        // fixme: remove hack
+        val ircPlugin = firstIrcPlugin
+        if (ircPlugin != null) {
+            val handler = ChatEventHandler(ircPlugin.wrappersManager)
+            MinecraftForge.EVENT_BUS.register(handler)
         }
-
-        MinecraftForge.EVENT_BUS.register(messageListener)
     }
 
     @Mod.EventHandler
     fun onServerStarting(event: FMLServerStartingEvent) {
         LogHelper.info("server starting - initialising all connections")
 
-        val command = CommandThump(wrappersManager)
-        event.registerServerCommand(command)
+        // fixme: remove hack
+        val ircPlugin = firstIrcPlugin
+        if (ircPlugin != null) {
+            val command = CommandThump(ircPlugin.wrappersManager)
+            event.registerServerCommand(command)
+        }
 
-        this.startAllConnections()
-    }
-
-    fun startAllConnections() {
-        wrappersManager.wrappers.forEach { entry ->
-            LogHelper.info("Starting ${entry.key}")
-            wrappersManager.start(entry.key)
+        servicePlugins.forEach {
+            it.start()
         }
     }
 
@@ -79,9 +84,19 @@ object Thump {
     fun onServerStopped(event: FMLServerStoppedEvent) {
         LogHelper.info("server stopping - stopping all connections")
 
-        wrappersManager.wrappers.forEach { entry ->
-            LogHelper.info("Stopping ${entry.key}")
-            wrappersManager.stop(entry.key)
+        servicePlugins.forEach {
+            it.stop()
         }
     }
+
+    val firstIrcPlugin: IrcServicePlugin?
+        get() {
+            servicePlugins.forEach {
+                if (it is IrcServicePlugin) {
+                    return it
+                }
+            }
+
+            return null
+        }
 }

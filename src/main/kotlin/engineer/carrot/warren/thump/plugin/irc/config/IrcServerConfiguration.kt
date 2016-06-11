@@ -1,4 +1,4 @@
-package engineer.carrot.warren.thump.config
+package engineer.carrot.warren.thump.plugin.irc.config
 
 import com.google.common.collect.Lists
 import com.google.common.collect.Maps
@@ -7,7 +7,7 @@ import engineer.carrot.warren.thump.helper.LogHelper
 import net.minecraftforge.common.config.Configuration
 import java.util.*
 
-class ServerConfiguration(category: String, configuration: Configuration) {
+class IrcServerConfiguration(category: String, configuration: Configuration) {
     var ID = ""
     var server = ""
     var port = 6697

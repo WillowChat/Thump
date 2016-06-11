@@ -4,7 +4,7 @@ import com.google.common.base.Joiner
 import engineer.carrot.warren.thump.Thump
 import engineer.carrot.warren.thump.helper.StringHelper
 import engineer.carrot.warren.thump.helper.TokenHelper
-import engineer.carrot.warren.thump.runner.IWrappersManager
+import engineer.carrot.warren.thump.plugin.irc.IWrappersManager
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.entity.player.EntityPlayerMP
 import net.minecraft.stats.Achievement

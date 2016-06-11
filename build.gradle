@@ -8,7 +8,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlin_version}"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-engineer.carrot.warren.thump.plugin:${kotlin_version}"
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.1-SNAPSHOT'
     }
 }
@@ -67,6 +67,7 @@ configurations {
 
 dependencies {
     shade "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    shade "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
 
     shade("engineer.carrot.warren.warren:Warren:$warren_version") { exclude group: 'org.slf4j' }
     compile group: 'org.slf4j', name:'slf4j-api', version: '1.7.21'

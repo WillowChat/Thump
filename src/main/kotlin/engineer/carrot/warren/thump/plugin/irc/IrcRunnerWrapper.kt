@@ -1,9 +1,9 @@
-package engineer.carrot.warren.thump.runner
+package engineer.carrot.warren.thump.plugin.irc
 
 import engineer.carrot.warren.kale.irc.message.rfc1459.PrivMsgMessage
 import engineer.carrot.warren.kale.irc.message.utility.RawMessage
 import engineer.carrot.warren.thump.config.GeneralConfiguration
-import engineer.carrot.warren.thump.config.ServerConfiguration
+import engineer.carrot.warren.thump.plugin.irc.config.IrcServerConfiguration
 import engineer.carrot.warren.thump.handler.LifecycleHandler
 import engineer.carrot.warren.thump.handler.MessageHandler
 import engineer.carrot.warren.thump.helper.LogHelper
@@ -35,7 +35,7 @@ interface IWrapper {
     val ircState: IrcState?
 }
 
-class IrcRunnerWrapper(val id: String, serverConfiguration: ServerConfiguration, generalConfiguration: GeneralConfiguration, private val manager: IWrappersManager): IWrapper {
+class IrcRunnerWrapper(val id: String, ircServerConfiguration: IrcServerConfiguration, generalConfiguration: GeneralConfiguration, private val manager: IWrappersManager): IWrapper {
     val reconnectState: ReconnectionState
 
     val configuration: ConfigurationState
@@ -53,34 +53,34 @@ class IrcRunnerWrapper(val id: String, serverConfiguration: ServerConfiguration,
         get() = currentRunner?.lastStateSnapshot
 
     init {
-        reconnectState = generateReconnectState(serverConfiguration)
-        configuration = generateConfiguration(serverConfiguration, generalConfiguration)
+        reconnectState = generateReconnectState(ircServerConfiguration)
+        configuration = generateConfiguration(ircServerConfiguration, generalConfiguration)
     }
 
-    private fun generateConfiguration(serverConfiguration: ServerConfiguration, generalConfiguration: GeneralConfiguration): ConfigurationState {
-        val filteredFingerprints: Set<String> = serverConfiguration.forciblyAcceptedCertificates.filterNot { it.isBlank() }.toSet()
+    private fun generateConfiguration(ircServerConfiguration: IrcServerConfiguration, generalConfiguration: GeneralConfiguration): ConfigurationState {
+        val filteredFingerprints: Set<String> = ircServerConfiguration.forciblyAcceptedCertificates.filterNot { it.isBlank() }.toSet()
         var fingerprints: Set<String>? = null
-        if (serverConfiguration.forceAcceptCertificates) {
+        if (ircServerConfiguration.forceAcceptCertificates) {
             fingerprints = filteredFingerprints
         }
 
-        val saslConfiguration = if (serverConfiguration.identifyWithSasl) {
-            SaslConfiguration(account = serverConfiguration.saslAccount, password = serverConfiguration.saslPassword)
+        val saslConfiguration = if (ircServerConfiguration.identifyWithSasl) {
+            SaslConfiguration(account = ircServerConfiguration.saslAccount, password = ircServerConfiguration.saslPassword)
         } else {
             null
         }
 
-        val nickservConfiguration = if (serverConfiguration.identifyWithNickServ) {
-            NickServConfiguration(account = serverConfiguration.nickServAccount, password = serverConfiguration.nickServPassword)
+        val nickservConfiguration = if (ircServerConfiguration.identifyWithNickServ) {
+            NickServConfiguration(account = ircServerConfiguration.nickServAccount, password = ircServerConfiguration.nickServPassword)
         } else {
             null
         }
 
-        return ConfigurationState(serverConfiguration.server, serverConfiguration.port, serverConfiguration.useTLS, serverConfiguration.nickname, serverConfiguration.channels, generalConfiguration.logRawIRCLinesToServerConsole, fingerprints, saslConfiguration, nickservConfiguration)
+        return ConfigurationState(ircServerConfiguration.server, ircServerConfiguration.port, ircServerConfiguration.useTLS, ircServerConfiguration.nickname, ircServerConfiguration.channels, generalConfiguration.logRawIRCLinesToServerConsole, fingerprints, saslConfiguration, nickservConfiguration)
     }
 
-    private fun generateReconnectState(serverConfiguration: ServerConfiguration): ReconnectionState {
-        return ReconnectionState(shouldReconnect = serverConfiguration.shouldReconnectAutomatically, forciblyDisabled = false, delaySeconds = serverConfiguration.automaticReconnectDelaySeconds, maxConsecutive = serverConfiguration.maxConsecutiveReconnectAttempts)
+    private fun generateReconnectState(ircServerConfiguration: IrcServerConfiguration): ReconnectionState {
+        return ReconnectionState(shouldReconnect = ircServerConfiguration.shouldReconnectAutomatically, forciblyDisabled = false, delaySeconds = ircServerConfiguration.automaticReconnectDelaySeconds, maxConsecutive = ircServerConfiguration.maxConsecutiveReconnectAttempts)
     }
 
     private fun createRunner(): IrcRunner {
@@ -128,7 +128,7 @@ class IrcRunnerWrapper(val id: String, serverConfiguration: ServerConfiguration,
         }
 
         val factory = WarrenFactory(ServerConfiguration(configuration.server, configuration.port, configuration.useTLS, configuration.fingerprints), UserConfiguration(configuration.nickname, user, configuration.sasl, configuration.nickserv),
-                                    ChannelsConfiguration(configuration.channels), EventConfiguration(events, configuration.shouldLogIncomingLines))
+                ChannelsConfiguration(configuration.channels), EventConfiguration(events, configuration.shouldLogIncomingLines))
 
         return factory.create()
     }
