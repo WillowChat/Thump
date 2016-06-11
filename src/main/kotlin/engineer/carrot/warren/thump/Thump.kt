@@ -91,17 +91,6 @@ object Thump : IThumpServicePlugins {
         }
     }
 
-    val firstIrcPlugin: IrcServicePlugin?
-        get() {
-            servicePlugins.values.forEach {
-                if (it is IrcServicePlugin) {
-                    return it
-                }
-            }
-
-            return null
-        }
-
     // IThumpPlugins
 
     override fun sendToAll(message: String) {
@@ -116,7 +105,7 @@ object Thump : IThumpServicePlugins {
 
     override fun reconfigureAll() {
         servicePlugins.values.forEach {
-            val pluginConfig = Configuration(File(baseServiceConfigDirectory, "${it.id}.cfg"), "1")
+            val pluginConfig = Configuration(File(baseServiceConfigDirectory, "${it.id}.cfg"), "2")
             val context = ThumpPluginContext(configuration = pluginConfig)
 
             it.configure(context)

@@ -27,6 +27,8 @@ class ReloadCommandHandler(private val servicePlugins: IThumpServicePlugins) : I
         Thump.configuration.loadAllConfigurations()
         Thump.configuration.saveAllConfigurations()
 
+        servicePlugins.reconfigureAll()
+
         LogHelper.info("Reloading services...")
         sender.addChatMessage(TextComponentString("Reloading connection manager..."))
 

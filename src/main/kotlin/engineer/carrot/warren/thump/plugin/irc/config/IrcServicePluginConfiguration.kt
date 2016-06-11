@@ -16,7 +16,6 @@ class IrcServicePluginConfiguration(val configuration: Configuration): IThumpSer
     lateinit var formats: IrcServicePluginFormatsConfiguration
     lateinit var connections: IrcServicePluginConnectionsConfiguration
 
-
     override fun load() {
         configuration.load()
 
