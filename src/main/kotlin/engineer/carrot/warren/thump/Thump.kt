@@ -31,6 +31,7 @@ interface IThumpServicePlugins {
     fun reconfigureAll()
     fun startAll()
     fun stopAll()
+    fun anyServicesMatch(name: String): Boolean
 
 }
 
@@ -63,7 +64,7 @@ object Thump : IThumpServicePlugins {
             (id to it)
         }
 
-        baseServiceConfigDirectory = File(modConfigDirectory, "service")
+        baseServiceConfigDirectory = File(modConfigDirectory, "services")
 
         reconfigureAll()
 
@@ -132,6 +133,10 @@ object Thump : IThumpServicePlugins {
         servicePlugins.values.forEach {
             it.stop()
         }
+    }
+
+    override fun anyServicesMatch(name: String): Boolean {
+        return servicePlugins.values.any { it.anyConnectionsMatch(name) }
     }
 
 }

@@ -21,14 +21,10 @@ class ModConfiguration {
 
     fun loadAllConfigurations() {
         this.loadGeneralConfiguration()
-
-        // fixme: tell plugins to load
     }
 
     fun saveAllConfigurations() {
         this.saveGeneralConfiguration()
-
-        // fixme: tell plugins to save
     }
 
     fun loadGeneralConfiguration() {

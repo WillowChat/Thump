@@ -33,7 +33,6 @@ import net.minecraft.util.text.TextFormatting
 //            if (state == WrapperState.RUNNING) {
 //                val ircPlugin = Thump.firstIrcPlugin
 //
-//                // fixme: remove hack
 //                val channelsToJoin: Set<String> = if (ircPlugin != null) {
 //                    ircPlugin.configWrapper.config.servers[id]?.channels?.keys ?: Sets.newHashSet()
 //                } else {

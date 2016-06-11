@@ -1,7 +1,8 @@
 package engineer.carrot.warren.thump.plugin.irc.handler
 
+import engineer.carrot.warren.thump.IThumpServicePlugins
 import engineer.carrot.warren.thump.Thump
-import engineer.carrot.warren.thump.plugin.irc.irc.CommandPlayers
+import engineer.carrot.warren.thump.plugin.irc.command.CommandPlayers
 import engineer.carrot.warren.thump.helper.LogHelper
 import engineer.carrot.warren.thump.helper.PlayerHelper
 import engineer.carrot.warren.thump.helper.StringHelper
@@ -12,12 +13,12 @@ import engineer.carrot.warren.warren.event.ChannelMessageEvent
 import engineer.carrot.warren.warren.event.PrivateActionEvent
 import engineer.carrot.warren.warren.event.PrivateMessageEvent
 
-class MessageHandler(private val manager: IWrappersManager) {
+class MessageHandler(private val servicePlugins: IThumpServicePlugins) {
 
     fun onChannelMessage(event: ChannelMessageEvent) {
         val nick = event.user.nick
 
-        if (manager.anyWrappersMatch(nick)) {
+        if (servicePlugins.anyServicesMatch(nick)) {
             return
         }
 
@@ -27,10 +28,9 @@ class MessageHandler(private val manager: IWrappersManager) {
             LogHelper.info(output)
         }
 
-        // TODO: Merge in to command system when available
         if (event.message.equals("!players")) {
             if (Thump.configuration.commands.players) {
-                CommandPlayers.handlePlayersCommand(manager)
+                CommandPlayers.handlePlayersCommand(servicePlugins)
             }
         }
 
@@ -40,14 +40,13 @@ class MessageHandler(private val manager: IWrappersManager) {
 
         output = StringHelper.stripBlacklistedIRCCharacters(output)
 
-        // fixme: route through plugins
         PlayerHelper.sendMessageToAllPlayers(output)
     }
 
     fun onChannelAction(event: ChannelActionEvent) {
         val nick = event.user.nick
 
-        if (manager.anyWrappersMatch(nick)) {
+        if (servicePlugins.anyServicesMatch(nick)) {
             return
         }
 

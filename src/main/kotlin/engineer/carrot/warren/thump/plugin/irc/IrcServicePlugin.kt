@@ -42,6 +42,10 @@ object IrcServicePlugin : IThumpServicePlugin {
         }
     }
 
+    override fun anyConnectionsMatch(name: String): Boolean {
+        return wrappersManager.anyWrappersMatch(name)
+    }
+
     override fun onMinecraftMessage(message: String) {
         wrappersManager.wrappers.forEach { entry ->
             entry.value.sendMessageToAll(message)
@@ -49,12 +53,12 @@ object IrcServicePlugin : IThumpServicePlugin {
     }
 
     fun populateConnectionManager() {
-        val messageListener = MessageHandler(wrappersManager)
+        val messageListener = MessageHandler(Thump)
 
         val servers = configWrapper.config.servers
 
         if (servers.isEmpty()) {
-            LogHelper.warn("Found no valid server configurations to load - check thump/servers.cfg!")
+            LogHelper.warn("Found no valid server configurations to load - check thump/services/irc.cfg!")
         }
 
         for (serverConfiguration in servers.values) {

@@ -14,6 +14,7 @@ interface IThumpServicePlugin {
     fun stop()
 
     fun onMinecraftMessage(message: String)
+    fun anyConnectionsMatch(name: String): Boolean
 
 }
 
