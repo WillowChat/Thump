@@ -1,7 +1,7 @@
-package engineer.carrot.warren.thump.handler
+package engineer.carrot.warren.thump.plugin.irc.handler
 
 import engineer.carrot.warren.thump.Thump
-import engineer.carrot.warren.thump.command.irc.CommandPlayers
+import engineer.carrot.warren.thump.plugin.irc.irc.CommandPlayers
 import engineer.carrot.warren.thump.helper.LogHelper
 import engineer.carrot.warren.thump.helper.PlayerHelper
 import engineer.carrot.warren.thump.helper.StringHelper
@@ -40,6 +40,7 @@ class MessageHandler(private val manager: IWrappersManager) {
 
         output = StringHelper.stripBlacklistedIRCCharacters(output)
 
+        // fixme: route through plugins
         PlayerHelper.sendMessageToAllPlayers(output)
     }
 

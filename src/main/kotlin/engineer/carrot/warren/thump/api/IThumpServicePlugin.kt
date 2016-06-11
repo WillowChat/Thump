@@ -8,10 +8,12 @@ annotation class ThumpServicePlugin
 
 interface IThumpServicePlugin {
 
-    val name: String
+    val id: String
     fun configure(context: ThumpPluginContext)
     fun start()
     fun stop()
+
+    fun onMinecraftMessage(message: String)
 
 }
 

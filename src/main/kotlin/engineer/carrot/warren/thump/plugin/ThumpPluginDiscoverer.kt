@@ -11,7 +11,7 @@ object ThumpPluginDiscoverer {
         val thumpAnnotationName = ThumpServicePlugin::class.java.canonicalName
 
         return asm.getAll(thumpAnnotationName).mapNotNull {
-            val plugin = try {
+            try {
                 val asmClass = Class.forName(it.className).asSubclass(IThumpServicePlugin::class.java).kotlin
 
                 return@mapNotNull if (asmClass.objectInstance != null) {
@@ -35,8 +35,11 @@ object ThumpPluginDiscoverer {
                 LogHelper.warn("Couldn't initialise Thump engineer.carrot.warren.thump.plugin with name (illegal access): ${it.className}")
             }
 
+
+
             return@mapNotNull null
         }
+
     }
 
 }

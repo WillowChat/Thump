@@ -1,4 +1,4 @@
-package engineer.carrot.warren.thump.handler
+package engineer.carrot.warren.thump.plugin.irc.handler
 
 import engineer.carrot.warren.thump.Thump
 import engineer.carrot.warren.thump.helper.LogHelper
@@ -14,6 +14,7 @@ class LifecycleHandler(private val id: String) {
         when (lifecycle) {
             LifecycleState.CONNECTED -> {
                 val output = TokenHelper().addMessageToken(this.id).applyTokens(Thump.configuration.formats.irc.networkReady)
+                // fixme: route through plugins
                 PlayerHelper.sendMessageToAllPlayers(output)
             }
 

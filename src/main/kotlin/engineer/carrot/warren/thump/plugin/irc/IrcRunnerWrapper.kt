@@ -4,8 +4,8 @@ import engineer.carrot.warren.kale.irc.message.rfc1459.PrivMsgMessage
 import engineer.carrot.warren.kale.irc.message.utility.RawMessage
 import engineer.carrot.warren.thump.config.GeneralConfiguration
 import engineer.carrot.warren.thump.plugin.irc.config.IrcServerConfiguration
-import engineer.carrot.warren.thump.handler.LifecycleHandler
-import engineer.carrot.warren.thump.handler.MessageHandler
+import engineer.carrot.warren.thump.plugin.irc.handler.LifecycleHandler
+import engineer.carrot.warren.thump.plugin.irc.handler.MessageHandler
 import engineer.carrot.warren.thump.helper.LogHelper
 import engineer.carrot.warren.warren.*
 import engineer.carrot.warren.warren.event.*

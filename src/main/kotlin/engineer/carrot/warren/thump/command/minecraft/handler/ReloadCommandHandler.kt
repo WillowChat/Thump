@@ -1,6 +1,7 @@
 package engineer.carrot.warren.thump.command.minecraft.handler
 
 import com.google.common.collect.Lists
+import engineer.carrot.warren.thump.IThumpServicePlugins
 import engineer.carrot.warren.thump.Thump
 import engineer.carrot.warren.thump.helper.LogHelper
 import engineer.carrot.warren.thump.minecraft.ChatEventHandler
@@ -9,36 +10,30 @@ import net.minecraft.command.ICommandSender
 import net.minecraft.util.text.TextComponentString
 import net.minecraftforge.common.MinecraftForge
 
-class ReloadCommandHandler(private val manager: IWrappersManager) : ICommandHandler {
+class ReloadCommandHandler(private val servicePlugins: IThumpServicePlugins) : ICommandHandler {
 
     override val command: String
         get() = COMMAND_NAME
 
     override fun processParameters(sender: ICommandSender, parameters: Array<String>) {
-        LogHelper.info("Player '{}' triggered a reload (disconnecting and reconnecting networks - the server might lag for a few seconds)...", sender.name)
-        sender.addChatMessage(TextComponentString("Reloading Thump (disconnecting and reconnecting networks - the server might lag for a few seconds)..."))
+        LogHelper.info("Player '{}' triggered a reload (stopping and starting services - the server might lag for a few seconds)...", sender.name)
+        sender.addChatMessage(TextComponentString("Reloading Thump (stopping and starting services - the server might lag for a few seconds)..."))
 
-        manager.wrappers.forEach { entry -> entry.value.stop(shouldReconnect = false) }
-        manager.removeAll()
+        servicePlugins.stopAll()
 
-        LogHelper.info("Stopped and removed connections, reloading configurations...")
-        sender.addChatMessage(TextComponentString("Stopped and removed connections, reloading configurations..."))
+        LogHelper.info("Stopped services, reloading configurations...")
+        sender.addChatMessage(TextComponentString("Stopped services, reloading configurations..."))
 
         Thump.configuration.loadAllConfigurations()
         Thump.configuration.saveAllConfigurations()
 
-        LogHelper.info("Repopulating connection manager...")
+        LogHelper.info("Reloading services...")
         sender.addChatMessage(TextComponentString("Reloading connection manager..."))
 
-        // fixme: remove hack
-        val ircPlugin = Thump.firstIrcPlugin
-        if (ircPlugin != null) {
-            ircPlugin.populateConnectionManager()
-            ircPlugin.startAllConnections()
-        }
+        servicePlugins.startAll()
 
         LogHelper.info("Reload complete!")
-        sender.addChatMessage(TextComponentString("Thump reloaded! Check networks with /thump status"))
+        sender.addChatMessage(TextComponentString("Thump reloaded! Check services with /thump status"))
     }
 
     override val usage: String

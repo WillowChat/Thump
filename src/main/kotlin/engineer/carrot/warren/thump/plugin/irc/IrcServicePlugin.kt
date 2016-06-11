@@ -5,7 +5,7 @@ import engineer.carrot.warren.thump.api.IThumpServicePlugin
 import engineer.carrot.warren.thump.api.IThumpServicePluginConfig
 import engineer.carrot.warren.thump.api.ThumpServicePlugin
 import engineer.carrot.warren.thump.api.ThumpPluginContext
-import engineer.carrot.warren.thump.handler.MessageHandler
+import engineer.carrot.warren.thump.plugin.irc.handler.MessageHandler
 import engineer.carrot.warren.thump.helper.LogHelper
 import engineer.carrot.warren.thump.plugin.irc.config.IrcServersConfiguration
 import engineer.carrot.warren.thump.plugin.irc.config.IrcServicePluginConfiguration
@@ -14,7 +14,7 @@ import net.minecraftforge.common.MinecraftForge
 @ThumpServicePlugin
 object IrcServicePlugin : IThumpServicePlugin {
 
-    override val name = "irc"
+    override val id = "irc"
 
     lateinit var configWrapper: IThumpServicePluginConfig<IrcServersConfiguration>
 
@@ -26,6 +26,8 @@ object IrcServicePlugin : IThumpServicePlugin {
         configWrapper = IrcServicePluginConfiguration(baseConfig = config)
         configWrapper.load()
 
+        wrappersManager.removeAll()
+
         populateConnectionManager()
     }
 
@@ -36,7 +38,13 @@ object IrcServicePlugin : IThumpServicePlugin {
     override fun stop() {
         wrappersManager.wrappers.forEach { entry ->
             LogHelper.info("Stopping ${entry.key}")
-            wrappersManager.stop(entry.key)
+            wrappersManager.stop(entry.key, shouldReconnect = false)
+        }
+    }
+
+    override fun onMinecraftMessage(message: String) {
+        wrappersManager.wrappers.forEach { entry ->
+            entry.value.sendMessageToAll(message)
         }
     }
 

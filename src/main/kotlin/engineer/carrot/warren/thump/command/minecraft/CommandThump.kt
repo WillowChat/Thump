@@ -4,6 +4,7 @@ import com.google.common.base.Joiner
 import com.google.common.collect.Iterables
 import com.google.common.collect.Lists
 import com.google.common.collect.Maps
+import engineer.carrot.warren.thump.IThumpServicePlugins
 import engineer.carrot.warren.thump.command.minecraft.handler.*
 import engineer.carrot.warren.thump.helper.PredicateHelper
 import engineer.carrot.warren.thump.plugin.irc.IWrappersManager
@@ -14,18 +15,18 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.util.text.TextComponentString
 import java.util.*
 
-class CommandThump(private val manager: IWrappersManager) : CommandBase() {
+class CommandThump(private val servicePlugins: IThumpServicePlugins) : CommandBase() {
 
     private val handlers: MutableMap<String, ICommandHandler>
 
     init {
 
         this.handlers = Maps.newHashMap<String, ICommandHandler>()
-        this.handlers.put("status", StatusCommandHandler(manager))
-        this.handlers.put("connect", ConnectCommandHandler(manager))
-        this.handlers.put("disconnect", DisconnectCommandHandler(manager))
-        this.handlers.put("reload", ReloadCommandHandler(manager))
-        this.handlers.put("sendraw", SendRawCommandHandler(manager))
+//        this.handlers.put("status", StatusCommandHandler(servicePlugins))
+//        this.handlers.put("connect", ConnectCommandHandler(servicePlugins))
+//        this.handlers.put("disconnect", DisconnectCommandHandler(servicePlugins))
+        this.handlers.put("reload", ReloadCommandHandler(servicePlugins))
+//        this.handlers.put("sendraw", SendRawCommandHandler(servicePlugins))
     }
 
     // CommandBase
