@@ -7,7 +7,7 @@ import engineer.carrot.warren.thump.helper.LogHelper
 import net.minecraftforge.common.config.Configuration
 import java.util.*
 
-class IrcServerConfiguration(category: String, configuration: Configuration) {
+class IrcServerConfiguration(id: String, configuration: Configuration) {
     var ID = ""
     var server = ""
     var port = 6697
@@ -35,7 +35,8 @@ class IrcServerConfiguration(category: String, configuration: Configuration) {
     var maxConsecutiveReconnectAttempts = 3
 
     init {
-        this.ID = category
+        this.ID = id
+        val category = "connections.$ID"
 
         configuration.setCategoryPropertyOrder(category, Lists.newArrayList(SERVER_KEY, PORT_KEY, NICKNAME_KEY, CHANNELS_KEY))
         this.server = configuration.getString(SERVER_KEY, category, this.server, "")

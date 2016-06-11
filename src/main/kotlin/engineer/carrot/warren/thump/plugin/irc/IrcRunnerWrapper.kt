@@ -8,6 +8,7 @@ import engineer.carrot.warren.thump.plugin.irc.config.IrcServerConfiguration
 import engineer.carrot.warren.thump.plugin.irc.handler.LifecycleHandler
 import engineer.carrot.warren.thump.plugin.irc.handler.MessageHandler
 import engineer.carrot.warren.thump.helper.LogHelper
+import engineer.carrot.warren.thump.plugin.irc.config.IrcServicePluginGeneralConfiguration
 import engineer.carrot.warren.warren.*
 import engineer.carrot.warren.warren.event.*
 import engineer.carrot.warren.warren.event.internal.SendSomethingEvent
@@ -36,7 +37,7 @@ interface IWrapper {
     val ircState: IrcState?
 }
 
-class IrcRunnerWrapper(val id: String, ircServerConfiguration: IrcServerConfiguration, generalConfiguration: GeneralConfiguration, private val manager: IWrappersManager): IWrapper {
+class IrcRunnerWrapper(val id: String, ircServerConfiguration: IrcServerConfiguration, generalConfiguration: IrcServicePluginGeneralConfiguration, private val manager: IWrappersManager): IWrapper {
     val reconnectState: ReconnectionState
 
     val configuration: ConfigurationState
@@ -58,7 +59,7 @@ class IrcRunnerWrapper(val id: String, ircServerConfiguration: IrcServerConfigur
         configuration = generateConfiguration(ircServerConfiguration, generalConfiguration)
     }
 
-    private fun generateConfiguration(ircServerConfiguration: IrcServerConfiguration, generalConfiguration: GeneralConfiguration): ConfigurationState {
+    private fun generateConfiguration(ircServerConfiguration: IrcServerConfiguration, generalConfiguration: IrcServicePluginGeneralConfiguration): ConfigurationState {
         val filteredFingerprints: Set<String> = ircServerConfiguration.forciblyAcceptedCertificates.filterNot { it.isBlank() }.toSet()
         var fingerprints: Set<String>? = null
         if (ircServerConfiguration.forceAcceptCertificates) {

@@ -7,7 +7,7 @@ import engineer.carrot.warren.thump.api.ThumpServicePlugin
 import engineer.carrot.warren.thump.api.ThumpPluginContext
 import engineer.carrot.warren.thump.plugin.irc.handler.MessageHandler
 import engineer.carrot.warren.thump.helper.LogHelper
-import engineer.carrot.warren.thump.plugin.irc.config.IrcServersConfiguration
+import engineer.carrot.warren.thump.plugin.irc.config.IrcServicePluginConnectionsConfiguration
 import engineer.carrot.warren.thump.plugin.irc.config.IrcServicePluginConfiguration
 import net.minecraftforge.common.MinecraftForge
 
@@ -16,15 +16,15 @@ object IrcServicePlugin : IThumpServicePlugin {
 
     override val id = "irc"
 
-    lateinit var configWrapper: IThumpServicePluginConfig<IrcServersConfiguration>
+    lateinit var configuration: IrcServicePluginConfiguration
 
     val wrappersManager: IWrappersManager = IrcRunnerWrappersManager()
 
     override fun configure(context: ThumpPluginContext) {
         val config = context.configuration
 
-        configWrapper = IrcServicePluginConfiguration(baseConfig = config)
-        configWrapper.load()
+        configuration = IrcServicePluginConfiguration(configuration = config)
+        configuration.load()
 
         wrappersManager.removeAll()
 
@@ -55,7 +55,7 @@ object IrcServicePlugin : IThumpServicePlugin {
     fun populateConnectionManager() {
         val messageListener = MessageHandler(Thump)
 
-        val servers = configWrapper.config.servers
+        val servers = configuration.connections.servers
 
         if (servers.isEmpty()) {
             LogHelper.warn("Found no valid server configurations to load - check thump/services/irc.cfg!")
@@ -64,7 +64,7 @@ object IrcServicePlugin : IThumpServicePlugin {
         for (serverConfiguration in servers.values) {
             LogHelper.info("adding ${serverConfiguration.server}:${serverConfiguration.port} as ${serverConfiguration.nickname}")
 
-            wrappersManager.initialise(serverConfiguration, Thump.configuration.general)
+            wrappersManager.initialise(serverConfiguration, IrcServicePlugin.configuration.general)
         }
 
         MinecraftForge.EVENT_BUS.register(messageListener)

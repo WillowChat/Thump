@@ -5,37 +5,11 @@ import net.minecraftforge.common.config.Configuration
 
 class FormatsConfiguration(configuration: Configuration) {
     var minecraft: MinecraftFormats
-    var irc: IrcFormats
 
     init {
         configuration.setCategoryComment("formats", "Formatting tokens: {u} -> user, {c} -> channel, {m} -> message\nNote that only tokens listed in the defaults are supported for each message!")
 
         this.minecraft = MinecraftFormats(configuration)
-        this.irc = IrcFormats(configuration)
-    }
-
-    class IrcFormats(configuration: Configuration) {
-        var channelMessage = "{c}: <{u}> {m}"
-        var channelAction = "{c}: * {u} {m}"
-        var networkReady = "IRC network ready: {m}"
-        var networkDisconnected = "IRC network disconnected: {m}"
-
-        init {
-            configuration.setCategoryPropertyOrder(CATEGORY, Lists.newArrayList(CHANNEL_MESSAGE_KEY, CHANNEL_ACTION_KEY,
-                    NETWORK_READY_KEY, NETWORK_DISCONNECTED_KEY))
-            this.channelMessage = configuration.getString(CHANNEL_MESSAGE_KEY, CATEGORY, this.channelMessage, "")
-            this.channelAction = configuration.getString(CHANNEL_ACTION_KEY, CATEGORY, this.channelAction, "")
-            this.networkReady = configuration.getString(NETWORK_READY_KEY, CATEGORY, this.networkReady, "")
-            this.networkDisconnected = configuration.getString(NETWORK_DISCONNECTED_KEY, CATEGORY, this.networkDisconnected, "")
-        }
-
-        companion object {
-            private val CATEGORY = "formats.irc"
-            private val CHANNEL_MESSAGE_KEY = "ChannelMessage"
-            private val CHANNEL_ACTION_KEY = "ChannelAction"
-            private val NETWORK_READY_KEY = "NetworkReady"
-            private val NETWORK_DISCONNECTED_KEY = "NetworkDisconnected"
-        }
     }
 
     class MinecraftFormats(configuration: Configuration) {

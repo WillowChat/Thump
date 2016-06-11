@@ -8,6 +8,7 @@ import engineer.carrot.warren.thump.helper.PlayerHelper
 import engineer.carrot.warren.thump.helper.StringHelper
 import engineer.carrot.warren.thump.helper.TokenHelper
 import engineer.carrot.warren.thump.plugin.irc.IWrappersManager
+import engineer.carrot.warren.thump.plugin.irc.IrcServicePlugin
 import engineer.carrot.warren.warren.event.ChannelActionEvent
 import engineer.carrot.warren.warren.event.ChannelMessageEvent
 import engineer.carrot.warren.warren.event.PrivateActionEvent
@@ -22,9 +23,9 @@ class MessageHandler(private val servicePlugins: IThumpServicePlugins) {
             return
         }
 
-        var output = TokenHelper().addUserToken(nick).addChannelToken(event.channel.toString()).addMessageToken(event.message).applyTokens(Thump.configuration.formats.irc.channelMessage)
+        var output = TokenHelper().addUserToken(nick).addChannelToken(event.channel.toString()).addMessageToken(event.message).applyTokens(IrcServicePlugin.configuration.formats.channelMessage)
 
-        if (Thump.configuration.general.logIrcToServerConsole) {
+        if (IrcServicePlugin.configuration.general.logIrcToServerConsole) {
             LogHelper.info(output)
         }
 
@@ -34,7 +35,7 @@ class MessageHandler(private val servicePlugins: IThumpServicePlugins) {
             }
         }
 
-        if (!Thump.configuration.events.irc.channelMessage) {
+        if (!IrcServicePlugin.configuration.events.channelMessage) {
             return
         }
 
@@ -50,13 +51,13 @@ class MessageHandler(private val servicePlugins: IThumpServicePlugins) {
             return
         }
 
-        var output = TokenHelper().addUserToken(nick).addChannelToken(event.channel.toString()).addMessageToken(event.message).applyTokens(Thump.configuration.formats.irc.channelAction)
+        var output = TokenHelper().addUserToken(nick).addChannelToken(event.channel.toString()).addMessageToken(event.message).applyTokens(IrcServicePlugin.configuration.formats.channelAction)
 
-        if (Thump.configuration.general.logIrcToServerConsole) {
+        if (IrcServicePlugin.configuration.general.logIrcToServerConsole) {
             LogHelper.info(output)
         }
 
-        if (!Thump.configuration.events.irc.channelAction) {
+        if (!IrcServicePlugin.configuration.events.channelAction) {
             return
         }
 
@@ -68,7 +69,7 @@ class MessageHandler(private val servicePlugins: IThumpServicePlugins) {
     fun onPrivateMessage(event: PrivateMessageEvent) {
         var output = "PM from " + event.user.nick + ": " + event.message
 
-        if (!Thump.configuration.general.logIrcToServerConsole) {
+        if (!IrcServicePlugin.configuration.general.logIrcToServerConsole) {
             return
         }
 
@@ -80,7 +81,7 @@ class MessageHandler(private val servicePlugins: IThumpServicePlugins) {
     fun onPrivateAction(event: PrivateActionEvent) {
         var output = "PM ACTION from " + event.user.nick + ": " + event.message
 
-        if (!Thump.configuration.general.logIrcToServerConsole) {
+        if (!IrcServicePlugin.configuration.general.logIrcToServerConsole) {
             return
         }
 

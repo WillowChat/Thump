@@ -1,6 +1,6 @@
 package engineer.carrot.warren.thump.config
 
-import engineer.carrot.warren.thump.plugin.irc.config.IrcServersConfiguration
+import engineer.carrot.warren.thump.plugin.irc.config.IrcServicePluginConnectionsConfiguration
 import net.minecraftforge.common.config.Configuration
 
 import java.io.File
