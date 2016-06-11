@@ -20,22 +20,20 @@ object ThumpPluginDiscoverer {
                     val firstEmptyConstructor = asmClass.constructors.firstOrNull { it.parameters.isEmpty() }
 
                     if (firstEmptyConstructor == null) {
-                        LogHelper.warn("Couldn't initialise Thump engineer.carrot.warren.thump.plugin with name (didn't have a non-empty constructor): ${it.className}")
+                        LogHelper.warn("Couldn't initialise Thump plugin with name (didn't have a non-empty constructor): ${it.className}")
                     }
 
                     firstEmptyConstructor?.call()
                 }
             } catch(exception: ClassNotFoundException) {
-                LogHelper.warn("Couldn't find class for Thump engineer.carrot.warren.thump.plugin with name: ${it.className}")
+                LogHelper.warn("Couldn't find class for Thump plugin with name: ${it.className}")
             } catch(exception: ClassCastException) {
-                LogHelper.warn("Couldn't initialise Thump engineer.carrot.warren.thump.plugin with name (didn't implement IThumpPlugin): ${it.className}")
+                LogHelper.warn("Couldn't initialise Thump plugin with name (didn't implement IThumpPlugin): ${it.className}")
             } catch(exception: InstantiationException) {
-                LogHelper.warn("Couldn't initialise Thump engineer.carrot.warren.thump.plugin with name (failed to instantiate): ${it.className}")
+                LogHelper.warn("Couldn't initialise Thump plugin with name (failed to instantiate): ${it.className}")
             } catch(exception: IllegalAccessException) {
-                LogHelper.warn("Couldn't initialise Thump engineer.carrot.warren.thump.plugin with name (illegal access): ${it.className}")
+                LogHelper.warn("Couldn't initialise Thump plugin with name (illegal access): ${it.className}")
             }
-
-
 
             return@mapNotNull null
         }
