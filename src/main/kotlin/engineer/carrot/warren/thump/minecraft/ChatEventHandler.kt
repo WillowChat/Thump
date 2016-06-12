@@ -1,8 +1,8 @@
 package engineer.carrot.warren.thump.minecraft
 
 import com.google.common.base.Joiner
-import engineer.carrot.warren.thump.IThumpServicePlugins
 import engineer.carrot.warren.thump.Thump
+import engineer.carrot.warren.thump.api.IThumpServicePlugins
 import engineer.carrot.warren.thump.helper.StringHelper
 import engineer.carrot.warren.thump.helper.TokenHelper
 import engineer.carrot.warren.thump.plugin.irc.IWrappersManager
@@ -30,7 +30,7 @@ class ChatEventHandler(private val servicePlugins: IThumpServicePlugins) {
         }
 
         val message = TokenHelper().addUserToken(StringHelper.obfuscateNameIfNecessary(event.username)).addMessageToken(event.message).applyTokens(Thump.configuration.formats.minecraft.playerMessage)
-        servicePlugins.sendToAll(message)
+        servicePlugins.sendToAllServices(message)
     }
 
     @SubscribeEvent
@@ -48,7 +48,7 @@ class ChatEventHandler(private val servicePlugins: IThumpServicePlugins) {
             }
 
             val message = TokenHelper().addUserToken(StringHelper.obfuscateNameIfNecessary(event.sender.name)).addMessageToken(Joiner.on(" ").join(event.parameters)).applyTokens(Thump.configuration.formats.minecraft.playerAction)
-            servicePlugins.sendToAll(message)
+            servicePlugins.sendToAllServices(message)
 
             return
         }
@@ -63,7 +63,7 @@ class ChatEventHandler(private val servicePlugins: IThumpServicePlugins) {
             }
 
             val message = TokenHelper().addUserToken(StringHelper.obfuscateNameIfNecessary(event.sender.name)).addMessageToken(Joiner.on(" ").join(event.parameters)).applyTokens(Thump.configuration.formats.minecraft.playerMessage)
-            servicePlugins.sendToAll(message)
+            servicePlugins.sendToAllServices(message)
         }
     }
 
@@ -74,7 +74,7 @@ class ChatEventHandler(private val servicePlugins: IThumpServicePlugins) {
         }
 
         val message = TokenHelper().addUserToken(StringHelper.obfuscateNameIfNecessary(event.player.displayNameString)).applyTokens(Thump.configuration.formats.minecraft.playerJoined)
-        servicePlugins.sendToAll(message)
+        servicePlugins.sendToAllServices(message)
     }
 
     @SubscribeEvent
@@ -84,7 +84,7 @@ class ChatEventHandler(private val servicePlugins: IThumpServicePlugins) {
         }
 
         val message = TokenHelper().addUserToken(StringHelper.obfuscateNameIfNecessary(event.player.displayNameString)).applyTokens(Thump.configuration.formats.minecraft.playerLeft)
-        servicePlugins.sendToAll(message)
+        servicePlugins.sendToAllServices(message)
     }
 
     @SubscribeEvent
@@ -109,7 +109,7 @@ class ChatEventHandler(private val servicePlugins: IThumpServicePlugins) {
         }
 
         val message = TokenHelper().addMessageToken(unformattedText).applyTokens(Thump.configuration.formats.minecraft.playerDeath)
-        servicePlugins.sendToAll(message)
+        servicePlugins.sendToAllServices(message)
     }
 
     private fun generateNewDeathMessageFromLastDeath(player: EntityPlayer, source: DamageSource): ITextComponent {
@@ -166,6 +166,6 @@ class ChatEventHandler(private val servicePlugins: IThumpServicePlugins) {
         }
 
         val message = TokenHelper().addMessageToken(unformattedText).applyTokens(Thump.configuration.formats.minecraft.playerAchievement)
-        servicePlugins.sendToAll(message)
+        servicePlugins.sendToAllServices(message)
     }
 }

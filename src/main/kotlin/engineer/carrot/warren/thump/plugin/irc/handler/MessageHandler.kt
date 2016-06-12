@@ -1,7 +1,7 @@
 package engineer.carrot.warren.thump.plugin.irc.handler
 
-import engineer.carrot.warren.thump.IThumpServicePlugins
 import engineer.carrot.warren.thump.Thump
+import engineer.carrot.warren.thump.api.IThumpServicePlugins
 import engineer.carrot.warren.thump.plugin.irc.command.CommandPlayers
 import engineer.carrot.warren.thump.helper.LogHelper
 import engineer.carrot.warren.thump.helper.PlayerHelper
@@ -41,7 +41,7 @@ class MessageHandler(private val servicePlugins: IThumpServicePlugins) {
 
         output = StringHelper.stripBlacklistedIRCCharacters(output)
 
-        PlayerHelper.sendMessageToAllPlayers(output)
+        servicePlugins.sendToAllMinecraftPlayers(output)
     }
 
     fun onChannelAction(event: ChannelActionEvent) {
@@ -63,7 +63,7 @@ class MessageHandler(private val servicePlugins: IThumpServicePlugins) {
 
         output = StringHelper.stripBlacklistedIRCCharacters(output)
 
-        PlayerHelper.sendMessageToAllPlayers(output)
+        servicePlugins.sendToAllMinecraftPlayers(output)
     }
 
     fun onPrivateMessage(event: PrivateMessageEvent) {

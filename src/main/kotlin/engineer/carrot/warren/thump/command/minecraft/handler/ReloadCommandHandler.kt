@@ -1,8 +1,8 @@
 package engineer.carrot.warren.thump.command.minecraft.handler
 
 import com.google.common.collect.Lists
-import engineer.carrot.warren.thump.IThumpServicePlugins
 import engineer.carrot.warren.thump.Thump
+import engineer.carrot.warren.thump.api.IThumpServicePlugins
 import engineer.carrot.warren.thump.helper.LogHelper
 import engineer.carrot.warren.thump.minecraft.ChatEventHandler
 import engineer.carrot.warren.thump.plugin.irc.IWrappersManager

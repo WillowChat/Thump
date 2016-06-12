@@ -3,7 +3,6 @@ package engineer.carrot.warren.thump.command.minecraft.handler
 import com.google.common.base.Joiner
 import com.google.common.collect.Lists
 import com.google.common.collect.Sets
-import engineer.carrot.warren.thump.IThumpServicePlugins
 import engineer.carrot.warren.thump.Thump
 import engineer.carrot.warren.thump.plugin.irc.IWrappersManager
 import engineer.carrot.warren.thump.plugin.irc.WrapperState

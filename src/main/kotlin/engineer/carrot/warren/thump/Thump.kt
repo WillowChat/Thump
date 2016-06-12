@@ -1,11 +1,13 @@
 package engineer.carrot.warren.thump
 
 import engineer.carrot.warren.thump.api.IThumpServicePlugin
+import engineer.carrot.warren.thump.api.IThumpServicePlugins
 import engineer.carrot.warren.thump.api.ThumpPluginContext
 import engineer.carrot.warren.thump.command.minecraft.CommandThump
 import engineer.carrot.warren.thump.config.ModConfiguration
 import engineer.carrot.warren.thump.plugin.irc.handler.MessageHandler
 import engineer.carrot.warren.thump.helper.LogHelper
+import engineer.carrot.warren.thump.helper.PlayerHelper
 import engineer.carrot.warren.thump.minecraft.ChatEventHandler
 import engineer.carrot.warren.thump.plugin.ThumpPluginDiscoverer
 import engineer.carrot.warren.thump.proxy.CommonProxy
@@ -22,18 +24,6 @@ import net.minecraftforge.fml.common.event.FMLServerStartingEvent
 import net.minecraftforge.fml.common.event.FMLServerStoppedEvent
 import java.io.File
 import java.util.*
-
-interface IThumpServicePlugins {
-
-    fun service(id: String): IThumpServicePlugin?
-    fun sendToAll(message: String)
-
-    fun reconfigureAll()
-    fun startAll()
-    fun stopAll()
-    fun anyServicesMatch(name: String): Boolean
-
-}
 
 @Suppress("UNUSED", "UNUSED_PARAMETER")
 @Mod(modid = Reference.MOD_ID, name = Reference.MOD_ID, version = Reference.MOD_VERSION, modLanguage = "kotlin", modLanguageAdapter = "engineer.carrot.warren.thump.CarrotKotlinAdapter", acceptableRemoteVersions = "*")
@@ -93,14 +83,14 @@ object Thump : IThumpServicePlugins {
 
     // IThumpPlugins
 
-    override fun sendToAll(message: String) {
+    override fun sendToAllServices(message: String) {
         servicePlugins.values.forEach {
             it.onMinecraftMessage(message)
         }
     }
 
-    override fun service(id: String): IThumpServicePlugin? {
-        return servicePlugins[id]
+    override fun sendToAllMinecraftPlayers(message: String) {
+        PlayerHelper.sendMessageToAllPlayers(message)
     }
 
     override fun reconfigureAll() {
