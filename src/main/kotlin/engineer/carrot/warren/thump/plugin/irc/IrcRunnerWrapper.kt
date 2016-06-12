@@ -1,14 +1,13 @@
 package engineer.carrot.warren.thump.plugin.irc
 
 import engineer.carrot.warren.kale.irc.message.rfc1459.PrivMsgMessage
-import engineer.carrot.warren.kale.irc.message.utility.RawMessage
 import engineer.carrot.warren.thump.Thump
-import engineer.carrot.warren.thump.config.GeneralConfiguration
+import engineer.carrot.warren.thump.api.IThumpMinecraftSink
+import engineer.carrot.warren.thump.helper.LogHelper
 import engineer.carrot.warren.thump.plugin.irc.config.IrcServerConfiguration
+import engineer.carrot.warren.thump.plugin.irc.config.IrcServicePluginGeneralConfiguration
 import engineer.carrot.warren.thump.plugin.irc.handler.LifecycleHandler
 import engineer.carrot.warren.thump.plugin.irc.handler.MessageHandler
-import engineer.carrot.warren.thump.helper.LogHelper
-import engineer.carrot.warren.thump.plugin.irc.config.IrcServicePluginGeneralConfiguration
 import engineer.carrot.warren.warren.*
 import engineer.carrot.warren.warren.event.*
 import engineer.carrot.warren.warren.event.internal.SendSomethingEvent
@@ -37,7 +36,7 @@ interface IWrapper {
     val ircState: IrcState?
 }
 
-class IrcRunnerWrapper(val id: String, ircServerConfiguration: IrcServerConfiguration, generalConfiguration: IrcServicePluginGeneralConfiguration, private val manager: IWrappersManager): IWrapper {
+class IrcRunnerWrapper(val id: String, ircServerConfiguration: IrcServerConfiguration, generalConfiguration: IrcServicePluginGeneralConfiguration, private val sink: IThumpMinecraftSink): IWrapper {
     val reconnectState: ReconnectionState
 
     val configuration: ConfigurationState
@@ -115,7 +114,7 @@ class IrcRunnerWrapper(val id: String, ircServerConfiguration: IrcServerConfigur
                 else -> Unit
             }
 
-            LifecycleHandler(id).onConnectionLifecycleChanged(it)
+            LifecycleHandler(id, sink).onConnectionLifecycleChanged(it)
         }
 
         val fingerprints = configuration.fingerprints

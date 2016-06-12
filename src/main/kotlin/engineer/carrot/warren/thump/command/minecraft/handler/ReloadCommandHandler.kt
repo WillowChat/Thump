@@ -2,13 +2,10 @@ package engineer.carrot.warren.thump.command.minecraft.handler
 
 import com.google.common.collect.Lists
 import engineer.carrot.warren.thump.Thump
-import engineer.carrot.warren.thump.api.IThumpServicePlugins
 import engineer.carrot.warren.thump.helper.LogHelper
-import engineer.carrot.warren.thump.minecraft.ChatEventHandler
-import engineer.carrot.warren.thump.plugin.irc.IWrappersManager
+import engineer.carrot.warren.thump.plugin.IThumpServicePlugins
 import net.minecraft.command.ICommandSender
 import net.minecraft.util.text.TextComponentString
-import net.minecraftforge.common.MinecraftForge
 
 class ReloadCommandHandler(private val servicePlugins: IThumpServicePlugins) : ICommandHandler {
 
@@ -30,7 +27,7 @@ class ReloadCommandHandler(private val servicePlugins: IThumpServicePlugins) : I
         servicePlugins.reconfigureAll()
 
         LogHelper.info("Reloading services...")
-        sender.addChatMessage(TextComponentString("Reloading connection manager..."))
+        sender.addChatMessage(TextComponentString("Reloading services..."))
 
         servicePlugins.startAll()
 

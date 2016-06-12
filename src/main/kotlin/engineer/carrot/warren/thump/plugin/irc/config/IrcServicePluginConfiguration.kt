@@ -3,10 +3,8 @@ package engineer.carrot.warren.thump.plugin.irc.config
 import com.google.common.collect.Lists
 import com.google.common.collect.Sets
 import engineer.carrot.warren.thump.api.IThumpServicePluginConfig
-import engineer.carrot.warren.thump.config.FormatsConfiguration
 import engineer.carrot.warren.thump.helper.PredicateHelper
 import net.minecraftforge.common.config.Configuration
-import java.io.File
 import java.util.*
 
 class IrcServicePluginConfiguration(val configuration: Configuration): IThumpServicePluginConfig {

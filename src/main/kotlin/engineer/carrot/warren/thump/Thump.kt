@@ -1,33 +1,29 @@
 package engineer.carrot.warren.thump
 
+import engineer.carrot.warren.thump.api.IThumpMinecraftSink
 import engineer.carrot.warren.thump.api.IThumpServicePlugin
-import engineer.carrot.warren.thump.api.IThumpServicePlugins
+import engineer.carrot.warren.thump.api.IThumpServiceSink
 import engineer.carrot.warren.thump.api.ThumpPluginContext
 import engineer.carrot.warren.thump.command.minecraft.CommandThump
 import engineer.carrot.warren.thump.config.ModConfiguration
-import engineer.carrot.warren.thump.plugin.irc.handler.MessageHandler
 import engineer.carrot.warren.thump.helper.LogHelper
 import engineer.carrot.warren.thump.helper.PlayerHelper
 import engineer.carrot.warren.thump.minecraft.ChatEventHandler
+import engineer.carrot.warren.thump.plugin.IThumpServicePlugins
 import engineer.carrot.warren.thump.plugin.ThumpPluginDiscoverer
 import engineer.carrot.warren.thump.proxy.CommonProxy
-import engineer.carrot.warren.thump.plugin.irc.IWrappersManager
-import engineer.carrot.warren.thump.plugin.irc.IrcRunnerWrappersManager
-import engineer.carrot.warren.thump.plugin.irc.IrcServicePlugin
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.common.config.Configuration
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.common.SidedProxy
-import net.minecraftforge.fml.common.event.FMLPostInitializationEvent
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent
 import net.minecraftforge.fml.common.event.FMLServerStoppedEvent
 import java.io.File
-import java.util.*
 
 @Suppress("UNUSED", "UNUSED_PARAMETER")
 @Mod(modid = Reference.MOD_ID, name = Reference.MOD_ID, version = Reference.MOD_VERSION, modLanguage = "kotlin", modLanguageAdapter = "engineer.carrot.warren.thump.CarrotKotlinAdapter", acceptableRemoteVersions = "*")
-object Thump : IThumpServicePlugins {
+object Thump : IThumpServicePlugins, IThumpMinecraftSink, IThumpServiceSink {
 
     @Mod.Instance(Reference.MOD_ID)
     lateinit var instance: Thump
@@ -81,22 +77,12 @@ object Thump : IThumpServicePlugins {
         }
     }
 
-    // IThumpPlugins
-
-    override fun sendToAllServices(message: String) {
-        servicePlugins.values.forEach {
-            it.onMinecraftMessage(message)
-        }
-    }
-
-    override fun sendToAllMinecraftPlayers(message: String) {
-        PlayerHelper.sendMessageToAllPlayers(message)
-    }
+    // IThumpServicePlugins
 
     override fun reconfigureAll() {
         servicePlugins.values.forEach {
             val pluginConfig = Configuration(File(baseServiceConfigDirectory, "${it.id}.cfg"), "2")
-            val context = ThumpPluginContext(configuration = pluginConfig)
+            val context = ThumpPluginContext(configuration = pluginConfig, minecraftSink = this, serviceSink = this)
 
             it.configure(context)
         }
@@ -116,6 +102,28 @@ object Thump : IThumpServicePlugins {
 
     override fun anyServicesMatch(name: String): Boolean {
         return servicePlugins.values.any { it.anyConnectionsMatch(name) }
+    }
+
+    // IThumpServiceSink
+
+    override fun sendToAllPlayers(source: String, message: String) {
+        if (anyServicesMatch(source)) {
+            return
+        }
+
+        sendToAllPlayersWithoutCheckingSource(message)
+    }
+
+    override fun sendToAllPlayersWithoutCheckingSource(message: String) {
+        PlayerHelper.sendMessageToAllPlayers(message)
+    }
+
+    // IThumpServiceSource
+
+    override fun sendToAllServices(message: String) {
+        servicePlugins.values.forEach {
+            it.onMinecraftMessage(message)
+        }
     }
 
 }

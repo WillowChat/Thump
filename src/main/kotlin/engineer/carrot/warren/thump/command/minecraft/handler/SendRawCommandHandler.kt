@@ -1,13 +1,5 @@
 package engineer.carrot.warren.thump.command.minecraft.handler
 
-import com.google.common.collect.Iterables
-import com.google.common.collect.Lists
-import engineer.carrot.warren.thump.helper.PredicateHelper
-import engineer.carrot.warren.thump.plugin.irc.IWrappersManager
-import engineer.carrot.warren.thump.plugin.irc.WrapperState
-import net.minecraft.command.ICommandSender
-import net.minecraft.util.text.TextComponentString
-
 //class SendRawCommandHandler(private val manager: IThumpServicePlugins) : ICommandHandler {
 //
 //    override val command: String

@@ -1,14 +1,13 @@
 package engineer.carrot.warren.thump.plugin.irc
 
 import engineer.carrot.warren.thump.Thump
+import engineer.carrot.warren.thump.api.IThumpMinecraftSink
 import engineer.carrot.warren.thump.api.IThumpServicePlugin
-import engineer.carrot.warren.thump.api.IThumpServicePluginConfig
-import engineer.carrot.warren.thump.api.ThumpServicePlugin
 import engineer.carrot.warren.thump.api.ThumpPluginContext
-import engineer.carrot.warren.thump.plugin.irc.handler.MessageHandler
+import engineer.carrot.warren.thump.api.ThumpServicePlugin
 import engineer.carrot.warren.thump.helper.LogHelper
-import engineer.carrot.warren.thump.plugin.irc.config.IrcServicePluginConnectionsConfiguration
 import engineer.carrot.warren.thump.plugin.irc.config.IrcServicePluginConfiguration
+import engineer.carrot.warren.thump.plugin.irc.handler.MessageHandler
 import net.minecraftforge.common.MinecraftForge
 
 @ThumpServicePlugin
@@ -20,8 +19,11 @@ object IrcServicePlugin : IThumpServicePlugin {
 
     val wrappersManager: IWrappersManager = IrcRunnerWrappersManager()
 
+    private lateinit var sink: IThumpMinecraftSink
+
     override fun configure(context: ThumpPluginContext) {
         val config = context.configuration
+        sink = context.minecraftSink
 
         configuration = IrcServicePluginConfiguration(configuration = config)
         configuration.load()
@@ -64,7 +66,7 @@ object IrcServicePlugin : IThumpServicePlugin {
         for (serverConfiguration in servers.values) {
             LogHelper.info("adding ${serverConfiguration.server}:${serverConfiguration.port} as ${serverConfiguration.nickname}")
 
-            wrappersManager.initialise(serverConfiguration, IrcServicePlugin.configuration.general)
+            wrappersManager.initialise(serverConfiguration, IrcServicePlugin.configuration.general, sink)
         }
 
         MinecraftForge.EVENT_BUS.register(messageListener)

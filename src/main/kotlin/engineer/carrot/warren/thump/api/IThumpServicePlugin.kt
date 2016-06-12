@@ -19,4 +19,24 @@ interface IThumpServicePlugin {
 
 }
 
-data class ThumpPluginContext(val configuration: Configuration)
+data class ThumpPluginContext(val configuration: Configuration, val minecraftSink: IThumpMinecraftSink, val serviceSink: IThumpServiceSink)
+
+interface IThumpServicePluginConfig {
+
+    fun load()
+    fun save()
+
+}
+
+interface IThumpMinecraftSink {
+
+    fun sendToAllPlayers(source: String, message: String)
+    fun sendToAllPlayersWithoutCheckingSource(message: String)
+
+}
+
+interface IThumpServiceSink {
+
+    fun sendToAllServices(message: String)
+
+}

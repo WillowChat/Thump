@@ -1,6 +1,5 @@
 package engineer.carrot.warren.thump.config
 
-import com.google.common.collect.Lists
 import net.minecraftforge.common.config.Configuration
 
 class GeneralConfiguration(configuration: Configuration) {

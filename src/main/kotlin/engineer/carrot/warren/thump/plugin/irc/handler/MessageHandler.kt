@@ -1,27 +1,21 @@
 package engineer.carrot.warren.thump.plugin.irc.handler
 
 import engineer.carrot.warren.thump.Thump
-import engineer.carrot.warren.thump.api.IThumpServicePlugins
-import engineer.carrot.warren.thump.plugin.irc.command.CommandPlayers
+import engineer.carrot.warren.thump.api.IThumpMinecraftSink
 import engineer.carrot.warren.thump.helper.LogHelper
-import engineer.carrot.warren.thump.helper.PlayerHelper
 import engineer.carrot.warren.thump.helper.StringHelper
 import engineer.carrot.warren.thump.helper.TokenHelper
-import engineer.carrot.warren.thump.plugin.irc.IWrappersManager
 import engineer.carrot.warren.thump.plugin.irc.IrcServicePlugin
+import engineer.carrot.warren.thump.plugin.irc.command.CommandPlayers
 import engineer.carrot.warren.warren.event.ChannelActionEvent
 import engineer.carrot.warren.warren.event.ChannelMessageEvent
 import engineer.carrot.warren.warren.event.PrivateActionEvent
 import engineer.carrot.warren.warren.event.PrivateMessageEvent
 
-class MessageHandler(private val servicePlugins: IThumpServicePlugins) {
+class MessageHandler(private val sink: IThumpMinecraftSink) {
 
     fun onChannelMessage(event: ChannelMessageEvent) {
         val nick = event.user.nick
-
-        if (servicePlugins.anyServicesMatch(nick)) {
-            return
-        }
 
         var output = TokenHelper().addUserToken(nick).addChannelToken(event.channel.toString()).addMessageToken(event.message).applyTokens(IrcServicePlugin.configuration.formats.channelMessage)
 
@@ -31,7 +25,7 @@ class MessageHandler(private val servicePlugins: IThumpServicePlugins) {
 
         if (event.message.equals("!players")) {
             if (Thump.configuration.commands.players) {
-                CommandPlayers.handlePlayersCommand(servicePlugins)
+                CommandPlayers.handlePlayersCommand(Thump)
             }
         }
 
@@ -41,15 +35,11 @@ class MessageHandler(private val servicePlugins: IThumpServicePlugins) {
 
         output = StringHelper.stripBlacklistedIRCCharacters(output)
 
-        servicePlugins.sendToAllMinecraftPlayers(output)
+        sink.sendToAllPlayers(nick, output)
     }
 
     fun onChannelAction(event: ChannelActionEvent) {
         val nick = event.user.nick
-
-        if (servicePlugins.anyServicesMatch(nick)) {
-            return
-        }
 
         var output = TokenHelper().addUserToken(nick).addChannelToken(event.channel.toString()).addMessageToken(event.message).applyTokens(IrcServicePlugin.configuration.formats.channelAction)
 
@@ -63,7 +53,7 @@ class MessageHandler(private val servicePlugins: IThumpServicePlugins) {
 
         output = StringHelper.stripBlacklistedIRCCharacters(output)
 
-        servicePlugins.sendToAllMinecraftPlayers(output)
+        sink.sendToAllPlayers(nick, output)
     }
 
     fun onPrivateMessage(event: PrivateMessageEvent) {

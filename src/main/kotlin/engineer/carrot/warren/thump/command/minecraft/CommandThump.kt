@@ -4,9 +4,10 @@ import com.google.common.base.Joiner
 import com.google.common.collect.Iterables
 import com.google.common.collect.Lists
 import com.google.common.collect.Maps
-import engineer.carrot.warren.thump.api.IThumpServicePlugins
-import engineer.carrot.warren.thump.command.minecraft.handler.*
+import engineer.carrot.warren.thump.command.minecraft.handler.ICommandHandler
+import engineer.carrot.warren.thump.command.minecraft.handler.ReloadCommandHandler
 import engineer.carrot.warren.thump.helper.PredicateHelper
+import engineer.carrot.warren.thump.plugin.IThumpServicePlugins
 import net.minecraft.command.CommandBase
 import net.minecraft.command.ICommandSender
 import net.minecraft.server.MinecraftServer
