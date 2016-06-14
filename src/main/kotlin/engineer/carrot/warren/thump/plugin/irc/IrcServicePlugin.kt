@@ -1,6 +1,5 @@
 package engineer.carrot.warren.thump.plugin.irc
 
-import engineer.carrot.warren.thump.Thump
 import engineer.carrot.warren.thump.api.IThumpMinecraftSink
 import engineer.carrot.warren.thump.api.IThumpServicePlugin
 import engineer.carrot.warren.thump.api.ThumpPluginContext
@@ -55,7 +54,7 @@ object IrcServicePlugin : IThumpServicePlugin {
     }
 
     fun populateConnectionManager() {
-        val messageListener = MessageHandler(Thump)
+        val messageListener = MessageHandler(sink)
 
         val servers = configuration.connections.servers
 

@@ -55,5 +55,5 @@ class IrcRunnerWrappersManager : IWrappersManager {
         return wrapper.stop(shouldReconnect = shouldReconnect)
     }
 
-    override fun anyWrappersMatch(nickname: String): Boolean = wrappers.values.any { nickname.equals(it.nickname, ignoreCase = true) }
+    override fun anyWrappersMatch(nickname: String) = wrappers.values.any { nickname.equals(it.nickname, ignoreCase = true) }
 }

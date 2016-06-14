@@ -1,7 +1,6 @@
 package engineer.carrot.warren.thump.plugin.irc
 
 import engineer.carrot.warren.kale.irc.message.rfc1459.PrivMsgMessage
-import engineer.carrot.warren.thump.Thump
 import engineer.carrot.warren.thump.api.IThumpMinecraftSink
 import engineer.carrot.warren.thump.helper.LogHelper
 import engineer.carrot.warren.thump.plugin.irc.config.IrcServerConfiguration
@@ -87,19 +86,19 @@ class IrcRunnerWrapper(val id: String, ircServerConfiguration: IrcServerConfigur
     private fun createRunner(): IrcRunner {
         val events = WarrenEventDispatcher()
         events.on(ChannelMessageEvent::class) {
-            MessageHandler(Thump).onChannelMessage(it)
+            MessageHandler(sink).onChannelMessage(it)
         }
 
         events.on(ChannelActionEvent::class) {
-            MessageHandler(Thump).onChannelAction(it)
+            MessageHandler(sink).onChannelAction(it)
         }
 
         events.on(PrivateMessageEvent::class) {
-            MessageHandler(Thump).onPrivateMessage(it)
+            MessageHandler(sink).onPrivateMessage(it)
         }
 
         events.on(PrivateActionEvent::class) {
-            MessageHandler(Thump).onPrivateAction(it)
+            MessageHandler(sink).onPrivateAction(it)
         }
 
         if (configuration.shouldLogIncomingLines) {
