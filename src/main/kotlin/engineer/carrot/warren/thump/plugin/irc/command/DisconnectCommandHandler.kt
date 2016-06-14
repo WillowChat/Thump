@@ -1,37 +1,29 @@
-package engineer.carrot.warren.thump.command.minecraft.handler
+package engineer.carrot.warren.thump.plugin.irc.command
 
-//class SendRawCommandHandler(private val manager: IThumpServicePlugins) : ICommandHandler {
+//class DisconnectCommandHandler(private val servicePlugins: IThumpServicePlugins) : ICommandHandler {
 //
 //    override val command: String
 //        get() = COMMAND_NAME
 //
 //    override fun processParameters(sender: ICommandSender, parameters: Array<String>) {
-//        if (parameters.size < 2) {
+//        if (parameters.size < 1) {
 //            sender.addChatMessage(TextComponentString("Incorrect usage."))
 //            sender.addChatMessage(TextComponentString(" Usage: " + this.usage))
 //            return
 //        }
 //
 //        val id = parameters[0]
-//        val wrapper = manager.wrappers[id]
-//        val state = wrapper?.state
-//        if (wrapper == null || state == null) {
+//        val state = servicePlugins.wrappers[id]?.state
+//        if (state == null) {
 //            sender.addChatMessage(TextComponentString("That network ID doesn't exist."))
 //            return
 //        }
 //
 //        when (state) {
-//            WrapperState.RUNNING -> {
-//                val line = parameters.drop(1).joinToString(separator = " ")
-//                if (wrapper.sendRaw(line)) {
-//                    sender.addChatMessage(TextComponentString("Sent message to $id: $line"))
-//                } else {
-//                    sender.addChatMessage(TextComponentString("Failed to send to $id: $line"))
-//                }
-//            }
-//
+//            WrapperState.READY -> sender.addChatMessage(TextComponentString("That ID isn't running yet"))
 //            else -> {
-//                sender.addChatMessage(TextComponentString("Network $id isn't running - check with /thump status"))
+//                sender.addChatMessage(TextComponentString("Disconnecting network with id: " + id))
+//                servicePlugins.stop(id, shouldReconnect = false)
 //            }
 //        }
 //    }
@@ -43,7 +35,7 @@ package engineer.carrot.warren.thump.command.minecraft.handler
 //        if (parameters.size <= 1) {
 //            val handlerId = parameters[0]
 //            return Lists.newArrayList(Iterables.filter(
-//                    manager.wrappers.keys,
+//                    servicePlugins.wrappers.keys,
 //                    PredicateHelper.StartsWithPredicate(handlerId)))
 //        }
 //
@@ -51,7 +43,8 @@ package engineer.carrot.warren.thump.command.minecraft.handler
 //    }
 //
 //    companion object {
-//        private val COMMAND_NAME = "sendraw"
-//        private val COMMAND_USAGE = "<id> <raw IRC line>"
+//
+//        private val COMMAND_NAME = "disconnect"
+//        private val COMMAND_USAGE = "<id>"
 //    }
 //}

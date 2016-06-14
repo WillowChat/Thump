@@ -1,4 +1,4 @@
-package engineer.carrot.warren.thump.plugin.irc.command
+package engineer.carrot.warren.thump.plugin.irc.command.chat
 
 import com.google.common.base.Joiner
 import com.google.common.collect.Lists

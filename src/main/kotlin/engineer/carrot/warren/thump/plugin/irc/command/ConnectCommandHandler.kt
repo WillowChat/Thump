@@ -1,4 +1,4 @@
-package engineer.carrot.warren.thump.command.minecraft.handler
+package engineer.carrot.warren.thump.plugin.irc.command
 
 //class ConnectCommandHandler(private val servicePlugins: IThumpServicePlugins) : ICommandHandler {
 //

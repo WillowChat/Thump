@@ -1,75 +1,30 @@
 package engineer.carrot.warren.thump.command.minecraft.handler
 
-//class StatusCommandHandler(private val servicePlugins: IThumpServicePlugins) : ICommandHandler {
-//
-//    override val command: String
-//        get() = COMMAND_NAME
-//
-//    override fun processParameters(sender: ICommandSender, parameters: Array<String>) {
-//        val connections = this.servicePlugins.wrappers.values
-//        if (connections.isEmpty()) {
-//            sender.addChatMessage(TextComponentString("Thump is not configured to connect to any servers."))
-//            return
-//        }
-//
-//        sender.addChatMessage(TextComponentString("Thump connection statuses:"))
-//
-//        for ((id, wrapper) in this.servicePlugins.wrappers) {
-//            val state = wrapper.state
-//
-//            val statusMessage = TextComponentString(" $id: $state")
-//
-//            if (state == WrapperState.RUNNING) {
-//                val ircPlugin = Thump.firstIrcPlugin
-//
-//                val channelsToJoin: Set<String> = if (ircPlugin != null) {
-//                    ircPlugin.configWrapper.config.servers[id]?.channels?.keys ?: Sets.newHashSet()
-//                } else {
-//                    Sets.newHashSet()
-//                }
-//
-//                val joinedChannels = wrapper.channels ?: setOf()
-//                val joinedChannelsMessage: TextComponentString = if (channelsToJoin.isEmpty()) {
-//                    TextComponentString(", no channels configured")
-//                } else {
-//                    val text = TextComponentString(", channels: ")
-//
-//                    val channelsOutput: MutableList<String> = Lists.newArrayList()
-//
-//                    for (channel in channelsToJoin) {
-//                        if (joinedChannels.contains(channel)) {
-//                            channelsOutput.add(TextFormatting.GREEN.toString() + channel + TextFormatting.RESET.toString())
-//                        } else {
-//                            channelsOutput.add(TextFormatting.RED.toString() + channel + TextFormatting.RESET.toString())
-//                        }
-//                    }
-//
-//                    text.appendText(Joiner.on(", ").join(channelsOutput))
-//
-//                    text
-//                }
-//
-//                statusMessage.appendSibling(joinedChannelsMessage)
-//            }
-//
-//            sender.addChatMessage(statusMessage)
-//
-//            val ircState = servicePlugins.wrappers[id]?.ircState?.connection?.lifecycle
-//            if (ircState != null) {
-//                sender.addChatMessage(TextComponentString("  IRC state: $ircState"))
-//            }
-//        }
-//    }
-//
-//    override val usage: String
-//        get() = COMMAND_NAME + " " + COMMAND_USAGE
-//
-//    override fun addTabCompletionOptions(sender: ICommandSender, parameters: Array<String>): List<String> {
-//        return Lists.newArrayList()
-//    }
-//
-//    companion object {
-//        private val COMMAND_NAME = "status"
-//        private val COMMAND_USAGE = ""
-//    }
-//}
+import engineer.carrot.warren.thump.plugin.IThumpServicePlugins
+import net.minecraft.command.ICommandSender
+import net.minecraft.util.text.TextComponentString
+
+class StatusCommandHandler(private val plugins: IThumpServicePlugins) : ICommandHandler {
+
+    override val command: String
+        get() = COMMAND_NAME
+
+    override fun processParameters(sender: ICommandSender, parameters: Array<String>) {
+        for ((name, statusLines) in plugins.statuses()) {
+            sender.addChatMessage(TextComponentString("Status for $name:"))
+            statusLines.forEach { sender.addChatMessage(TextComponentString(it)) }
+        }
+    }
+
+    override val usage: String
+        get() = COMMAND_NAME + " " + COMMAND_USAGE
+
+    override fun addTabCompletionOptions(sender: ICommandSender, parameters: Array<String>): List<String> {
+        return listOf()
+    }
+
+    companion object {
+        private val COMMAND_NAME = "status"
+        private val COMMAND_USAGE = ""
+    }
+}

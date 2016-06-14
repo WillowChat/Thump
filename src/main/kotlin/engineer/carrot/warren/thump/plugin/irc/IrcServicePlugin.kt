@@ -7,6 +7,9 @@ import engineer.carrot.warren.thump.api.ThumpServicePlugin
 import engineer.carrot.warren.thump.helper.LogHelper
 import engineer.carrot.warren.thump.plugin.irc.config.IrcServicePluginConfiguration
 import engineer.carrot.warren.thump.plugin.irc.handler.MessageHandler
+import net.minecraft.command.ICommandSender
+import net.minecraft.util.text.TextComponentString
+import net.minecraft.util.text.TextFormatting
 import net.minecraftforge.common.MinecraftForge
 
 @ThumpServicePlugin
@@ -76,6 +79,64 @@ object IrcServicePlugin : IThumpServicePlugin {
             LogHelper.info("Starting ${entry.key}")
             wrappersManager.start(entry.key)
         }
+    }
+
+    override fun onServiceCommand(sender: ICommandSender, parameters: List<String>) {
+        throw UnsupportedOperationException()
+    }
+
+    override fun status(): List<String> {
+        val status = mutableListOf<String>()
+
+        val wrappers = wrappersManager.wrappers
+        val connections = wrappers.values
+        if (connections.isEmpty()) {
+            status += "IRC is not configured to connect to any servers."
+
+            return status
+        }
+
+        for ((id, wrapper) in wrappers) {
+            val state = wrapper.state
+
+            var wrapperStatus = " $id: $state"
+
+            if (state == WrapperState.RUNNING) {
+                val channelsToJoin = configuration.connections.servers[id]?.channels?.keys ?: listOf<String>()
+
+                val joinedChannels = wrapper.channels ?: setOf()
+                val joinedChannelsMessage = if (channelsToJoin.isEmpty()) {
+                    ", no channels configured"
+                } else {
+                    var text = ", channels: "
+
+                    val channelsOutput = mutableListOf<String>()
+
+                    for (channel in channelsToJoin) {
+                        if (joinedChannels.contains(channel)) {
+                            channelsOutput.add(TextFormatting.GREEN.toString() + channel + TextFormatting.RESET.toString())
+                        } else {
+                            channelsOutput.add(TextFormatting.RED.toString() + channel + TextFormatting.RESET.toString())
+                        }
+                    }
+
+                    text += channelsOutput.joinToString(separator = ",")
+
+                    text
+                }
+
+                wrapperStatus += joinedChannelsMessage
+
+                status += wrapperStatus
+            }
+
+            val ircState = wrappers[id]?.ircState?.connection?.lifecycle
+            if (ircState != null) {
+                status += "  IRC state: $ircState"
+            }
+        }
+
+        return status
     }
 
 }

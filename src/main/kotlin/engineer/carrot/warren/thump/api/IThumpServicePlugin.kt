@@ -1,5 +1,6 @@
 package engineer.carrot.warren.thump.api
 
+import net.minecraft.command.ICommandSender
 import net.minecraftforge.common.config.Configuration
 
 @Target(AnnotationTarget.CLASS)
@@ -13,8 +14,10 @@ interface IThumpServicePlugin {
     fun configure(context: ThumpPluginContext)
     fun start()
     fun stop()
+    fun status(): List<String>
 
     fun onMinecraftMessage(message: String)
+    fun onServiceCommand(sender: ICommandSender, parameters: List<String>)
     fun anyConnectionsMatch(name: String): Boolean
 
 }

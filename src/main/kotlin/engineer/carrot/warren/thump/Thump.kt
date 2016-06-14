@@ -100,6 +100,10 @@ object Thump : IThumpServicePlugins, IThumpMinecraftSink, IThumpServiceSink {
         }
     }
 
+    override fun statuses(): Map<String, List<String>> {
+        return servicePlugins.mapValues { it.value.status() }
+    }
+
     override fun anyServicesMatch(name: String): Boolean {
         return servicePlugins.values.any { it.anyConnectionsMatch(name) }
     }
