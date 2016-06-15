@@ -67,7 +67,6 @@ configurations {
 
 dependencies {
     shade "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    shade "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
 
     shade("engineer.carrot.warren.warren:Warren:$warren_version") { exclude group: 'org.slf4j' }
     compile group: 'org.slf4j', name:'slf4j-api', version: '1.7.21'
@@ -85,7 +84,7 @@ minecraft {
 
 reobf {
     jar {
-//        extraLines += [ 'PK: kotlin engineer/carrot/warren/thump/repack/kotlin' ]
+        extraLines += [ 'PK: kotlin engineer/carrot/warren/thump/repack/kotlin' ]
         extraLines += [ 'PK: org/jetbrains/annotations engineer/carrot/warren/thump/repack/org/jetbrains/annotations' ]
         extraLines += [ 'PK: engineer/carrot/warren/warren engineer/carrot/warren/thump/repack/warren' ]
         extraLines += [ 'PK: engineer/carrot/warren/kale engineer/carrot/warren/thump/repack/kale' ]

@@ -12,19 +12,9 @@ object ThumpPluginDiscoverer {
 
         return asm.getAll(thumpAnnotationName).mapNotNull {
             try {
-                val asmClass = Class.forName(it.className).asSubclass(IThumpServicePlugin::class.java).kotlin
+                val asmClass = Class.forName(it.className).asSubclass(IThumpServicePlugin::class.java)
 
-                return@mapNotNull if (asmClass.objectInstance != null) {
-                    asmClass.objectInstance
-                } else {
-                    val firstEmptyConstructor = asmClass.constructors.firstOrNull { it.parameters.isEmpty() }
-
-                    if (firstEmptyConstructor == null) {
-                        LogHelper.warn("Couldn't initialise Thump plugin with name (didn't have a non-empty constructor): ${it.className}")
-                    }
-
-                    firstEmptyConstructor?.call()
-                }
+                return@mapNotNull extractObjectInstance(asmClass) ?: asmClass.newInstance()
             } catch(exception: ClassNotFoundException) {
                 LogHelper.warn("Couldn't find class for Thump plugin with name: ${it.className}")
             } catch(exception: ClassCastException) {
@@ -38,6 +28,23 @@ object ThumpPluginDiscoverer {
             return@mapNotNull null
         }
 
+    }
+
+    private fun <T> extractObjectInstance(fromClass: Class<T>): T? {
+        try {
+            @Suppress("UNCHECKED_CAST")
+            return fromClass.getDeclaredField("INSTANCE")?.get(null) as? T
+        } catch(exception: IllegalArgumentException) {
+            LogHelper.warn("Couldn't initialise Thump plugin with name (Kotlin error - object had non null initialiser?): ${fromClass.name}")
+        } catch (exception: IllegalAccessException) {
+            LogHelper.warn("Couldn't initialise Thump plugin with name (Kotlin error - initialiser wasn't public?): ${fromClass.name}")
+        } catch (exception: SecurityException) {
+            LogHelper.warn("Couldn't initialise Thump plugin with name (security error): ${fromClass.name}")
+        } catch (exception: NoSuchFieldException) {
+            // Not an object
+        }
+
+        return null
     }
 
 }
