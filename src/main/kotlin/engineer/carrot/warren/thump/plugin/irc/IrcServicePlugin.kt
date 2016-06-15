@@ -35,7 +35,10 @@ object IrcServicePlugin : IThumpServicePlugin {
     }
 
     override fun start() {
-        this.startAllConnections()
+        wrappersManager.wrappers.forEach { entry ->
+            LogHelper.info("Starting ${entry.key}")
+            wrappersManager.start(entry.key)
+        }
     }
 
     override fun stop() {
@@ -71,13 +74,6 @@ object IrcServicePlugin : IThumpServicePlugin {
         }
 
         MinecraftForge.EVENT_BUS.register(messageListener)
-    }
-
-    fun startAllConnections() {
-        wrappersManager.wrappers.forEach { entry ->
-            LogHelper.info("Starting ${entry.key}")
-            wrappersManager.start(entry.key)
-        }
     }
 
     override fun status(): List<String> {
