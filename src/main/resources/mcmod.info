@@ -1,7 +1,7 @@
 [{
     "modid": "Thump",
     "name": "Thump",
-    "description": "A simple Minecraft IRC bridge using the Warren library.",
+    "description": "A Minecraft chat multiplexer with built in IRC support",
     "version": "${version}",
     "mcversion": "${minecraft_version}",
     "url": "http://minecraft.curseforge.com/mc-mods/231124-thump",
