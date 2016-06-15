@@ -1,7 +1,5 @@
 package engineer.carrot.warren.thump.plugin
 
-import engineer.carrot.warren.thump.api.IThumpServicePlugin
-
 interface IThumpServicePlugins {
 
     fun reconfigureAll()

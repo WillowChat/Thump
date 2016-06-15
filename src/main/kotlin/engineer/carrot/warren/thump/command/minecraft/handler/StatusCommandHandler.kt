@@ -1,5 +1,6 @@
 package engineer.carrot.warren.thump.command.minecraft.handler
 
+import engineer.carrot.warren.thump.api.ICommandHandler
 import engineer.carrot.warren.thump.plugin.IThumpServicePlugins
 import net.minecraft.command.ICommandSender
 import net.minecraft.util.text.TextComponentString

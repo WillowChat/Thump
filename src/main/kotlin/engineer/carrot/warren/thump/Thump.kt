@@ -33,6 +33,7 @@ object Thump : IThumpServicePlugins, IThumpMinecraftSink, IThumpServiceSink {
 
     val configuration = ModConfiguration()
 
+    val command = CommandThump(this)
     lateinit var servicePlugins: Map<String, IThumpServicePlugin>
 
     lateinit var baseServiceConfigDirectory: File
@@ -62,7 +63,6 @@ object Thump : IThumpServicePlugins, IThumpMinecraftSink, IThumpServiceSink {
     fun onServerStarting(event: FMLServerStartingEvent) {
         LogHelper.info("server starting - initialising all connections")
 
-        val command = CommandThump(this)
         event.registerServerCommand(command)
 
         startAll()
@@ -86,6 +86,8 @@ object Thump : IThumpServicePlugins, IThumpMinecraftSink, IThumpServiceSink {
 
             it.configure(context)
         }
+
+        command.reconfigureHandlers(servicePlugins.mapValues { it.value.commandHandler })
     }
 
     override fun startAll() {

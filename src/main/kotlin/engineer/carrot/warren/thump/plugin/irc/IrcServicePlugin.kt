@@ -1,23 +1,20 @@
 package engineer.carrot.warren.thump.plugin.irc
 
-import engineer.carrot.warren.thump.api.IThumpMinecraftSink
-import engineer.carrot.warren.thump.api.IThumpServicePlugin
-import engineer.carrot.warren.thump.api.ThumpPluginContext
-import engineer.carrot.warren.thump.api.ThumpServicePlugin
+import engineer.carrot.warren.thump.api.*
 import engineer.carrot.warren.thump.helper.LogHelper
+import engineer.carrot.warren.thump.plugin.irc.command.handler.IrcServiceCommandHandler
 import engineer.carrot.warren.thump.plugin.irc.config.IrcServicePluginConfiguration
 import engineer.carrot.warren.thump.plugin.irc.handler.MessageHandler
-import net.minecraft.command.ICommandSender
-import net.minecraft.util.text.TextComponentString
 import net.minecraft.util.text.TextFormatting
 import net.minecraftforge.common.MinecraftForge
 
 @ThumpServicePlugin
 object IrcServicePlugin : IThumpServicePlugin {
-
     override val id = "irc"
 
     lateinit var configuration: IrcServicePluginConfiguration
+
+    override lateinit var commandHandler: ICommandHandler
 
     val wrappersManager: IWrappersManager = IrcRunnerWrappersManager()
 
@@ -33,6 +30,8 @@ object IrcServicePlugin : IThumpServicePlugin {
         wrappersManager.removeAll()
 
         populateConnectionManager()
+
+        commandHandler = IrcServiceCommandHandler(wrappersManager)
     }
 
     override fun start() {
@@ -81,10 +80,6 @@ object IrcServicePlugin : IThumpServicePlugin {
         }
     }
 
-    override fun onServiceCommand(sender: ICommandSender, parameters: List<String>) {
-        throw UnsupportedOperationException()
-    }
-
     override fun status(): List<String> {
         val status = mutableListOf<String>()
 
@@ -120,7 +115,7 @@ object IrcServicePlugin : IThumpServicePlugin {
                         }
                     }
 
-                    text += channelsOutput.joinToString(separator = ",")
+                    text += channelsOutput.joinToString(separator = ", ")
 
                     text
                 }

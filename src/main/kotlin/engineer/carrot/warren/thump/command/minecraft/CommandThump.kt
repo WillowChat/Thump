@@ -1,34 +1,51 @@
 package engineer.carrot.warren.thump.command.minecraft
 
 import com.google.common.base.Joiner
-import com.google.common.collect.Iterables
-import com.google.common.collect.Lists
-import com.google.common.collect.Maps
-import engineer.carrot.warren.thump.command.minecraft.handler.ICommandHandler
+import engineer.carrot.warren.thump.api.ICommandHandler
 import engineer.carrot.warren.thump.command.minecraft.handler.ReloadCommandHandler
 import engineer.carrot.warren.thump.command.minecraft.handler.StatusCommandHandler
-import engineer.carrot.warren.thump.helper.PredicateHelper
 import engineer.carrot.warren.thump.plugin.IThumpServicePlugins
 import net.minecraft.command.CommandBase
 import net.minecraft.command.ICommandSender
 import net.minecraft.server.MinecraftServer
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.text.TextComponentString
-import java.util.*
 
 class CommandThump(private val servicePlugins: IThumpServicePlugins) : CommandBase() {
 
-    private val handlers: MutableMap<String, ICommandHandler>
+    private val handlers = mutableMapOf<String, ICommandHandler>()
+    private val serviceHandlers = mutableMapOf<String, ICommandHandler>()
 
-    init {
+    fun reconfigureHandlers(pluginCommandHandlers: Map<String, ICommandHandler>) {
+        handlers.clear()
+        serviceHandlers.clear()
 
-        this.handlers = Maps.newHashMap<String, ICommandHandler>()
-        this.handlers.put("reload", ReloadCommandHandler(servicePlugins))
-        this.handlers.put("status", StatusCommandHandler(servicePlugins))
+        handlers.put("reload", ReloadCommandHandler(servicePlugins))
+        handlers.put("status", StatusCommandHandler(servicePlugins))
 
-//        this.handlers.put("connect", ConnectCommandHandler(servicePlugins))
-//        this.handlers.put("disconnect", DisconnectCommandHandler(servicePlugins))
-//        this.handlers.put("sendraw", SendRawCommandHandler(servicePlugins))
+        serviceHandlers.putAll(pluginCommandHandlers.filterNot { handlers.containsKey(it.key) })
+
+        handlers.put("service", object : ICommandHandler {
+            override val command = "service"
+            override val usage = "$command ${serviceHandlers.keys.joinToString(separator = ", ")}"
+
+            override fun processParameters(sender: ICommandSender, parameters: Array<String>) {
+                if (parameters.size < 1 || !serviceHandlers.containsKey(parameters[0])) {
+                    sender.addChatMessage(TextComponentString("Invalid usage."))
+                    sender.addChatMessage(TextComponentString(" Usage: $usage"))
+                } else {
+                    serviceHandlers[parameters[0]]?.processParameters(sender, parameters.drop(1).toTypedArray())
+                }
+            }
+
+            override fun addTabCompletionOptions(sender: ICommandSender, parameters: Array<String>): List<String> {
+                return when (parameters.size) {
+                    0 -> serviceHandlers.keys.toList()
+                    1 -> serviceHandlers.keys.filter { it.startsWith(parameters[0]) }
+                    else -> serviceHandlers[parameters[0]]?.addTabCompletionOptions(sender, parameters.drop(1).toTypedArray()) ?: listOf()
+                }
+            }
+        })
     }
 
     // CommandBase
@@ -53,23 +70,15 @@ class CommandThump(private val servicePlugins: IThumpServicePlugins) : CommandBa
             return
         }
 
-        this.handlers[parameters[0]]?.processParameters(sender, Arrays.copyOfRange(parameters, 1, parameters.size))
+        this.handlers[parameters[0]]?.processParameters(sender, parameters.drop(1).toTypedArray())
     }
 
     override fun getTabCompletionOptions(server: MinecraftServer, sender: ICommandSender, parameters: Array<String>, pos: BlockPos?): List<String> {
-        if (parameters.size <= 1) {
-            val handlerId =  parameters[0]
-            return Lists.newArrayList(Iterables.filter(
-                    this.handlers.keys,
-                    PredicateHelper.StartsWithPredicate(handlerId)))
+        return when (parameters.size) {
+            0 -> handlers.keys.toList()
+            1 -> handlers.keys.filter { it.startsWith(parameters[0]) }
+            else -> handlers[parameters[0]]?.addTabCompletionOptions(sender, parameters.drop(1).toTypedArray()) ?: listOf()
         }
-
-        val handlerId = parameters[0]
-        if (!this.handlers.containsKey(handlerId)) {
-            return Lists.newArrayList()
-        }
-
-        return this.handlers[handlerId]?.addTabCompletionOptions(sender, Arrays.copyOfRange(parameters, 1, parameters.size)) ?: Lists.newArrayList()
     }
 
     override fun getRequiredPermissionLevel(): Int {
