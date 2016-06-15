@@ -85,9 +85,10 @@ minecraft {
 
 reobf {
     jar {
-        extraLines += [ 'PK: kotlin engineer/carrot/warren/thump/repack/kotlin' ]
+//        extraLines += [ 'PK: kotlin engineer/carrot/warren/thump/repack/kotlin' ]
         extraLines += [ 'PK: org/jetbrains/annotations engineer/carrot/warren/thump/repack/org/jetbrains/annotations' ]
         extraLines += [ 'PK: engineer/carrot/warren/warren engineer/carrot/warren/thump/repack/warren' ]
+        extraLines += [ 'PK: engineer/carrot/warren/kale engineer/carrot/warren/thump/repack/kale' ]
         extraLines += [ 'PK: org/slf4j engineer/carrot/warren/thump/slf4j' ]
         extraLines += [ 'PK: com/squareup engineer/carrot/warren/thump/repack/com/squareup' ]
         extraLines += [ 'PK: okio engineer/carrot/warren/thump/repack/okio' ]
