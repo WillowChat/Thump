@@ -33,9 +33,11 @@ interface IWrapper {
     val nickname: String?
     val state: WrapperState
     val ircState: IrcState?
+
+    val id: String
 }
 
-class IrcRunnerWrapper(val id: String, ircServerConfiguration: IrcServerConfiguration, generalConfiguration: IrcServicePluginGeneralConfiguration, private val sink: IThumpMinecraftSink): IWrapper {
+class IrcRunnerWrapper(override val id: String, ircServerConfiguration: IrcServerConfiguration, generalConfiguration: IrcServicePluginGeneralConfiguration, private val sink: IThumpMinecraftSink): IWrapper {
     val reconnectState: ReconnectionState
 
     val configuration: ConfigurationState
@@ -86,19 +88,19 @@ class IrcRunnerWrapper(val id: String, ircServerConfiguration: IrcServerConfigur
     private fun createRunner(): IrcRunner {
         val events = WarrenEventDispatcher()
         events.on(ChannelMessageEvent::class) {
-            MessageHandler(sink).onChannelMessage(it)
+            MessageHandler(sink, this).onChannelMessage(it)
         }
 
         events.on(ChannelActionEvent::class) {
-            MessageHandler(sink).onChannelAction(it)
+            MessageHandler(sink, this).onChannelAction(it)
         }
 
         events.on(PrivateMessageEvent::class) {
-            MessageHandler(sink).onPrivateMessage(it)
+            MessageHandler(sink, this).onPrivateMessage(it)
         }
 
         events.on(PrivateActionEvent::class) {
-            MessageHandler(sink).onPrivateAction(it)
+            MessageHandler(sink, this).onPrivateAction(it)
         }
 
         if (configuration.shouldLogIncomingLines) {

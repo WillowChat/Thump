@@ -59,8 +59,6 @@ object IrcServicePlugin : IThumpServicePlugin {
     }
 
     fun populateConnectionManager() {
-        val messageListener = MessageHandler(sink)
-
         val servers = configuration.connections.servers
 
         if (servers.isEmpty()) {
@@ -72,8 +70,6 @@ object IrcServicePlugin : IThumpServicePlugin {
 
             wrappersManager.initialise(serverConfiguration, IrcServicePlugin.configuration.general, sink)
         }
-
-        MinecraftForge.EVENT_BUS.register(messageListener)
     }
 
     override fun status(): List<String> {
