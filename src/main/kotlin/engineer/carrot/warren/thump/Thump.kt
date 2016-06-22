@@ -8,7 +8,7 @@ import engineer.carrot.warren.thump.command.minecraft.CommandThump
 import engineer.carrot.warren.thump.config.ModConfiguration
 import engineer.carrot.warren.thump.helper.LogHelper
 import engineer.carrot.warren.thump.helper.PlayerHelper
-import engineer.carrot.warren.thump.minecraft.ChatEventHandler
+import engineer.carrot.warren.thump.minecraft.MinecraftEventsHandler
 import engineer.carrot.warren.thump.plugin.IThumpServicePlugins
 import engineer.carrot.warren.thump.plugin.ThumpPluginDiscoverer
 import engineer.carrot.warren.thump.proxy.CommonProxy
@@ -55,7 +55,7 @@ object Thump : IThumpServicePlugins, IThumpMinecraftSink, IThumpServiceSink {
 
         reconfigureAll()
 
-        val handler = ChatEventHandler(this)
+        val handler = MinecraftEventsHandler(this)
         MinecraftForge.EVENT_BUS.register(handler)
     }
 

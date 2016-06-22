@@ -20,7 +20,7 @@ import net.minecraftforge.fml.common.gameevent.PlayerEvent
 
 
 @Suppress("UNUSED")
-class ChatEventHandler(private val sink: IThumpServiceSink) {
+class MinecraftEventsHandler(private val sink: IThumpServiceSink) {
 
     @SubscribeEvent
     fun onServerChatEvent(event: ServerChatEvent) {
@@ -121,40 +121,17 @@ class ChatEventHandler(private val sink: IThumpServiceSink) {
             return
         }
 
+        val achievement = event.achievement
         val entityPlayer = event.entityPlayer as? EntityPlayerMP ?: return
+        val statFile = entityPlayer.statFile
 
-        val hasAchievementUnlocked = entityPlayer.statFile.hasAchievementUnlocked(event.achievement)
-        if (hasAchievementUnlocked) {
+        if (!statFile.canUnlockAchievement(achievement) || statFile.hasAchievementUnlocked(achievement)) {
             return
         }
 
-        var hasParentAchievementsUnlocked = true
-        var achievement: Achievement? = event.achievement.parentAchievement
-        var depth = 0
+        val playerDisplayNameComponent = entityPlayer.displayName
 
-        // NOTE: depth is included just in case the achievement graph isn't acyclic for some reason
-        while (achievement != null) {
-            if (!(event.entityPlayer as EntityPlayerMP).statFile.hasAchievementUnlocked(achievement)) {
-                hasParentAchievementsUnlocked = false
-                break
-            }
-
-            depth++
-            if (depth >= 30) {
-                hasParentAchievementsUnlocked = false
-                break
-            }
-
-            achievement = achievement.parentAchievement
-        }
-
-        if (!hasParentAchievementsUnlocked) {
-            return
-        }
-
-        val playerDisplayNameComponent = event.entityPlayer.displayName
-
-        val achievementMessage = TextComponentTranslation("chat.type.achievement", playerDisplayNameComponent, event.achievement.createChatComponent())
+        val achievementMessage = TextComponentTranslation("chat.type.achievement", playerDisplayNameComponent, achievement.createChatComponent())
 
         var unformattedText = achievementMessage.unformattedText
         if (Thump.configuration.general.obfuscateUserSourceFromMinecraft) {
@@ -167,4 +144,5 @@ class ChatEventHandler(private val sink: IThumpServiceSink) {
         val message = TokenHelper().addMessageToken(unformattedText).applyTokens(Thump.configuration.formats.minecraft.playerAchievement)
         sink.sendToAllServices(message)
     }
+
 }
