@@ -13,7 +13,7 @@ Development builds are published at https://hopper.bunnies.io/job/Thump/. Docume
 
 It's mostly written in Kotlin. Sometimes the mixture of Forge, Java and Kotlin doesn't work well (for example, logging) - in these cases, it's written in Java.
 
-## Why is this better than other IRC mods?
+## Why should you use this mod?
 
 * It's geared towards admins setting up simple server links, with sensible configuration defaults
 * If you don't like the defaults, there are configuration options for almost everything
