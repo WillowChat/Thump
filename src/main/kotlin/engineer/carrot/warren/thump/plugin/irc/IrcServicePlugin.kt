@@ -26,6 +26,7 @@ object IrcServicePlugin : IThumpServicePlugin {
 
         configuration = IrcServicePluginConfiguration(configuration = config)
         configuration.load()
+        configuration.save()
 
         wrappersManager.removeAll()
 
