@@ -1,7 +1,7 @@
 # Thump
 
 ## Introduction
-Thump is a a simple, highly configurable Minecraft chat multiplexer with built in IRC support.
+Thump is a simple, highly configurable Minecraft chat multiplexer with built in IRC support.
 
 It uses [Warren](https://github.com/CarrotCodes/Warren) and [Kale](https://github.com/CarrotCodes/Kale), two IRCv3.2, unit tested IRC frameworks written in Kotlin.
 
