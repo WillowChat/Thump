@@ -12,6 +12,6 @@ class GeneralConfiguration(configuration: Configuration) {
     companion object {
         private val CATEGORY = "general"
         private val OBFUSCATE_USER_SOURCE_FROM_MINECRAFT = "ObfuscateUserSourceFromMinecraft"
-        private val OBFUSCATE_USER_SOURCE_FROM_MINECRAFT_COMMENT = "Inserts a zero-width character in to source usernames going from Minecraft to IRC - commonly used to prevent unnecessary pings."
+        private val OBFUSCATE_USER_SOURCE_FROM_MINECRAFT_COMMENT = "Inserts a zero-width character in to source usernames going from Minecraft to other services - commonly used to prevent unnecessary pings."
     }
 }
