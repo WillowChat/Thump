@@ -23,7 +23,7 @@ class MessageHandler(private val sink: IThumpMinecraftSink, private val wrapper:
             return
         }
 
-        var output = TokenHelper().addUserToken(nick).addChannelToken(event.channel.toString()).addMessageToken(event.message).applyTokens(IrcServicePlugin.configuration.formats.channelMessage)
+        var output = TokenHelper().addUserToken(nick).addChannelToken(event.channel.toString()).addMessageToken(event.message).addServerToken(wrapper.server).applyTokens(IrcServicePlugin.configuration.formats.channelMessage)
 
         if (IrcServicePlugin.configuration.general.logIrcToServerConsole) {
             LogHelper.info(output)
@@ -52,7 +52,7 @@ class MessageHandler(private val sink: IThumpMinecraftSink, private val wrapper:
             return
         }
 
-        var output = TokenHelper().addUserToken(nick).addChannelToken(event.channel.toString()).addMessageToken(event.message).applyTokens(IrcServicePlugin.configuration.formats.channelAction)
+        var output = TokenHelper().addUserToken(nick).addChannelToken(event.channel.toString()).addMessageToken(event.message).addServerToken(wrapper.server).applyTokens(IrcServicePlugin.configuration.formats.channelAction)
 
         if (IrcServicePlugin.configuration.general.logIrcToServerConsole) {
             LogHelper.info(output)

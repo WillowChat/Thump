@@ -73,7 +73,7 @@ class IrcServicePluginFormatsConfiguration(val configuration: Configuration) {
     var networkDisconnected = "IRC network disconnected: {m}"
 
     init {
-        configuration.setCategoryComment("formats", "Formatting tokens: {u} -> user, {c} -> channel, {m} -> message\nNote that only tokens listed in the defaults are supported for each message!")
+        configuration.setCategoryComment("formats", "Formatting tokens: {u} -> user, {c} -> channel, {m} -> message, {s} -> server")
         configuration.setCategoryPropertyOrder(CATEGORY, Lists.newArrayList(CHANNEL_MESSAGE_KEY, CHANNEL_ACTION_KEY,
                 NETWORK_READY_KEY, NETWORK_DISCONNECTED_KEY))
         this.channelMessage = configuration.getString(CHANNEL_MESSAGE_KEY, CATEGORY, this.channelMessage, "")

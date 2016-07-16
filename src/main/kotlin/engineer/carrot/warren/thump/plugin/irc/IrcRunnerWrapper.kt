@@ -29,6 +29,7 @@ interface IWrapper {
     fun sendMessage(target: String, message: String)
     fun sendMessageToAll(message: String)
 
+    val server: String
     val channels: Set<String>?
     val nickname: String?
     val state: WrapperState
@@ -39,6 +40,7 @@ interface IWrapper {
 
 class IrcRunnerWrapper(override val id: String, ircServerConfiguration: IrcServerConfiguration, generalConfiguration: IrcServicePluginGeneralConfiguration, private val sink: IThumpMinecraftSink): IWrapper {
     val reconnectState: ReconnectionState
+    override val server: String
 
     val configuration: ConfigurationState
     @Volatile override var state: WrapperState = WrapperState.READY
@@ -57,6 +59,7 @@ class IrcRunnerWrapper(override val id: String, ircServerConfiguration: IrcServe
     init {
         reconnectState = generateReconnectState(ircServerConfiguration)
         configuration = generateConfiguration(ircServerConfiguration, generalConfiguration)
+        server = ircServerConfiguration.server
     }
 
     private fun generateConfiguration(ircServerConfiguration: IrcServerConfiguration, generalConfiguration: IrcServicePluginGeneralConfiguration): ConfigurationState {
@@ -115,7 +118,7 @@ class IrcRunnerWrapper(override val id: String, ircServerConfiguration: IrcServe
                 else -> Unit
             }
 
-            LifecycleHandler(id, sink).onConnectionLifecycleChanged(it)
+            LifecycleHandler(this, sink).onConnectionLifecycleChanged(it)
         }
 
         val fingerprints = configuration.fingerprints
