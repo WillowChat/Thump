@@ -6,6 +6,10 @@ buildscript {
             name = "forge"
             url = "http://files.minecraftforge.net/maven"
         }
+        maven {
+            name 'Kotlin EAP'
+            url "https://dl.bintray.com/kotlin/kotlin-eap"
+        }
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlin_version}"
@@ -14,9 +18,13 @@ buildscript {
 }
 
 repositories {
-    maven { // Hopper Maven repo
+    maven {
         name 'Hopper'
         url "https://maven.hopper.bunnies.io/"
+    }
+    maven {
+        name 'Kotlin EAP'
+        url "https://dl.bintray.com/kotlin/kotlin-eap"
     }
 }
 
@@ -48,7 +56,7 @@ sourceSets {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.13'
+    gradleVersion = '3.0'
 }
 
 task copyKotlinFiles(type: Copy) {
@@ -79,7 +87,7 @@ minecraft {
     replace '@VERSION@', project.version
     replace '@KOTLIN_VERSION@', kotlin_version
 
-    mappings = "snapshot_20160519"
+    mappings = mcp_mappings
 }
 
 reobf {
