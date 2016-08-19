@@ -59,15 +59,6 @@ task wrapper(type: Wrapper) {
     gradleVersion = '3.0'
 }
 
-task copyKotlinFiles(type: Copy) {
-    dependsOn 'sourceMainJava'
-
-    from('src/main/kotlin/')
-    into('build/sources/main/java/')
-}
-
-compileKotlin { dependsOn 'copyKotlinFiles'; source = file('build/sources/main/java') }
-
 configurations {
     shade
     compile.extendsFrom shade
