@@ -39,10 +39,16 @@ class TokenHelper {
         return this
     }
 
+    fun addDeathEmojiToken(emoji: String): TokenHelper {
+        this.tokens.put(DEATH_EMOJI_TOKEN, emoji)
+        return this
+    }
+
     companion object {
         val USER_TOKEN = "{u}"
         val CHANNEL_TOKEN = "{c}"
         val MESSAGE_TOKEN = "{m}"
         val SERVER_TOKEN = "{s}"
+        val DEATH_EMOJI_TOKEN = "{de}"
     }
 }

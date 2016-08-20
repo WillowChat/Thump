@@ -7,7 +7,7 @@ class FormatsConfiguration(configuration: Configuration) {
     var minecraft: MinecraftFormats
 
     init {
-        configuration.setCategoryComment("formats", "Formatting tokens: {u} -> user, {c} -> channel, {m} -> message\nNote that only tokens listed in the defaults are supported for each message!")
+        configuration.setCategoryComment("formats", "Formatting tokens: {u} -> user, {c} -> channel, {m} -> message, {de} -> contextual death emoji\nNote that only tokens listed in the defaults are supported for each message!")
 
         this.minecraft = MinecraftFormats(configuration)
     }
@@ -16,7 +16,7 @@ class FormatsConfiguration(configuration: Configuration) {
         var playerMessage = "<{u}> {m}"
         var playerAction = "* {u} {m}"
         var playerAchievement = "{m} \uD83C\uDF1F"
-        var playerDeath = "{m} \uD83D\uDC7B"
+        var playerDeath = "{m} {de}"
         var playerJoined = "{u} has joined the game"
         var playerLeft = "{u} has left the game"
         var playersOnline = "Players online: {m}"

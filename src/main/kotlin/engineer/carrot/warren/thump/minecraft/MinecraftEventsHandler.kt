@@ -107,7 +107,8 @@ class MinecraftEventsHandler(private val sink: IThumpServiceSink) {
             unformattedText = unformattedText.replace(playerDisplayName, obfuscatedName)
         }
 
-        val message = TokenHelper().addMessageToken(unformattedText).applyTokens(Thump.configuration.formats.minecraft.playerDeath)
+        val relevantEmoji = DeathEmojiPicker.relevantEmojisForDeathMessage(unformattedText)
+        val message = TokenHelper().addMessageToken(unformattedText).addDeathEmojiToken(relevantEmoji).applyTokens(Thump.configuration.formats.minecraft.playerDeath)
         sink.sendToAllServices(message)
     }
 
