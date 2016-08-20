@@ -1,10 +1,12 @@
 import net.minecraftforge.gradle.user.TaskSingleReobf
 import net.minecraftforge.gradle.user.UserBaseExtension
 import net.minecraftforge.gradle.user.UserConstants
+import org.apache.commons.io.FileUtils
 import org.gradle.api.Project
 import org.gradle.api.artifacts.ModuleDependency
 import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.api.tasks.SourceSetContainer
+import org.gradle.api.tasks.Upload
 import org.gradle.jvm.tasks.Jar
 import org.gradle.language.jvm.tasks.ProcessResources
 
@@ -50,7 +52,9 @@ dependencies {
     compile("org.slf4j:slf4j-api:1.7.21")
 }
 
-version = "$minecraftVersion-$thumpVersion"
+val buildNumberAddition = if(project.hasProperty("BUILD_NUMBER")) { ".${project.property("BUILD_NUMBER")}" } else { "" }
+
+version = "$minecraftVersion-$thumpVersion$buildNumberAddition"
 group = "engineer.carrot.warren.thump"
 
 minecraft {
@@ -67,22 +71,37 @@ reobf {
     extraSrgLines += "PK: okio engineer/carrot/warren/thump/repack/okio"
 }
 
-// FIXME: Expand is broken
-task<ProcessResources>("userProcessResources") {
-    inputs.property("version", project.version)
-    inputs.property("minecraft_version", minecraftVersion)
+processResources {
+    // Dummy task to be able to trigger manual token replacement
 
-    from(sourceSets("main").resources.srcDirs) {
-        include { it.name == "mcmod.info" }
-        expand(mutableMapOf("version" to project.version as String, "minecraft_version" to minecraftVersion as String))
-    }
+    val projectVersion = project.version as String
+    val minecraftVersion = minecraftVersion as String
 
-    from(sourceSets("main").resources.srcDirs) {
-        exclude { it.name == "mcmod.info" }
-    }
+    logger.lifecycle("test message")
+
+    inputs.property("version", projectVersion)
+    inputs.property("version", minecraftVersion)
 }
 
-project.tasks.getByName("processResources").finalizedBy("userProcessResources")
+project.tasks.getByName("processResources").doLast {
+    val projectVersion = project.version as String
+    val minecraftVersion = minecraftVersion as String
+
+    val processResourcesFiles = project.tasks.getByName("processResources").outputs.files.asFileTree
+
+    processResourcesFiles.filter {
+        val exists = it.exists()
+        val directory = it.isDirectory()
+        val isMcModInfo = it.name == "mcmod.info"
+
+        exists && !directory && isMcModInfo
+    }.forEach {
+        var content = FileUtils.readFileToString(it)
+        content = content.replace("\${version}", projectVersion)
+        content = content.replace("\${minecraft_version}", minecraftVersion)
+        FileUtils.writeStringToFile(it, content)
+    }
+}
 
 jar {
     project.configurations.getByName("shade").forEach {
@@ -92,24 +111,35 @@ jar {
     }
 }
 
-task<Jar>("deobfJar") {
+val deobfTask = task<Jar>("deobfJar") {
     from(sourceSets("main").output)
     classifier = "deobf"
 }
 
-task<Jar>("sourcesJar") {
+val sourcesTask = task<Jar>("sourcesJar") {
     dependsOn("classes")
 
     from(sourceSets("main").allSource)
     classifier = "sources"
 }
 
-// FIXME: Maven upload
+project.artifacts.add("archives", deobfTask)
+project.artifacts.add("archives", sourcesTask)
+
+uploadArchives {
+    repositories {
+        configure<MavenRepositoryHandlerConvention> {
+            mavenDeployer(mapOf("url" to "file://${project.property("DEPLOY_DIR")}"))
+        }
+    }
+}
 
 fun Project.minecraft(setup: UserBaseExtension.() -> Unit) = the<UserBaseExtension>().setup()
 fun sourceSets(name: String) = (project.property("sourceSets") as SourceSetContainer).getByName(name)
 fun Project.reobf(setup: TaskSingleReobf.() -> Unit) = (project.tasks.getByName(UserConstants.TASK_REOBF) as TaskSingleReobf).setup()
 fun Project.jar(setup: Jar.() -> Unit) = (project.tasks.getByName("jar") as Jar).setup()
+fun Project.processResources(setup: ProcessResources.() -> Unit) = (project.tasks.getByName("processResources") as ProcessResources).setup()
+fun Project.uploadArchives(setup: Upload.() -> Unit) = (project.tasks.getByName("uploadArchives") as Upload).setup()
 
 fun DependencyHandler.compile(dependencyNotation: Any, setup: ModuleDependency.() -> Unit) =
         (add("compile", dependencyNotation) as ModuleDependency).setup()
