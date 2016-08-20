@@ -5,8 +5,11 @@ import org.apache.commons.io.FileUtils
 import org.gradle.api.Project
 import org.gradle.api.artifacts.ModuleDependency
 import org.gradle.api.artifacts.dsl.DependencyHandler
+import org.gradle.api.artifacts.dsl.RepositoryHandler
+import org.gradle.api.artifacts.repositories.MavenArtifactRepository
+import org.gradle.api.publish.PublishingExtension
+import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.SourceSetContainer
-import org.gradle.api.tasks.Upload
 import org.gradle.jvm.tasks.Jar
 import org.gradle.language.jvm.tasks.ProcessResources
 
@@ -32,6 +35,7 @@ apply {
     plugin("kotlin")
     plugin("net.minecraftforge.gradle.forge")
     plugin("maven")
+    plugin("maven-publish")
 }
 
 repositories {
@@ -76,8 +80,6 @@ processResources {
 
     val projectVersion = project.version as String
     val minecraftVersion = minecraftVersion as String
-
-    logger.lifecycle("test message")
 
     inputs.property("version", projectVersion)
     inputs.property("version", minecraftVersion)
@@ -126,10 +128,17 @@ val sourcesTask = task<Jar>("sourcesJar") {
 project.artifacts.add("archives", deobfTask)
 project.artifacts.add("archives", sourcesTask)
 
-uploadArchives {
-    repositories {
-        configure<MavenRepositoryHandlerConvention> {
-            mavenDeployer(mapOf("url" to "file://${project.property("DEPLOY_DIR")}"))
+if (project.hasProperty("DEPLOY_DIR")) {
+    configure<PublishingExtension> {
+        mavenDeploy(this.repositories) { setUrl("file://${project.property("DEPLOY_DIR")}") }
+
+        publications {
+            it.create<MavenPublication>("mavenJava") {
+                from(components.getByName("java"))
+
+                artifact(deobfTask)
+                artifact(sourcesTask)
+            }
         }
     }
 }
@@ -139,8 +148,8 @@ fun sourceSets(name: String) = (project.property("sourceSets") as SourceSetConta
 fun Project.reobf(setup: TaskSingleReobf.() -> Unit) = (project.tasks.getByName(UserConstants.TASK_REOBF) as TaskSingleReobf).setup()
 fun Project.jar(setup: Jar.() -> Unit) = (project.tasks.getByName("jar") as Jar).setup()
 fun Project.processResources(setup: ProcessResources.() -> Unit) = (project.tasks.getByName("processResources") as ProcessResources).setup()
-fun Project.uploadArchives(setup: Upload.() -> Unit) = (project.tasks.getByName("uploadArchives") as Upload).setup()
-
+fun mavenDeploy(repositoryHandler: RepositoryHandler, configuration: MavenArtifactRepository.() -> Unit) =
+        repositoryHandler.maven({ it.configuration() })
 fun DependencyHandler.compile(dependencyNotation: Any, setup: ModuleDependency.() -> Unit) =
         (add("compile", dependencyNotation) as ModuleDependency).setup()
 
