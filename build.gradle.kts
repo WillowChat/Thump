@@ -1,6 +1,3 @@
-import net.minecraftforge.gradle.user.TaskSingleReobf
-import net.minecraftforge.gradle.user.UserBaseExtension
-import net.minecraftforge.gradle.user.UserConstants
 import org.apache.commons.io.FileUtils
 import org.gradle.api.Project
 import org.gradle.api.artifacts.ModuleDependency
@@ -12,6 +9,10 @@ import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.jvm.tasks.Jar
 import org.gradle.language.jvm.tasks.ProcessResources
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import net.minecraftforge.gradle.user.*
+import org.gradle.api.NamedDomainObjectContainer
+import java.io.File
 
 val minecraftVersion by project
 val forgeVersion by project
@@ -28,6 +29,7 @@ buildscript {
     dependencies {
         classpath(kotlinModule("gradle-plugin"))
         classpath("net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT")
+        classpath("com.github.jengelman.gradle.plugins:shadow:1.2.3")
     }
 }
 
@@ -36,6 +38,7 @@ apply {
     plugin("net.minecraftforge.gradle.forge")
     plugin("maven")
     plugin("maven-publish")
+    plugin("com.github.johnrengelman.shadow")
 }
 
 repositories {
@@ -43,13 +46,10 @@ repositories {
     maven { setUrl("https://maven.hopper.bunnies.io/") }
 }
 
-val shadeConfiguration = configurations.create("shade")
-configurations.getByName("compile").extendsFrom(shadeConfiguration)
-
 dependencies {
-    shade(kotlinModule("stdlib"))
+    compile(kotlinModule("stdlib"))
 
-    shade("engineer.carrot.warren.warren:Warren:$warrenVersion") {
+    compile("engineer.carrot.warren.warren:Warren:$warrenVersion") {
         exclude(mapOf("group" to "org.slf4j"))
     }
 
@@ -65,14 +65,6 @@ minecraft {
     version = "$minecraftVersion-$forgeVersion"
     mappings = mcpMappings
     runDir = "run"
-}
-
-reobf {
-    extraSrgLines += "PK: engineer/carrot/warren/warren engineer/carrot/warren/thump/repack/warren"
-    extraSrgLines += "PK: engineer/carrot/warren/kale engineer/carrot/warren/thump/repack/kale"
-    extraSrgLines += "PK: org/slf4j engineer/carrot/warren/thump/slf4j"
-    extraSrgLines += "PK: com/squareup engineer/carrot/warren/thump/repack/com/squareup"
-    extraSrgLines += "PK: okio engineer/carrot/warren/thump/repack/okio"
 }
 
 processResources {
@@ -105,13 +97,15 @@ project.tasks.getByName("processResources").doLast {
     }
 }
 
-jar {
-    project.configurations.getByName("shade").forEach {
-        from(project.zipTree(it)) {
-            exclude { it.name.contains("META-INF") }
-        }
-    }
-}
+shadowJar().relocate("engineer.carrot.warren.warren", "engineer.carrot.warren.thump.repack.warren")
+shadowJar().relocate("engineer.carrot.warren.kale", "engineer.carrot.warren.thump.repack.kale")
+shadowJar().relocate("org.slf4j", "engineer.carrot.warren.thump.slf4j")
+shadowJar().relocate("com.squareup", "engineer.carrot.warren.thump.repack.com.squareup")
+shadowJar().relocate("okio", "engineer.carrot.warren.thump.repack.com.squareup")
+shadowJar().relocate("kotlin", "engineer.carrot.warren.thump.repack.kotlin")
+shadowJar().relocate("org.jetbrains.annotations", "engineer.carrot.warren.thump.repack.annotations")
+
+(project.extensions.findByName(UserConstants.EXT_REOBF) as NamedDomainObjectContainer<IReobfuscator>).create("shadowJar")
 
 val deobfTask = task<Jar>("deobfJar") {
     from(sourceSets("main").output)
@@ -127,6 +121,7 @@ val sourcesTask = task<Jar>("sourcesJar") {
 
 project.artifacts.add("archives", deobfTask)
 project.artifacts.add("archives", sourcesTask)
+project.artifacts.add("archives", project.tasks.getByName("shadowJar") as ShadowJar)
 
 if (project.hasProperty("DEPLOY_DIR")) {
     configure<PublishingExtension> {
@@ -145,13 +140,14 @@ if (project.hasProperty("DEPLOY_DIR")) {
 
 fun Project.minecraft(setup: UserBaseExtension.() -> Unit) = the<UserBaseExtension>().setup()
 fun sourceSets(name: String) = (project.property("sourceSets") as SourceSetContainer).getByName(name)
-fun Project.reobf(setup: TaskSingleReobf.() -> Unit) = (project.tasks.getByName(UserConstants.TASK_REOBF) as TaskSingleReobf).setup()
 fun Project.jar(setup: Jar.() -> Unit) = (project.tasks.getByName("jar") as Jar).setup()
+fun Project.reobf(setup: TaskSingleReobf.() -> Unit) = (project.tasks.getByName(UserConstants.TASK_REOBF) as TaskSingleReobf).setup()
 fun Project.processResources(setup: ProcessResources.() -> Unit) = (project.tasks.getByName("processResources") as ProcessResources).setup()
 fun mavenDeploy(repositoryHandler: RepositoryHandler, configuration: MavenArtifactRepository.() -> Unit) =
         repositoryHandler.maven({ it.configuration() })
 fun DependencyHandler.compile(dependencyNotation: Any, setup: ModuleDependency.() -> Unit) =
         (add("compile", dependencyNotation) as ModuleDependency).setup()
+fun shadowJar() = (project.tasks.findByName("shadowJar") as ShadowJar)
 
 fun DependencyHandler.shade(dependencyNotation: Any) =
         add("shade", dependencyNotation)
