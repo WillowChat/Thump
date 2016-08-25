@@ -104,6 +104,7 @@ shadowJar().relocate("com.squareup", "engineer.carrot.warren.thump.repack.com.sq
 shadowJar().relocate("okio", "engineer.carrot.warren.thump.repack.com.squareup")
 shadowJar().relocate("kotlin", "engineer.carrot.warren.thump.repack.kotlin")
 shadowJar().relocate("org.jetbrains.annotations", "engineer.carrot.warren.thump.repack.annotations")
+shadowJar().classifier = ""
 
 (project.extensions.findByName(UserConstants.EXT_REOBF) as NamedDomainObjectContainer<IReobfuscator>).create("shadowJar")
 
