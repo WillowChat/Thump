@@ -1,17 +1,15 @@
-package engineer.carrot.warren.thump.command.minecraft.handler
+package engineer.carrot.warren.thump.plugin.irc.command.handler
 
-import com.google.common.collect.Iterables
-import com.google.common.collect.Lists
-import engineer.carrot.warren.thump.helper.PredicateHelper
-import engineer.carrot.warren.thump.runner.IWrappersManager
-import engineer.carrot.warren.thump.runner.WrapperState
+import engineer.carrot.warren.thump.api.ICommandHandler
+import engineer.carrot.warren.thump.plugin.irc.IWrappersManager
+import engineer.carrot.warren.thump.plugin.irc.WrapperState
 import net.minecraft.command.ICommandSender
 import net.minecraft.util.text.TextComponentString
 
-class SendRawCommandHandler(private val manager: IWrappersManager) : ICommandHandler {
+class SendRawCommandHandler(private val wrappersManager: IWrappersManager) : ICommandHandler {
 
-    override val command: String
-        get() = COMMAND_NAME
+    override val command = COMMAND_NAME
+    override val usage = "$COMMAND_NAME $COMMAND_USAGE"
 
     override fun processParameters(sender: ICommandSender, parameters: Array<String>) {
         if (parameters.size < 2) {
@@ -21,7 +19,7 @@ class SendRawCommandHandler(private val manager: IWrappersManager) : ICommandHan
         }
 
         val id = parameters[0]
-        val wrapper = manager.wrappers[id]
+        val wrapper = wrappersManager.wrappers[id]
         val state = wrapper?.state
         if (wrapper == null || state == null) {
             sender.addChatMessage(TextComponentString("That network ID doesn't exist."))
@@ -44,22 +42,17 @@ class SendRawCommandHandler(private val manager: IWrappersManager) : ICommandHan
         }
     }
 
-    override val usage: String
-        get() = COMMAND_NAME + " " + COMMAND_USAGE
-
     override fun addTabCompletionOptions(sender: ICommandSender, parameters: Array<String>): List<String> {
-        if (parameters.size <= 1) {
-            val handlerId = parameters[0]
-            return Lists.newArrayList(Iterables.filter(
-                    manager.wrappers.keys,
-                    PredicateHelper.StartsWithPredicate(handlerId)))
+        return when (parameters.size) {
+            0 -> wrappersManager.wrappers.keys.toList()
+            1 -> wrappersManager.wrappers.keys.filter { it.startsWith(parameters[0]) }
+            else -> listOf()
         }
-
-        return Lists.newArrayList()
     }
 
     companion object {
         private val COMMAND_NAME = "sendraw"
         private val COMMAND_USAGE = "<id> <raw IRC line>"
     }
+
 }

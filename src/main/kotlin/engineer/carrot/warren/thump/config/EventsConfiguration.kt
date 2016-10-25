@@ -5,11 +5,9 @@ import net.minecraftforge.common.config.Configuration
 
 class EventsConfiguration(configuration: Configuration) {
     var minecraft: MinecraftEvents
-    var irc: IrcEvents
 
     init {
         this.minecraft = MinecraftEvents(configuration)
-        this.irc = IrcEvents(configuration)
     }
 
     class MinecraftEvents(configuration: Configuration) {
@@ -50,20 +48,4 @@ class EventsConfiguration(configuration: Configuration) {
         }
     }
 
-    class IrcEvents(configuration: Configuration) {
-        var channelMessage = true
-        var channelAction = true
-
-        init {
-            configuration.setCategoryPropertyOrder(CATEGORY, Lists.newArrayList(CHANNEL_MESSAGE_KEY, CHANNEL_ACTION_KEY))
-            this.channelMessage = configuration.getBoolean(CHANNEL_MESSAGE_KEY, CATEGORY, this.channelMessage, "")
-            this.channelAction = configuration.getBoolean(CHANNEL_ACTION_KEY, CATEGORY, this.channelAction, "")
-        }
-
-        companion object {
-            private val CATEGORY = "events.irc"
-            private val CHANNEL_MESSAGE_KEY = "ChannelMessage"
-            private val CHANNEL_ACTION_KEY = "ChannelAction"
-        }
-    }
 }

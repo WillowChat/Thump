@@ -1,4 +1,4 @@
-package engineer.carrot.warren.thump.config
+package engineer.carrot.warren.thump.plugin.irc.config
 
 import com.google.common.collect.Lists
 import com.google.common.collect.Maps
@@ -7,12 +7,13 @@ import engineer.carrot.warren.thump.helper.LogHelper
 import net.minecraftforge.common.config.Configuration
 import java.util.*
 
-class ServerConfiguration(category: String, configuration: Configuration) {
+class IrcServerConfiguration(id: String, configuration: Configuration) {
     var ID = ""
     var server = ""
     var port = 6697
     var nickname = "thump-server"
     var channels: Map<String, String?> = HashMap()
+    var ignoredNicks: Set<String> = HashSet()
 
     // Nickserv
     var identifyWithNickServ = false
@@ -35,9 +36,10 @@ class ServerConfiguration(category: String, configuration: Configuration) {
     var maxConsecutiveReconnectAttempts = 3
 
     init {
-        this.ID = category
+        this.ID = id
+        val category = "connections.$ID"
 
-        configuration.setCategoryPropertyOrder(category, Lists.newArrayList(SERVER_KEY, PORT_KEY, NICKNAME_KEY, CHANNELS_KEY))
+        configuration.setCategoryPropertyOrder(category, Lists.newArrayList(SERVER_KEY, PORT_KEY, NICKNAME_KEY, CHANNELS_KEY, IGNORED_NICKS_KEY))
         this.server = configuration.getString(SERVER_KEY, category, this.server, "")
         this.port = configuration.getInt(PORT_KEY, category, this.port, PORT_MIN, PORT_MAX, "")
         this.nickname = configuration.getString(NICKNAME_KEY, category, this.nickname, "")
@@ -46,6 +48,12 @@ class ServerConfiguration(category: String, configuration: Configuration) {
             this.channels = Maps.newHashMap()
         } else {
             this.channels = parseChannels(Sets.newHashSet(*channels))
+        }
+        val ignoredNicks = configuration.getStringList(IGNORED_NICKS_KEY, category, emptyArray(), "")
+        if (ignoredNicks.size == 1 && ignoredNicks[0].isEmpty()) {
+            this.ignoredNicks = setOf()
+        } else {
+            this.ignoredNicks = Sets.newHashSet(*ignoredNicks)
         }
 
         val nickservCategory = category + ".auth.nickserv"
@@ -104,6 +112,7 @@ class ServerConfiguration(category: String, configuration: Configuration) {
         private val PORT_MAX = 65535
         private val NICKNAME_KEY = "Nickname"
         private val CHANNELS_KEY = "Channels"
+        private val IGNORED_NICKS_KEY = "IgnoredNicks"
         private val IDENTIFY_WITH_NICKSERV_KEY = "IdentifyWithNickserv"
         private val NICKSERV_ACCOUNT_KEY = "NickservAccount"
         private val NICKSERV_PASSWORD_KEY = "NickservPassword"

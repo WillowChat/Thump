@@ -1,19 +1,20 @@
-package engineer.carrot.warren.thump.command.irc
+package engineer.carrot.warren.thump.plugin.irc.command.chat
 
 import com.google.common.base.Joiner
 import com.google.common.collect.Lists
 import engineer.carrot.warren.thump.Thump
+import engineer.carrot.warren.thump.api.IThumpServiceSink
 import engineer.carrot.warren.thump.helper.PlayerHelper
 import engineer.carrot.warren.thump.helper.StringHelper
 import engineer.carrot.warren.thump.helper.TokenHelper
-import engineer.carrot.warren.thump.runner.IWrappersManager
 
 object CommandPlayers {
-    fun handlePlayersCommand(manager: IWrappersManager) {
+
+    fun handlePlayersCommand(sink: IThumpServiceSink) {
         val players = PlayerHelper.allPlayers
 
         if (players.isEmpty()) {
-            manager.sendToAllChannels(Thump.configuration.formats.minecraft.playersOnlineNone)
+            sink.sendToAllServices(Thump.configuration.formats.minecraft.playersOnlineNone)
 
             return
         }
@@ -24,6 +25,7 @@ object CommandPlayers {
         }
 
         val message = TokenHelper().addMessageToken(Joiner.on(", ").join(names)).applyTokens(Thump.configuration.formats.minecraft.playersOnline)
-        manager.sendToAllChannels(message)
+        sink.sendToAllServices(message)
     }
+
 }

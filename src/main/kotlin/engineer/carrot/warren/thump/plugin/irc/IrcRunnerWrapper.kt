@@ -1,12 +1,12 @@
-package engineer.carrot.warren.thump.runner
+package engineer.carrot.warren.thump.plugin.irc
 
 import engineer.carrot.warren.kale.irc.message.rfc1459.PrivMsgMessage
-import engineer.carrot.warren.kale.irc.message.utility.RawMessage
-import engineer.carrot.warren.thump.config.GeneralConfiguration
-import engineer.carrot.warren.thump.config.ServerConfiguration
-import engineer.carrot.warren.thump.handler.LifecycleHandler
-import engineer.carrot.warren.thump.handler.MessageHandler
+import engineer.carrot.warren.thump.api.IThumpMinecraftSink
 import engineer.carrot.warren.thump.helper.LogHelper
+import engineer.carrot.warren.thump.plugin.irc.config.IrcServerConfiguration
+import engineer.carrot.warren.thump.plugin.irc.config.IrcServicePluginGeneralConfiguration
+import engineer.carrot.warren.thump.plugin.irc.handler.LifecycleHandler
+import engineer.carrot.warren.thump.plugin.irc.handler.MessageHandler
 import engineer.carrot.warren.warren.*
 import engineer.carrot.warren.warren.event.*
 import engineer.carrot.warren.warren.event.internal.SendSomethingEvent
@@ -29,14 +29,18 @@ interface IWrapper {
     fun sendMessage(target: String, message: String)
     fun sendMessageToAll(message: String)
 
+    val server: String
     val channels: Set<String>?
     val nickname: String?
     val state: WrapperState
     val ircState: IrcState?
+
+    val id: String
 }
 
-class IrcRunnerWrapper(val id: String, serverConfiguration: ServerConfiguration, generalConfiguration: GeneralConfiguration, private val manager: IWrappersManager): IWrapper {
+class IrcRunnerWrapper(override val id: String, ircServerConfiguration: IrcServerConfiguration, generalConfiguration: IrcServicePluginGeneralConfiguration, private val sink: IThumpMinecraftSink): IWrapper {
     val reconnectState: ReconnectionState
+    override val server: String
 
     val configuration: ConfigurationState
     @Volatile override var state: WrapperState = WrapperState.READY
@@ -44,61 +48,62 @@ class IrcRunnerWrapper(val id: String, serverConfiguration: ServerConfiguration,
 
     @Volatile private var currentThread: Thread? = null
     override val nickname: String?
-        get() = currentRunner?.lastStateSnapshot?.connection?.nickname
+        get() = currentRunner?.state?.connection?.nickname
 
     override val channels: Set<String>?
-        get() = currentRunner?.lastStateSnapshot?.channels?.joined?.all?.keys
+        get() = currentRunner?.state?.channels?.joined?.all?.keys
 
     override val ircState: IrcState?
-        get() = currentRunner?.lastStateSnapshot
+        get() = currentRunner?.state
 
     init {
-        reconnectState = generateReconnectState(serverConfiguration)
-        configuration = generateConfiguration(serverConfiguration, generalConfiguration)
+        reconnectState = generateReconnectState(ircServerConfiguration)
+        configuration = generateConfiguration(ircServerConfiguration, generalConfiguration)
+        server = ircServerConfiguration.server
     }
 
-    private fun generateConfiguration(serverConfiguration: ServerConfiguration, generalConfiguration: GeneralConfiguration): ConfigurationState {
-        val filteredFingerprints: Set<String> = serverConfiguration.forciblyAcceptedCertificates.filterNot { it.isBlank() }.toSet()
+    private fun generateConfiguration(ircServerConfiguration: IrcServerConfiguration, generalConfiguration: IrcServicePluginGeneralConfiguration): ConfigurationState {
+        val filteredFingerprints: Set<String> = ircServerConfiguration.forciblyAcceptedCertificates.filterNot { it.isBlank() }.toSet()
         var fingerprints: Set<String>? = null
-        if (serverConfiguration.forceAcceptCertificates) {
+        if (ircServerConfiguration.forceAcceptCertificates) {
             fingerprints = filteredFingerprints
         }
 
-        val saslConfiguration = if (serverConfiguration.identifyWithSasl) {
-            SaslConfiguration(account = serverConfiguration.saslAccount, password = serverConfiguration.saslPassword)
+        val saslConfiguration = if (ircServerConfiguration.identifyWithSasl) {
+            SaslConfiguration(account = ircServerConfiguration.saslAccount, password = ircServerConfiguration.saslPassword)
         } else {
             null
         }
 
-        val nickservConfiguration = if (serverConfiguration.identifyWithNickServ) {
-            NickServConfiguration(account = serverConfiguration.nickServAccount, password = serverConfiguration.nickServPassword)
+        val nickservConfiguration = if (ircServerConfiguration.identifyWithNickServ) {
+            NickServConfiguration(account = ircServerConfiguration.nickServAccount, password = ircServerConfiguration.nickServPassword)
         } else {
             null
         }
 
-        return ConfigurationState(serverConfiguration.server, serverConfiguration.port, serverConfiguration.useTLS, serverConfiguration.nickname, serverConfiguration.channels, generalConfiguration.logRawIRCLinesToServerConsole, fingerprints, saslConfiguration, nickservConfiguration)
+        return ConfigurationState(ircServerConfiguration.server, ircServerConfiguration.port, ircServerConfiguration.useTLS, ircServerConfiguration.nickname, ircServerConfiguration.channels, generalConfiguration.logRawIRCLinesToServerConsole, fingerprints, saslConfiguration, nickservConfiguration)
     }
 
-    private fun generateReconnectState(serverConfiguration: ServerConfiguration): ReconnectionState {
-        return ReconnectionState(shouldReconnect = serverConfiguration.shouldReconnectAutomatically, forciblyDisabled = false, delaySeconds = serverConfiguration.automaticReconnectDelaySeconds, maxConsecutive = serverConfiguration.maxConsecutiveReconnectAttempts)
+    private fun generateReconnectState(ircServerConfiguration: IrcServerConfiguration): ReconnectionState {
+        return ReconnectionState(shouldReconnect = ircServerConfiguration.shouldReconnectAutomatically, forciblyDisabled = false, delaySeconds = ircServerConfiguration.automaticReconnectDelaySeconds, maxConsecutive = ircServerConfiguration.maxConsecutiveReconnectAttempts)
     }
 
     private fun createRunner(): IrcRunner {
         val events = WarrenEventDispatcher()
         events.on(ChannelMessageEvent::class) {
-            MessageHandler(manager).onChannelMessage(it)
+            MessageHandler(sink, this).onChannelMessage(it)
         }
 
         events.on(ChannelActionEvent::class) {
-            MessageHandler(manager).onChannelAction(it)
+            MessageHandler(sink, this).onChannelAction(it)
         }
 
         events.on(PrivateMessageEvent::class) {
-            MessageHandler(manager).onPrivateMessage(it)
+            MessageHandler(sink, this).onPrivateMessage(it)
         }
 
         events.on(PrivateActionEvent::class) {
-            MessageHandler(manager).onPrivateAction(it)
+            MessageHandler(sink, this).onPrivateAction(it)
         }
 
         if (configuration.shouldLogIncomingLines) {
@@ -113,7 +118,7 @@ class IrcRunnerWrapper(val id: String, serverConfiguration: ServerConfiguration,
                 else -> Unit
             }
 
-            LifecycleHandler(id).onConnectionLifecycleChanged(it)
+            LifecycleHandler(this, sink).onConnectionLifecycleChanged(it)
         }
 
         val fingerprints = configuration.fingerprints
@@ -128,7 +133,7 @@ class IrcRunnerWrapper(val id: String, serverConfiguration: ServerConfiguration,
         }
 
         val factory = WarrenFactory(ServerConfiguration(configuration.server, configuration.port, configuration.useTLS, configuration.fingerprints), UserConfiguration(configuration.nickname, user, configuration.sasl, configuration.nickserv),
-                                    ChannelsConfiguration(configuration.channels), EventConfiguration(events, configuration.shouldLogIncomingLines))
+                ChannelsConfiguration(configuration.channels), EventConfiguration(events, configuration.shouldLogIncomingLines))
 
         return factory.create()
     }
@@ -155,7 +160,7 @@ class IrcRunnerWrapper(val id: String, serverConfiguration: ServerConfiguration,
     }
 
     override fun sendMessageToAll(message: String) {
-        val channels = currentRunner?.lastStateSnapshot?.channels?.joined?.all?.keys
+        val channels = currentRunner?.state?.channels?.joined?.all?.keys
         if (channels == null) {
             LogHelper.info("$id couldn't get channels, not sending message $message")
             return

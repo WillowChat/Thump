@@ -2,9 +2,9 @@ package engineer.carrot.warren.thump.minecraft
 
 import com.google.common.base.Joiner
 import engineer.carrot.warren.thump.Thump
+import engineer.carrot.warren.thump.api.IThumpServiceSink
 import engineer.carrot.warren.thump.helper.StringHelper
 import engineer.carrot.warren.thump.helper.TokenHelper
-import engineer.carrot.warren.thump.runner.IWrappersManager
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.entity.player.EntityPlayerMP
 import net.minecraft.stats.Achievement
@@ -18,8 +18,9 @@ import net.minecraftforge.event.entity.player.AchievementEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import net.minecraftforge.fml.common.gameevent.PlayerEvent
 
+
 @Suppress("UNUSED")
-class ChatEventHandler(private val wrappersManager: IWrappersManager) {
+class MinecraftEventsHandler(private val sink: IThumpServiceSink) {
 
     @SubscribeEvent
     fun onServerChatEvent(event: ServerChatEvent) {
@@ -28,7 +29,7 @@ class ChatEventHandler(private val wrappersManager: IWrappersManager) {
         }
 
         val message = TokenHelper().addUserToken(StringHelper.obfuscateNameIfNecessary(event.username)).addMessageToken(event.message).applyTokens(Thump.configuration.formats.minecraft.playerMessage)
-        wrappersManager.sendToAllChannels(message)
+        sink.sendToAllServices(message)
     }
 
     @SubscribeEvent
@@ -46,7 +47,7 @@ class ChatEventHandler(private val wrappersManager: IWrappersManager) {
             }
 
             val message = TokenHelper().addUserToken(StringHelper.obfuscateNameIfNecessary(event.sender.name)).addMessageToken(Joiner.on(" ").join(event.parameters)).applyTokens(Thump.configuration.formats.minecraft.playerAction)
-            wrappersManager.sendToAllChannels(message)
+            sink.sendToAllServices(message)
 
             return
         }
@@ -61,7 +62,7 @@ class ChatEventHandler(private val wrappersManager: IWrappersManager) {
             }
 
             val message = TokenHelper().addUserToken(StringHelper.obfuscateNameIfNecessary(event.sender.name)).addMessageToken(Joiner.on(" ").join(event.parameters)).applyTokens(Thump.configuration.formats.minecraft.playerMessage)
-            wrappersManager.sendToAllChannels(message)
+            sink.sendToAllServices(message)
         }
     }
 
@@ -72,7 +73,7 @@ class ChatEventHandler(private val wrappersManager: IWrappersManager) {
         }
 
         val message = TokenHelper().addUserToken(StringHelper.obfuscateNameIfNecessary(event.player.displayNameString)).applyTokens(Thump.configuration.formats.minecraft.playerJoined)
-        wrappersManager.sendToAllChannels(message)
+        sink.sendToAllServices(message)
     }
 
     @SubscribeEvent
@@ -82,7 +83,7 @@ class ChatEventHandler(private val wrappersManager: IWrappersManager) {
         }
 
         val message = TokenHelper().addUserToken(StringHelper.obfuscateNameIfNecessary(event.player.displayNameString)).applyTokens(Thump.configuration.formats.minecraft.playerLeft)
-        wrappersManager.sendToAllChannels(message)
+        sink.sendToAllServices(message)
     }
 
     @SubscribeEvent
@@ -106,8 +107,9 @@ class ChatEventHandler(private val wrappersManager: IWrappersManager) {
             unformattedText = unformattedText.replace(playerDisplayName, obfuscatedName)
         }
 
-        val message = TokenHelper().addMessageToken(unformattedText).applyTokens(Thump.configuration.formats.minecraft.playerDeath)
-        wrappersManager.sendToAllChannels(message)
+        val relevantEmoji = DeathEmojiPicker.relevantEmojisForDeathMessage(unformattedText)
+        val message = TokenHelper().addMessageToken(unformattedText).addDeathEmojiToken(relevantEmoji).applyTokens(Thump.configuration.formats.minecraft.playerDeath)
+        sink.sendToAllServices(message)
     }
 
     private fun generateNewDeathMessageFromLastDeath(player: EntityPlayer, source: DamageSource): ITextComponent {
@@ -120,40 +122,17 @@ class ChatEventHandler(private val wrappersManager: IWrappersManager) {
             return
         }
 
+        val achievement = event.achievement
         val entityPlayer = event.entityPlayer as? EntityPlayerMP ?: return
+        val statFile = entityPlayer.statFile
 
-        val hasAchievementUnlocked = entityPlayer.statFile.hasAchievementUnlocked(event.achievement)
-        if (hasAchievementUnlocked) {
+        if (!statFile.canUnlockAchievement(achievement) || statFile.hasAchievementUnlocked(achievement)) {
             return
         }
 
-        var hasParentAchievementsUnlocked = true
-        var achievement: Achievement? = event.achievement.parentAchievement
-        var depth = 0
+        val playerDisplayNameComponent = entityPlayer.displayName
 
-        // NOTE: depth is included just in case the achievement graph isn't acyclic for some reason
-        while (achievement != null) {
-            if (!(event.entityPlayer as EntityPlayerMP).statFile.hasAchievementUnlocked(achievement)) {
-                hasParentAchievementsUnlocked = false
-                break
-            }
-
-            depth++
-            if (depth >= 30) {
-                hasParentAchievementsUnlocked = false
-                break
-            }
-
-            achievement = achievement.parentAchievement
-        }
-
-        if (!hasParentAchievementsUnlocked) {
-            return
-        }
-
-        val playerDisplayNameComponent = event.entityPlayer.displayName
-
-        val achievementMessage = TextComponentTranslation("chat.type.achievement", playerDisplayNameComponent, event.achievement.createChatComponent())
+        val achievementMessage = TextComponentTranslation("chat.type.achievement", playerDisplayNameComponent, achievement.createChatComponent())
 
         var unformattedText = achievementMessage.unformattedText
         if (Thump.configuration.general.obfuscateUserSourceFromMinecraft) {
@@ -164,6 +143,7 @@ class ChatEventHandler(private val wrappersManager: IWrappersManager) {
         }
 
         val message = TokenHelper().addMessageToken(unformattedText).applyTokens(Thump.configuration.formats.minecraft.playerAchievement)
-        wrappersManager.sendToAllChannels(message)
+        sink.sendToAllServices(message)
     }
+
 }

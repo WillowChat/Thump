@@ -1,12 +1,13 @@
-package engineer.carrot.warren.thump.runner
+package engineer.carrot.warren.thump.plugin.irc
 
-import engineer.carrot.warren.thump.config.GeneralConfiguration
-import engineer.carrot.warren.thump.config.ServerConfiguration
+import engineer.carrot.warren.thump.api.IThumpMinecraftSink
 import engineer.carrot.warren.thump.helper.LogHelper
+import engineer.carrot.warren.thump.plugin.irc.config.IrcServerConfiguration
+import engineer.carrot.warren.thump.plugin.irc.config.IrcServicePluginGeneralConfiguration
 
 interface IWrappersManager {
     fun sendToAllChannels(message: String)
-    fun initialise(serverConfiguration: ServerConfiguration, generalConfiguration: GeneralConfiguration)
+    fun initialise(ircServerConfiguration: IrcServerConfiguration, generalConfiguration: IrcServicePluginGeneralConfiguration, sink: IThumpMinecraftSink)
     fun removeAll()
     fun start(id: String): Boolean
     fun stop(id: String, shouldReconnect: Boolean = true): Boolean
@@ -18,10 +19,10 @@ interface IWrappersManager {
 class IrcRunnerWrappersManager : IWrappersManager {
     override val wrappers = mutableMapOf<String, IWrapper>()
 
-    override fun initialise(serverConfiguration: ServerConfiguration, generalConfiguration: GeneralConfiguration) {
-        val id = serverConfiguration.ID
+    override fun initialise(ircServerConfiguration: IrcServerConfiguration, generalConfiguration: IrcServicePluginGeneralConfiguration, sink: IThumpMinecraftSink) {
+        val id = ircServerConfiguration.ID
 
-        wrappers[id] = IrcRunnerWrapper(id, serverConfiguration, generalConfiguration, this)
+        wrappers[id] = IrcRunnerWrapper(id, ircServerConfiguration, generalConfiguration, sink)
     }
 
     override fun removeAll() {
@@ -54,5 +55,5 @@ class IrcRunnerWrappersManager : IWrappersManager {
         return wrapper.stop(shouldReconnect = shouldReconnect)
     }
 
-    override fun anyWrappersMatch(nickname: String): Boolean = wrappers.values.any { nickname.equals(it.nickname, ignoreCase = true) }
+    override fun anyWrappersMatch(nickname: String) = wrappers.values.any { nickname.equals(it.nickname, ignoreCase = true) }
 }
