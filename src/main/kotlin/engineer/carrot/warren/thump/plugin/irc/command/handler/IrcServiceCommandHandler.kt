@@ -10,7 +10,8 @@ class IrcServiceCommandHandler(wrappersManager: IWrappersManager) : ICommandHand
     private val handlers = mutableMapOf<String, ICommandHandler>()
 
     override val command = "irc"
-    override val usage = "$command ${handlers.keys.joinToString(separator = ", ")}"
+    override val usage: String
+        get() = "$command ${handlers.keys.joinToString(separator = ", ")}"
 
     init {
         handlers.put("connect", ConnectCommandHandler(wrappersManager))
