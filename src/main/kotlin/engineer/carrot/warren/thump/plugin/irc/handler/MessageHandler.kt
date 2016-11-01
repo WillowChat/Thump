@@ -29,7 +29,7 @@ class MessageHandler(private val sink: IThumpMinecraftSink, private val wrapper:
             LogHelper.info(output)
         }
 
-        if (event.message.equals("!players")) {
+        if (event.message == "!players") {
             if (Thump.configuration.commands.players) {
                 CommandPlayers.handlePlayersCommand(Thump)
             }
