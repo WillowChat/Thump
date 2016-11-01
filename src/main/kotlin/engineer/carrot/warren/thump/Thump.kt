@@ -46,7 +46,7 @@ object Thump : IThumpServicePlugins, IThumpMinecraftSink, IThumpServiceSink {
         configuration.saveAllConfigurations()
 
         servicePlugins = ThumpPluginDiscoverer.discover(event.asmData).associate {
-            val id = it.id.toLowerCase().filter { it.isLetter() }
+            val id = it.id.toLowerCase().filter(Char::isLetter)
 
             (id to it)
         }
@@ -72,9 +72,7 @@ object Thump : IThumpServicePlugins, IThumpMinecraftSink, IThumpServiceSink {
     fun onServerStopped(event: FMLServerStoppedEvent) {
         LogHelper.info("server stopping - stopping all connections")
 
-        servicePlugins.values.forEach {
-            it.stop()
-        }
+        servicePlugins.values.forEach(IThumpServicePlugin::stop)
     }
 
     // IThumpServicePlugins
@@ -91,15 +89,11 @@ object Thump : IThumpServicePlugins, IThumpMinecraftSink, IThumpServiceSink {
     }
 
     override fun startAll() {
-        servicePlugins.values.forEach {
-            it.start()
-        }
+        servicePlugins.values.forEach(IThumpServicePlugin::start)
     }
 
     override fun stopAll() {
-        servicePlugins.values.forEach {
-            it.stop()
-        }
+        servicePlugins.values.forEach(IThumpServicePlugin::stop)
     }
 
     override fun statuses(): Map<String, List<String>> {

@@ -12,7 +12,7 @@ class DisconnectCommandHandler(private val wrappersManager: IWrappersManager) : 
     override val usage = "$COMMAND_NAME $COMMAND_USAGE"
 
     override fun processParameters(sender: ICommandSender, parameters: Array<String>) {
-        if (parameters.size < 1) {
+        if (parameters.isEmpty()) {
             sender.addChatMessage(TextComponentString("Incorrect usage."))
             sender.addChatMessage(TextComponentString(" Usage: " + this.usage))
             return

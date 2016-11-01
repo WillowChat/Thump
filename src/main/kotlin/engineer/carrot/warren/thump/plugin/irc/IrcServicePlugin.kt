@@ -4,9 +4,7 @@ import engineer.carrot.warren.thump.api.*
 import engineer.carrot.warren.thump.helper.LogHelper
 import engineer.carrot.warren.thump.plugin.irc.command.handler.IrcServiceCommandHandler
 import engineer.carrot.warren.thump.plugin.irc.config.IrcServicePluginConfiguration
-import engineer.carrot.warren.thump.plugin.irc.handler.MessageHandler
 import net.minecraft.util.text.TextFormatting
-import net.minecraftforge.common.MinecraftForge
 
 @ThumpServicePlugin
 object IrcServicePlugin : IThumpServicePlugin {

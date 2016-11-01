@@ -19,10 +19,7 @@ object CommandPlayers {
             return
         }
 
-        val names = Lists.newArrayList<String>()
-        for (player in players) {
-            names.add(StringHelper.obfuscateNameIfNecessary(player.displayNameString))
-        }
+        val names = players.map { StringHelper.obfuscateNameIfNecessary(it.displayNameString) }
 
         val message = TokenHelper().addMessageToken(Joiner.on(", ").join(names)).applyTokens(Thump.configuration.formats.minecraft.playersOnline)
         sink.sendToAllServices(message)

@@ -63,7 +63,7 @@ class IrcRunnerWrapper(override val id: String, ircServerConfiguration: IrcServe
     }
 
     private fun generateConfiguration(ircServerConfiguration: IrcServerConfiguration, generalConfiguration: IrcServicePluginGeneralConfiguration): ConfigurationState {
-        val filteredFingerprints: Set<String> = ircServerConfiguration.forciblyAcceptedCertificates.filterNot { it.isBlank() }.toSet()
+        val filteredFingerprints = ircServerConfiguration.forciblyAcceptedCertificates.filterNot(String::isBlank).toSet()
         var fingerprints: Set<String>? = null
         if (ircServerConfiguration.forceAcceptCertificates) {
             fingerprints = filteredFingerprints

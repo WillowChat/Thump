@@ -1,7 +1,6 @@
 package engineer.carrot.warren.thump.helper
 
 import net.minecraft.entity.player.EntityPlayerMP
-import net.minecraft.util.text.TextComponentString
 import net.minecraftforge.common.ForgeHooks
 import net.minecraftforge.fml.common.FMLCommonHandler
 
@@ -15,7 +14,7 @@ object PlayerHelper {
         }
     }
 
-    fun sendMessageToPlayer(player: String, message: String) {
+    @Suppress("UNUSED") fun sendMessageToPlayer(player: String, message: String) {
         allPlayers.find { it.name == player }?.addChatMessage(ForgeHooks.newChatWithLinks(message))
     }
 }

@@ -1,11 +1,7 @@
 package engineer.carrot.warren.thump.plugin.irc.config
 
-import com.google.common.collect.Lists
-import com.google.common.collect.Sets
 import engineer.carrot.warren.thump.api.IThumpServicePluginConfig
-import engineer.carrot.warren.thump.helper.PredicateHelper
 import net.minecraftforge.common.config.Configuration
-import java.util.*
 
 class IrcServicePluginConfiguration(val configuration: Configuration): IThumpServicePluginConfig {
 
@@ -34,7 +30,7 @@ class IrcServicePluginGeneralConfiguration(val configuration: Configuration) {
     var logRawIRCLinesToServerConsole = false
 
     init {
-        configuration.setCategoryPropertyOrder(CATEGORY, Lists.newArrayList(LOG_IRC_TO_SERVER_CONSOLE_KEY))
+        configuration.setCategoryPropertyOrder(CATEGORY, arrayListOf(LOG_IRC_TO_SERVER_CONSOLE_KEY))
 
         this.logIrcToServerConsole = configuration.getBoolean(LOG_IRC_TO_SERVER_CONSOLE_KEY, CATEGORY, this.logIrcToServerConsole, "")
 
@@ -54,7 +50,7 @@ class IrcServicePluginEventsConfiguration(val configuration: Configuration) {
     var channelAction = true
 
     init {
-        configuration.setCategoryPropertyOrder(CATEGORY, Lists.newArrayList(CHANNEL_MESSAGE_KEY, CHANNEL_ACTION_KEY))
+        configuration.setCategoryPropertyOrder(CATEGORY, arrayListOf(CHANNEL_MESSAGE_KEY, CHANNEL_ACTION_KEY))
         this.channelMessage = configuration.getBoolean(CHANNEL_MESSAGE_KEY, CATEGORY, this.channelMessage, "")
         this.channelAction = configuration.getBoolean(CHANNEL_ACTION_KEY, CATEGORY, this.channelAction, "")
     }
@@ -74,7 +70,7 @@ class IrcServicePluginFormatsConfiguration(val configuration: Configuration) {
 
     init {
         configuration.setCategoryComment("formats", "Formatting tokens: {u} -> user, {c} -> channel, {m} -> message, {s} -> server")
-        configuration.setCategoryPropertyOrder(CATEGORY, Lists.newArrayList(CHANNEL_MESSAGE_KEY, CHANNEL_ACTION_KEY,
+        configuration.setCategoryPropertyOrder(CATEGORY, listOf(CHANNEL_MESSAGE_KEY, CHANNEL_ACTION_KEY,
                 NETWORK_READY_KEY, NETWORK_DISCONNECTED_KEY))
         this.channelMessage = configuration.getString(CHANNEL_MESSAGE_KEY, CATEGORY, this.channelMessage, "")
         this.channelAction = configuration.getString(CHANNEL_ACTION_KEY, CATEGORY, this.channelAction, "")
@@ -92,29 +88,22 @@ class IrcServicePluginFormatsConfiguration(val configuration: Configuration) {
 }
 
 class IrcServicePluginConnectionsConfiguration(configuration: Configuration) {
-    var servers: MutableMap<String, IrcServerConfiguration> = HashMap()
+    val servers = mutableMapOf<String, IrcServerConfiguration>()
 
     init {
-        val serverIDs = Sets.newHashSet(
-            Sets.filter(
-                configuration.categoryNames,
-                PredicateHelper.StartsWithPredicate("connections.")
-            ).filter { it.indexOf('.', startIndex = 12) == -1 }
-            .map { it.substring(12) }
-        )
+        val connectionsPrefix = "connections."
+        var serverIDs = configuration.categoryNames
+            .filter { it.startsWith(connectionsPrefix) }
+            .filter { it.indexOf('.', startIndex = connectionsPrefix.length) == -1 }
+            .map { it.substring(connectionsPrefix.length) }
 
         if (serverIDs.isEmpty()) {
-            serverIDs.add("example")
+            serverIDs = listOf("example_connection_id_CHANGE_ME")
         }
 
-        for (serverID in serverIDs) {
-            val server = IrcServerConfiguration(serverID, configuration)
-
-            if (server.server.isEmpty()) {
-                continue
-            }
-
-            this.servers.put(server.ID, server)
-        }
+        serverIDs
+            .map { IrcServerConfiguration(it, configuration) }
+            .filterNot { it.server.isEmpty() }
+            .forEach { this.servers.put(it.ID, it) }
     }
 }

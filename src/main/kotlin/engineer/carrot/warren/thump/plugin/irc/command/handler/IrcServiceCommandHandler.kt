@@ -20,7 +20,7 @@ class IrcServiceCommandHandler(wrappersManager: IWrappersManager) : ICommandHand
     }
 
     override fun processParameters(sender: ICommandSender, parameters: Array<String>) {
-        if (parameters.size < 1 || !this.handlers.containsKey(parameters[0])) {
+        if (parameters.isEmpty() || !this.handlers.containsKey(parameters[0])) {
             sender.addChatMessage(TextComponentString("Invalid usage."))
             sender.addChatMessage(TextComponentString(" Usage: $usage"))
 
