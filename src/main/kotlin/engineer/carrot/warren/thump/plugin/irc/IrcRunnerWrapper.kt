@@ -1,6 +1,7 @@
 package engineer.carrot.warren.thump.plugin.irc
 
 import engineer.carrot.warren.kale.irc.message.rfc1459.PrivMsgMessage
+import engineer.carrot.warren.thump.api.IServiceChatFormatter
 import engineer.carrot.warren.thump.api.IThumpMinecraftSink
 import engineer.carrot.warren.thump.helper.LogHelper
 import engineer.carrot.warren.thump.plugin.irc.config.IrcServerConfiguration
@@ -38,7 +39,7 @@ interface IWrapper {
     val id: String
 }
 
-class IrcRunnerWrapper(override val id: String, ircServerConfiguration: IrcServerConfiguration, generalConfiguration: IrcServicePluginGeneralConfiguration, private val sink: IThumpMinecraftSink): IWrapper {
+class IrcRunnerWrapper(override val id: String, ircServerConfiguration: IrcServerConfiguration, generalConfiguration: IrcServicePluginGeneralConfiguration, private val sink: IThumpMinecraftSink, private val formatter: IServiceChatFormatter): IWrapper {
     val reconnectState: ReconnectionState
     override val server: String
 
@@ -91,19 +92,19 @@ class IrcRunnerWrapper(override val id: String, ircServerConfiguration: IrcServe
     private fun createRunner(): IrcRunner {
         val events = WarrenEventDispatcher()
         events.on(ChannelMessageEvent::class) {
-            MessageHandler(sink, this).onChannelMessage(it)
+            MessageHandler(sink, this, formatter).onChannelMessage(it)
         }
 
         events.on(ChannelActionEvent::class) {
-            MessageHandler(sink, this).onChannelAction(it)
+            MessageHandler(sink, this, formatter).onChannelAction(it)
         }
 
         events.on(PrivateMessageEvent::class) {
-            MessageHandler(sink, this).onPrivateMessage(it)
+            MessageHandler(sink, this, formatter).onPrivateMessage(it)
         }
 
         events.on(PrivateActionEvent::class) {
-            MessageHandler(sink, this).onPrivateAction(it)
+            MessageHandler(sink, this, formatter).onPrivateAction(it)
         }
 
         if (configuration.shouldLogIncomingLines) {

@@ -12,6 +12,8 @@ import engineer.carrot.warren.thump.minecraft.MinecraftEventsHandler
 import engineer.carrot.warren.thump.plugin.IThumpServicePlugins
 import engineer.carrot.warren.thump.plugin.ThumpPluginDiscoverer
 import engineer.carrot.warren.thump.proxy.CommonProxy
+import net.minecraft.util.text.ITextComponent
+import net.minecraft.util.text.TextComponentString
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.common.config.Configuration
 import net.minecraftforge.fml.common.Mod
@@ -106,7 +108,7 @@ object Thump : IThumpServicePlugins, IThumpMinecraftSink, IThumpServiceSink {
 
     // IThumpServiceSink
 
-    override fun sendToAllPlayers(source: String, message: String) {
+    override fun sendToAllPlayers(source: String, message: ITextComponent) {
         if (anyServicesMatch(source)) {
             return
         }
@@ -114,16 +116,20 @@ object Thump : IThumpServicePlugins, IThumpMinecraftSink, IThumpServiceSink {
         sendToAllPlayersWithoutCheckingSource(message)
     }
 
-    override fun sendToAllPlayersWithoutCheckingSource(message: String) {
+    override fun sendToAllPlayersWithoutCheckingSource(message: ITextComponent) {
         PlayerHelper.sendMessageToAllPlayers(message)
     }
 
     // IThumpServiceSource
 
-    override fun sendToAllServices(message: String) {
+    override fun sendToAllServices(message: ITextComponent) {
         servicePlugins.values.forEach {
             it.onMinecraftMessage(message)
         }
+    }
+
+    override fun sendToAllServices(message: String) {
+        sendToAllServices(TextComponentString(message))
     }
 
 }

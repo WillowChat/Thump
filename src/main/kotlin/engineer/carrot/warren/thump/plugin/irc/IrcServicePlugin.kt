@@ -4,6 +4,7 @@ import engineer.carrot.warren.thump.api.*
 import engineer.carrot.warren.thump.helper.LogHelper
 import engineer.carrot.warren.thump.plugin.irc.command.handler.IrcServiceCommandHandler
 import engineer.carrot.warren.thump.plugin.irc.config.IrcServicePluginConfiguration
+import net.minecraft.util.text.ITextComponent
 import net.minecraft.util.text.TextFormatting
 
 @ThumpServicePlugin
@@ -11,6 +12,7 @@ object IrcServicePlugin : IThumpServicePlugin {
     override val id = "irc"
 
     lateinit var configuration: IrcServicePluginConfiguration
+    lateinit var formatter: IServiceChatFormatter
 
     override lateinit var commandHandler: ICommandHandler
 
@@ -21,6 +23,8 @@ object IrcServicePlugin : IThumpServicePlugin {
     override fun configure(context: ThumpPluginContext) {
         val config = context.configuration
         sink = context.minecraftSink
+
+        formatter = IrcChatFormatter()
 
         configuration = IrcServicePluginConfiguration(configuration = config)
         configuration.load()
@@ -51,9 +55,11 @@ object IrcServicePlugin : IThumpServicePlugin {
         return wrappersManager.anyWrappersMatch(name)
     }
 
-    override fun onMinecraftMessage(message: String) {
+    override fun onMinecraftMessage(message: ITextComponent) {
         wrappersManager.wrappers.forEach { entry ->
-            entry.value.sendMessageToAll(message)
+            val plaintextOutput = formatter.format(message)
+
+            entry.value.sendMessageToAll(plaintextOutput)
         }
     }
 
@@ -67,7 +73,7 @@ object IrcServicePlugin : IThumpServicePlugin {
         for (serverConfiguration in servers.values) {
             LogHelper.info("adding ${serverConfiguration.server}:${serverConfiguration.port} as ${serverConfiguration.nickname}")
 
-            wrappersManager.initialise(serverConfiguration, IrcServicePlugin.configuration.general, sink)
+            wrappersManager.initialise(serverConfiguration, IrcServicePlugin.configuration.general, sink, formatter)
         }
     }
 

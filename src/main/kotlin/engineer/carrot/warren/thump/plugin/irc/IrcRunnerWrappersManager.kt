@@ -1,5 +1,6 @@
 package engineer.carrot.warren.thump.plugin.irc
 
+import engineer.carrot.warren.thump.api.IServiceChatFormatter
 import engineer.carrot.warren.thump.api.IThumpMinecraftSink
 import engineer.carrot.warren.thump.helper.LogHelper
 import engineer.carrot.warren.thump.plugin.irc.config.IrcServerConfiguration
@@ -7,7 +8,7 @@ import engineer.carrot.warren.thump.plugin.irc.config.IrcServicePluginGeneralCon
 
 interface IWrappersManager {
     fun sendToAllChannels(message: String)
-    fun initialise(ircServerConfiguration: IrcServerConfiguration, generalConfiguration: IrcServicePluginGeneralConfiguration, sink: IThumpMinecraftSink)
+    fun initialise(ircServerConfiguration: IrcServerConfiguration, generalConfiguration: IrcServicePluginGeneralConfiguration, sink: IThumpMinecraftSink, formatter: IServiceChatFormatter)
     fun removeAll()
     fun start(id: String): Boolean
     fun stop(id: String, shouldReconnect: Boolean = true): Boolean
@@ -19,10 +20,10 @@ interface IWrappersManager {
 class IrcRunnerWrappersManager : IWrappersManager {
     override val wrappers = mutableMapOf<String, IWrapper>()
 
-    override fun initialise(ircServerConfiguration: IrcServerConfiguration, generalConfiguration: IrcServicePluginGeneralConfiguration, sink: IThumpMinecraftSink) {
+    override fun initialise(ircServerConfiguration: IrcServerConfiguration, generalConfiguration: IrcServicePluginGeneralConfiguration, sink: IThumpMinecraftSink, formatter: IServiceChatFormatter) {
         val id = ircServerConfiguration.ID
 
-        wrappers[id] = IrcRunnerWrapper(id, ircServerConfiguration, generalConfiguration, sink)
+        wrappers[id] = IrcRunnerWrapper(id, ircServerConfiguration, generalConfiguration, sink, formatter)
     }
 
     override fun removeAll() {

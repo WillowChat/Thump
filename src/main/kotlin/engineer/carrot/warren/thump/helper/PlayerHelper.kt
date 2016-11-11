@@ -1,6 +1,7 @@
 package engineer.carrot.warren.thump.helper
 
 import net.minecraft.entity.player.EntityPlayerMP
+import net.minecraft.util.text.ITextComponent
 import net.minecraftforge.common.ForgeHooks
 import net.minecraftforge.fml.common.FMLCommonHandler
 
@@ -8,13 +9,15 @@ object PlayerHelper {
     val allPlayers: List<EntityPlayerMP>
         get() = FMLCommonHandler.instance().minecraftServerInstance.playerList.playerList
 
-    fun sendMessageToAllPlayers(message: String) {
+    fun sendMessageToAllPlayers(message: ITextComponent) {
         for (player in allPlayers) {
-            player.addChatMessage(ForgeHooks.newChatWithLinks(message))
+            // TODO: Add link finding back in
+            player.addChatMessage(message)
         }
     }
 
-    @Suppress("UNUSED") fun sendMessageToPlayer(player: String, message: String) {
-        allPlayers.find { it.name == player }?.addChatMessage(ForgeHooks.newChatWithLinks(message))
+    @Suppress("UNUSED") fun sendMessageToPlayer(player: String, message: ITextComponent) {
+        // TODO: Add link finding back in
+        allPlayers.find { it.name == player }?.addChatMessage(message)
     }
 }

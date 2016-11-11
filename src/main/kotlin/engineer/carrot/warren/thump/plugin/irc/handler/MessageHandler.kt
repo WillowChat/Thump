@@ -1,6 +1,7 @@
 package engineer.carrot.warren.thump.plugin.irc.handler
 
 import engineer.carrot.warren.thump.Thump
+import engineer.carrot.warren.thump.api.IServiceChatFormatter
 import engineer.carrot.warren.thump.api.IThumpMinecraftSink
 import engineer.carrot.warren.thump.helper.LogHelper
 import engineer.carrot.warren.thump.helper.StringHelper
@@ -13,7 +14,7 @@ import engineer.carrot.warren.warren.event.ChannelMessageEvent
 import engineer.carrot.warren.warren.event.PrivateActionEvent
 import engineer.carrot.warren.warren.event.PrivateMessageEvent
 
-class MessageHandler(private val sink: IThumpMinecraftSink, private val wrapper: IWrapper) {
+class MessageHandler(private val sink: IThumpMinecraftSink, private val wrapper: IWrapper, private val formatter: IServiceChatFormatter) {
 
     fun onChannelMessage(event: ChannelMessageEvent) {
         val nick = event.user.nick
@@ -40,8 +41,9 @@ class MessageHandler(private val sink: IThumpMinecraftSink, private val wrapper:
         }
 
         output = StringHelper.stripBlacklistedIRCCharacters(output)
+        val formattedOutput = formatter.format(output)
 
-        sink.sendToAllPlayers(nick, output)
+        sink.sendToAllPlayers(nick, formattedOutput)
     }
 
     fun onChannelAction(event: ChannelActionEvent) {
@@ -63,8 +65,9 @@ class MessageHandler(private val sink: IThumpMinecraftSink, private val wrapper:
         }
 
         output = StringHelper.stripBlacklistedIRCCharacters(output)
+        val formattedOutput = formatter.format(output)
 
-        sink.sendToAllPlayers(nick, output)
+        sink.sendToAllPlayers(nick, formattedOutput)
     }
 
     fun onPrivateMessage(event: PrivateMessageEvent) {

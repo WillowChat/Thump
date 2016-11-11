@@ -7,6 +7,7 @@ import engineer.carrot.warren.thump.plugin.irc.IWrapper
 import engineer.carrot.warren.thump.plugin.irc.IrcServicePlugin
 import engineer.carrot.warren.warren.event.ConnectionLifecycleEvent
 import engineer.carrot.warren.warren.state.LifecycleState
+import net.minecraft.util.text.TextComponentString
 
 class LifecycleHandler(private val wrapper: IWrapper, private val sink: IThumpMinecraftSink) {
 
@@ -15,14 +16,16 @@ class LifecycleHandler(private val wrapper: IWrapper, private val sink: IThumpMi
         when (lifecycle) {
             LifecycleState.CONNECTED -> {
                 val output = TokenHelper().addMessageToken(wrapper.id).addServerToken(wrapper.server).applyTokens(IrcServicePlugin.configuration.formats.networkReady)
+                val text = TextComponentString(output)
 
-                sink.sendToAllPlayersWithoutCheckingSource(output)
+                sink.sendToAllPlayersWithoutCheckingSource(text)
             }
 
             LifecycleState.DISCONNECTED -> {
                 val output = TokenHelper().addMessageToken(wrapper.id).addServerToken(wrapper.server).applyTokens(IrcServicePlugin.configuration.formats.networkDisconnected)
+                val text = TextComponentString(output)
 
-                sink.sendToAllPlayersWithoutCheckingSource(output)
+                sink.sendToAllPlayersWithoutCheckingSource(text)
             }
 
             else -> {

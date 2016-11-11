@@ -19,6 +19,7 @@ val forgeVersion by project
 val mcpMappings by project
 val thumpVersion by project
 val warrenVersion by project
+val kotlinVersion by project
 
 buildscript {
     repositories {
@@ -27,7 +28,7 @@ buildscript {
     }
 
     dependencies {
-        classpath(kotlinModule("gradle-plugin"))
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.1-M02")
         classpath("net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT")
         classpath("com.github.jengelman.gradle.plugins:shadow:1.2.3")
     }
@@ -47,13 +48,17 @@ repositories {
 }
 
 dependencies {
-    compile(kotlinModule("stdlib"))
+    compile(kotlin("stdlib"))
 
     compile("engineer.carrot.warren.warren:Warren:$warrenVersion") {
         exclude(mapOf("group" to "org.slf4j"))
     }
 
     compile("org.slf4j:slf4j-api:1.7.21")
+
+    testCompile("junit:junit:4.12")
+    testCompile("org.mockito:mockito-core:2.2.9")
+    testCompile("com.nhaarman:mockito-kotlin:0.10.0")
 }
 
 val buildNumberAddition = if(project.hasProperty("BUILD_NUMBER")) { ".${project.property("BUILD_NUMBER")}" } else { "" }
@@ -156,3 +161,4 @@ fun DependencyHandler.shade(dependencyNotation: Any, setup: ModuleDependency.() 
         (add("shade", dependencyNotation) as ModuleDependency).setup()
 
 fun configuration(name: String) = project.configurations.getByName(name)
+fun kotlin(module: String) = "org.jetbrains.kotlin:kotlin-$module:$kotlinVersion"
