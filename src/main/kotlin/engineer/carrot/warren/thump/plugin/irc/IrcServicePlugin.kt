@@ -12,7 +12,7 @@ object IrcServicePlugin : IThumpServicePlugin {
     override val id = "irc"
 
     lateinit var configuration: IrcServicePluginConfiguration
-    lateinit var formatter: IServiceChatFormatter
+    private var formatter: IServiceChatFormatter = IrcChatFormatter
 
     override lateinit var commandHandler: ICommandHandler
 
@@ -23,8 +23,6 @@ object IrcServicePlugin : IThumpServicePlugin {
     override fun configure(context: ThumpPluginContext) {
         val config = context.configuration
         sink = context.minecraftSink
-
-        formatter = IrcChatFormatter()
 
         configuration = IrcServicePluginConfiguration(configuration = config)
         configuration.load()
