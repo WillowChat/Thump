@@ -12,7 +12,7 @@ class IrcChatFormatterTests {
 
     @Before
     fun setUp() {
-        formatter = IrcChatFormatter()
+        formatter = IrcChatFormatter
     }
 
     @Test
