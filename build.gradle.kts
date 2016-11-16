@@ -65,7 +65,7 @@ val buildNumberAddition = if(project.hasProperty("BUILD_NUMBER")) { ".${project.
 
 version = "$minecraftVersion-$thumpVersion$buildNumberAddition"
 group = "engineer.carrot.warren.thump"
-extra["archivesBaseName"] = "Thump"
+project.setProperty("archivesBaseName", "Thump")
 
 minecraft {
     version = "$minecraftVersion-$forgeVersion"
