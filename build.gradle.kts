@@ -20,6 +20,8 @@ val mcpMappings by project
 val thumpVersion by project
 val warrenVersion by project
 
+val projectTitle = "Thump"
+
 buildscript {
     repositories {
         gradleScriptKotlin()
@@ -60,6 +62,7 @@ val buildNumberAddition = if(project.hasProperty("BUILD_NUMBER")) { ".${project.
 
 version = "$minecraftVersion-$thumpVersion$buildNumberAddition"
 group = "engineer.carrot.warren.thump"
+project.setProperty("archivesBaseName", projectTitle)
 
 minecraft {
     version = "$minecraftVersion-$forgeVersion"
@@ -134,6 +137,8 @@ if (project.hasProperty("DEPLOY_DIR")) {
 
                 artifact(deobfTask)
                 artifact(sourcesTask)
+
+                artifactId = projectTitle
             }
         }
     }
