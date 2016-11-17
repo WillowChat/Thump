@@ -23,13 +23,13 @@ pipeline {
 
         stage('Setup') {
             steps {
-                sh "./gradlew clean setupCIWorkspace"
+                sh "./gradlew clean setupCIWorkspace --no-daemon"
             }
         }
 
         stage('Build') {
             steps {
-                sh "./gradlew build -PBUILD_NUMBER=${env.BUILD_NUMBER}"
+                sh "./gradlew build -PBUILD_NUMBER=${env.BUILD_NUMBER} --no-daemon"
             }
         }
 
@@ -41,7 +41,7 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                sh "./gradlew publishMavenJavaPublicationToMavenRepository -PBUILD_NUMBER=${env.BUILD_NUMBER} -PDEPLOY_DIR=/var/www/maven.hopper.bunnies.io"
+                sh "./gradlew publishMavenJavaPublicationToMavenRepository -PBUILD_NUMBER=${env.BUILD_NUMBER} -PDEPLOY_DIR=/var/www/maven.hopper.bunnies.io --no-daemon"
             }
         }
     }
