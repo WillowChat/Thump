@@ -36,7 +36,7 @@ pipeline {
         stage('Archive') {
             steps {
                 archive includes: 'build/libs/*.jar'
-                junit 'build/test-results/**/*.xml'
+                junit allowEmptyResults: true, testResults: 'build/test-results/**/*.xml'
             }
         }
 
