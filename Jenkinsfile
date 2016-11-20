@@ -1,7 +1,7 @@
 pipeline {
     agent any
 
-    notifications {
+    post {
         success {
             ircSendSuccess()
         }
