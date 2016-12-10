@@ -37,7 +37,7 @@ class FormatsConfiguration(configuration: Configuration) {
         }
 
         companion object {
-            val CATEGORY = "formats.minecraft"
+            val CATEGORY = "minecraft_formats"
             private val PLAYER_MESSAGE_KEY = "PlayerMessage"
             private val PLAYER_ACTION_KEY = "PlayerAction"
             private val PLAYER_ACHIEVEMENT_KEY = "PlayerAchievement"
