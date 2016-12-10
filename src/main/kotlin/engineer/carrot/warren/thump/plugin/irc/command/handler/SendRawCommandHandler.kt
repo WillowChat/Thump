@@ -13,8 +13,8 @@ class SendRawCommandHandler(private val wrappersManager: IWrappersManager) : ICo
 
     override fun processParameters(sender: ICommandSender, parameters: Array<String>) {
         if (parameters.size < 2) {
-            sender.addChatMessage(TextComponentString("Incorrect usage."))
-            sender.addChatMessage(TextComponentString(" Usage: " + this.usage))
+            sender.sendMessage(TextComponentString("Incorrect usage."))
+            sender.sendMessage(TextComponentString(" Usage: " + this.usage))
             return
         }
 
@@ -22,7 +22,7 @@ class SendRawCommandHandler(private val wrappersManager: IWrappersManager) : ICo
         val wrapper = wrappersManager.wrappers[id]
         val state = wrapper?.state
         if (wrapper == null || state == null) {
-            sender.addChatMessage(TextComponentString("That network ID doesn't exist."))
+            sender.sendMessage(TextComponentString("That network ID doesn't exist."))
             return
         }
 
@@ -30,14 +30,14 @@ class SendRawCommandHandler(private val wrappersManager: IWrappersManager) : ICo
             WrapperState.RUNNING -> {
                 val line = parameters.drop(1).joinToString(separator = " ")
                 if (wrapper.sendRaw(line)) {
-                    sender.addChatMessage(TextComponentString("Sent message to $id: $line"))
+                    sender.sendMessage(TextComponentString("Sent message to $id: $line"))
                 } else {
-                    sender.addChatMessage(TextComponentString("Failed to send to $id: $line"))
+                    sender.sendMessage(TextComponentString("Failed to send to $id: $line"))
                 }
             }
 
             else -> {
-                sender.addChatMessage(TextComponentString("Network $id isn't running - check with /thump status"))
+                sender.sendMessage(TextComponentString("Network $id isn't running - check with /thump status"))
             }
         }
     }

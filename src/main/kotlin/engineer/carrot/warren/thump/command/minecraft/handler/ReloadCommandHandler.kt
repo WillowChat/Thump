@@ -15,12 +15,12 @@ class ReloadCommandHandler(private val servicePlugins: IThumpServicePlugins) : I
 
     override fun processParameters(sender: ICommandSender, parameters: Array<String>) {
         LogHelper.info("Player '{}' triggered a reload (stopping and starting services - the server might lag for a few seconds)...", sender.name)
-        sender.addChatMessage(TextComponentString("Reloading Thump (stopping and starting services - the server might lag for a few seconds)..."))
+        sender.sendMessage(TextComponentString("Reloading Thump (stopping and starting services - the server might lag for a few seconds)..."))
 
         servicePlugins.stopAll()
 
         LogHelper.info("Stopped services, reloading configurations...")
-        sender.addChatMessage(TextComponentString("Stopped services, reloading configurations..."))
+        sender.sendMessage(TextComponentString("Stopped services, reloading configurations..."))
 
         Thump.configuration.loadAllConfigurations()
         Thump.configuration.saveAllConfigurations()
@@ -28,12 +28,12 @@ class ReloadCommandHandler(private val servicePlugins: IThumpServicePlugins) : I
         servicePlugins.reconfigureAll()
 
         LogHelper.info("Reloading services...")
-        sender.addChatMessage(TextComponentString("Reloading services..."))
+        sender.sendMessage(TextComponentString("Reloading services..."))
 
         servicePlugins.startAll()
 
         LogHelper.info("Reload complete!")
-        sender.addChatMessage(TextComponentString("Thump reloaded! Check services with /thump status"))
+        sender.sendMessage(TextComponentString("Thump reloaded! Check services with /thump status"))
     }
 
     override val usage: String

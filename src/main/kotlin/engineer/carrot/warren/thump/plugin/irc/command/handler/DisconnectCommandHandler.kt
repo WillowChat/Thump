@@ -13,22 +13,22 @@ class DisconnectCommandHandler(private val wrappersManager: IWrappersManager) : 
 
     override fun processParameters(sender: ICommandSender, parameters: Array<String>) {
         if (parameters.isEmpty()) {
-            sender.addChatMessage(TextComponentString("Incorrect usage."))
-            sender.addChatMessage(TextComponentString(" Usage: " + this.usage))
+            sender.sendMessage(TextComponentString("Incorrect usage."))
+            sender.sendMessage(TextComponentString(" Usage: " + this.usage))
             return
         }
 
         val id = parameters[0]
         val state = wrappersManager.wrappers[id]?.state
         if (state == null) {
-            sender.addChatMessage(TextComponentString("That network ID doesn't exist."))
+            sender.sendMessage(TextComponentString("That network ID doesn't exist."))
             return
         }
 
         when (state) {
-            WrapperState.READY -> sender.addChatMessage(TextComponentString("That ID isn't running yet"))
+            WrapperState.READY -> sender.sendMessage(TextComponentString("That ID isn't running yet"))
             else -> {
-                sender.addChatMessage(TextComponentString("Disconnecting network with id: " + id))
+                sender.sendMessage(TextComponentString("Disconnecting network with id: " + id))
                 wrappersManager.stop(id, shouldReconnect = false)
             }
         }

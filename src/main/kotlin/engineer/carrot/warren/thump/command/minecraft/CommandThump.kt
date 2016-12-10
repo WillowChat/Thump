@@ -31,8 +31,8 @@ class CommandThump(private val servicePlugins: IThumpServicePlugins) : CommandBa
 
             override fun processParameters(sender: ICommandSender, parameters: Array<String>) {
                 if (parameters.isEmpty() || !serviceHandlers.containsKey(parameters[0])) {
-                    sender.addChatMessage(TextComponentString("Invalid usage."))
-                    sender.addChatMessage(TextComponentString(" Usage: $usage"))
+                    sender.sendMessage(TextComponentString("Invalid usage."))
+                    sender.sendMessage(TextComponentString(" Usage: $usage"))
                 } else {
                     serviceHandlers[parameters[0]]?.processParameters(sender, parameters.drop(1).toTypedArray())
                 }
@@ -50,12 +50,12 @@ class CommandThump(private val servicePlugins: IThumpServicePlugins) : CommandBa
 
     // CommandBase
 
-    override fun getCommandName(): String {
+    override fun getName(): String {
         return COMMAND_NAME
     }
 
-    override fun getCommandUsage(sender: ICommandSender): String {
-        return "/" + this.commandName + " " + Joiner.on(", ").join(this.handlers.keys)
+    override fun getUsage(sender: ICommandSender): String {
+        return "/" + this.name + " " + Joiner.on(", ").join(this.handlers.keys)
     }
 
     override fun execute(server: MinecraftServer?, sender: ICommandSender?, parameters: Array<out String>?) {
@@ -64,8 +64,8 @@ class CommandThump(private val servicePlugins: IThumpServicePlugins) : CommandBa
         }
 
         if (parameters.isEmpty() || !this.handlers.containsKey(parameters[0])) {
-            sender.addChatMessage(TextComponentString("Invalid usage."))
-            sender.addChatMessage(TextComponentString(" Usage: " + this.getCommandUsage(sender)))
+            sender.sendMessage(TextComponentString("Invalid usage."))
+            sender.sendMessage(TextComponentString(" Usage: " + this.getUsage(sender)))
 
             return
         }
@@ -73,11 +73,19 @@ class CommandThump(private val servicePlugins: IThumpServicePlugins) : CommandBa
         this.handlers[parameters[0]]?.processParameters(sender, parameters.drop(1).toTypedArray())
     }
 
-    override fun getTabCompletionOptions(server: MinecraftServer, sender: ICommandSender, parameters: Array<String>, pos: BlockPos?): List<String> {
-        return when (parameters.size) {
-            0 -> handlers.keys.toList()
-            1 -> handlers.keys.filter { it.startsWith(parameters[0]) }
-            else -> handlers[parameters[0]]?.addTabCompletionOptions(sender, parameters.drop(1).toTypedArray()) ?: listOf()
+    override fun getTabCompletions(server: MinecraftServer?, sender: ICommandSender?, args: Array<out String>?, targetPos: BlockPos?): MutableList<String> {
+        if (args == null) {
+            return mutableListOf()
+        }
+
+        if (sender == null) {
+            return mutableListOf()
+        }
+
+        return when (args.size) {
+            0 -> handlers.keys.toMutableList()
+            1 -> handlers.keys.filter { it.startsWith(args[0]) }.toMutableList()
+            else -> handlers[args[0]]?.addTabCompletionOptions(sender, args.drop(1).toTypedArray())?.toMutableList() ?: mutableListOf()
         }
     }
 
@@ -86,7 +94,6 @@ class CommandThump(private val servicePlugins: IThumpServicePlugins) : CommandBa
     }
 
     companion object {
-
         private val COMMAND_NAME = "thump"
         private val COMMAND_DEFAULT_PERMISSION_LEVEL = 2
     }

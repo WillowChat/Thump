@@ -25,13 +25,13 @@ pipeline {
 
         stage('Setup') {
             steps {
-                sh "./gradlew clean setupCIWorkspace --no-daemon"
+                sh "./gradlew clean setupCIWorkspace --no-daemon -Dorg.gradle.jvmargs=-Xmx1024m"
             }
         }
 
         stage('Build') {
             steps {
-                sh "./gradlew build -PBUILD_NUMBER=${env.BUILD_NUMBER} --no-daemon"
+                sh "./gradlew build -PBUILD_NUMBER=${env.BUILD_NUMBER} --no-daemon -Dorg.gradle.jvmargs=-Xmx1024m"
             }
         }
 

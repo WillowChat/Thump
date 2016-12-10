@@ -12,8 +12,8 @@ class StatusCommandHandler(private val plugins: IThumpServicePlugins) : ICommand
 
     override fun processParameters(sender: ICommandSender, parameters: Array<String>) {
         for ((name, statusLines) in plugins.statuses()) {
-            sender.addChatMessage(TextComponentString("Status for $name:"))
-            statusLines.forEach { sender.addChatMessage(TextComponentString(it)) }
+            sender.sendMessage(TextComponentString("Status for $name:"))
+            statusLines.forEach { sender.sendMessage(TextComponentString(it)) }
         }
     }
 

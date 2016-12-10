@@ -33,7 +33,7 @@ class MinecraftEventsHandler(private val sink: IThumpServiceSink) {
 
     @SubscribeEvent
     fun onCommandEvent(event: CommandEvent) {
-        val commandName = event.command.commandName
+        val commandName = event.command.name
         val isServer = event.sender.name == "Server"
 
         if (commandName.equals("me", ignoreCase = true)) {

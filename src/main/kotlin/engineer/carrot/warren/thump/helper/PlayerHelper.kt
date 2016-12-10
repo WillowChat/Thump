@@ -7,17 +7,17 @@ import net.minecraftforge.fml.common.FMLCommonHandler
 
 object PlayerHelper {
     val allPlayers: List<EntityPlayerMP>
-        get() = FMLCommonHandler.instance().minecraftServerInstance.playerList.playerList
+        get() = FMLCommonHandler.instance().minecraftServerInstance.playerList.players
 
     fun sendMessageToAllPlayers(message: ITextComponent) {
         for (player in allPlayers) {
             // TODO: Add link finding back in
-            player.addChatMessage(message)
+            player.sendMessage(message)
         }
     }
 
     @Suppress("UNUSED") fun sendMessageToPlayer(player: String, message: ITextComponent) {
         // TODO: Add link finding back in
-        allPlayers.find { it.name == player }?.addChatMessage(message)
+        allPlayers.find { it.name == player }?.sendMessage(message)
     }
 }

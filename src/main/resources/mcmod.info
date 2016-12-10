@@ -1,5 +1,5 @@
 [{
-    "modid": "Thump",
+    "modid": "thump",
     "name": "Thump",
     "description": "A simple, highly configurable Minecraft chat multiplexer with built in IRC support",
     "version": "${version}",

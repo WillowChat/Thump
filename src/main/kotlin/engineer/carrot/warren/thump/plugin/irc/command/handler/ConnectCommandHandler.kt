@@ -13,22 +13,22 @@ class ConnectCommandHandler(private val wrappersManager: IWrappersManager) : ICo
 
     override fun processParameters(sender: ICommandSender, parameters: Array<String>) {
         if (parameters.isEmpty()) {
-            sender.addChatMessage(TextComponentString("Incorrect usage."))
-            sender.addChatMessage(TextComponentString(" Usage: " + this.usage))
+            sender.sendMessage(TextComponentString("Incorrect usage."))
+            sender.sendMessage(TextComponentString(" Usage: " + this.usage))
             return
         }
 
         val id = parameters[0]
         val state = wrappersManager.wrappers[id]?.state
         if (state == null) {
-            sender.addChatMessage(TextComponentString("That network ID doesn't exist."))
+            sender.sendMessage(TextComponentString("That network ID doesn't exist."))
             return
         }
 
         when (state) {
-            WrapperState.RUNNING -> sender.addChatMessage(TextComponentString("Already running that ID - disconnect it first"))
+            WrapperState.RUNNING -> sender.sendMessage(TextComponentString("Already running that ID - disconnect it first"))
             else -> {
-                sender.addChatMessage(TextComponentString("Connecting network with id: " + id))
+                sender.sendMessage(TextComponentString("Connecting network with id: " + id))
                 wrappersManager.start(id)
             }
         }
