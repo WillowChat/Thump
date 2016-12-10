@@ -1,10 +1,12 @@
 package engineer.carrot.warren.thump.config
 
+import net.minecraftforge.common.config.ConfigElement
 import net.minecraftforge.common.config.Configuration
+import net.minecraftforge.fml.client.config.IConfigElement
 import java.io.File
 
 class ModConfiguration {
-    private lateinit var generalConfiguration: Configuration
+    private lateinit var minecraftGeneralConfiguration: Configuration
 
     lateinit var events: EventsConfiguration
 
@@ -14,7 +16,13 @@ class ModConfiguration {
     lateinit var formats: FormatsConfiguration
 
     fun initialise(configDirectory: File) {
-        this.generalConfiguration = Configuration(File(configDirectory, GENERAL_NAME), GENERAL_VERSION)
+        this.minecraftGeneralConfiguration = Configuration(File(configDirectory, GENERAL_NAME), GENERAL_VERSION)
+    }
+
+    fun generateConfigElements(): List<IConfigElement> {
+        val categories = listOf(GeneralConfiguration.CATEGORY, CommandsConfiguration.CATEGORY, EventsConfiguration.MinecraftEvents.CATEGORY, FormatsConfiguration.MinecraftFormats.CATEGORY)
+
+        return categories.map { ConfigElement(minecraftGeneralConfiguration.getCategory(it)) }
     }
 
     fun loadAllConfigurations() {
@@ -26,16 +34,16 @@ class ModConfiguration {
     }
 
     fun loadGeneralConfiguration() {
-        this.generalConfiguration.load()
+        this.minecraftGeneralConfiguration.load()
 
-        this.general = GeneralConfiguration(this.generalConfiguration)
-        this.events = EventsConfiguration(this.generalConfiguration)
-        this.commands = CommandsConfiguration(this.generalConfiguration)
-        this.formats = FormatsConfiguration(this.generalConfiguration)
+        this.general = GeneralConfiguration(this.minecraftGeneralConfiguration)
+        this.events = EventsConfiguration(this.minecraftGeneralConfiguration)
+        this.commands = CommandsConfiguration(this.minecraftGeneralConfiguration)
+        this.formats = FormatsConfiguration(this.minecraftGeneralConfiguration)
     }
 
     fun saveGeneralConfiguration() {
-        this.generalConfiguration.save()
+        this.minecraftGeneralConfiguration.save()
     }
 
     companion object {

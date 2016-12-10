@@ -1,7 +1,9 @@
 package engineer.carrot.warren.thump.plugin.irc.config
 
 import engineer.carrot.warren.thump.api.IThumpServicePluginConfig
+import net.minecraftforge.common.config.ConfigElement
 import net.minecraftforge.common.config.Configuration
+import net.minecraftforge.fml.client.config.IConfigElement
 
 class IrcServicePluginConfiguration(val configuration: Configuration): IThumpServicePluginConfig {
 
@@ -87,11 +89,11 @@ class IrcServicePluginFormatsConfiguration(val configuration: Configuration) {
     }
 }
 
-class IrcServicePluginConnectionsConfiguration(configuration: Configuration) {
+class IrcServicePluginConnectionsConfiguration(private val configuration: Configuration) {
     val servers = mutableMapOf<String, IrcServerConfiguration>()
+    private val connectionsPrefix = "connections."
 
     init {
-        val connectionsPrefix = "connections."
         var serverIDs = configuration.categoryNames
             .filter { it.startsWith(connectionsPrefix) }
             .filter { it.indexOf('.', startIndex = connectionsPrefix.length) == -1 }
@@ -105,5 +107,13 @@ class IrcServicePluginConnectionsConfiguration(configuration: Configuration) {
             .map { IrcServerConfiguration(it, configuration) }
             .filterNot { it.server.isEmpty() }
             .forEach { this.servers.put(it.ID, it) }
+    }
+
+    fun connectionConfigElements(): List<IConfigElement> {
+        val validServerCategoryNames = configuration.categoryNames
+                .filter { it.startsWith(connectionsPrefix) }
+                .filter { it.indexOf('.', startIndex = connectionsPrefix.length) == -1 }
+
+        return validServerCategoryNames.map { ConfigElement(configuration.getCategory(it)) }
     }
 }

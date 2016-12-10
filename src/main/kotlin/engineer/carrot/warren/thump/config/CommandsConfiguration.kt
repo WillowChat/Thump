@@ -12,7 +12,7 @@ class CommandsConfiguration(configuration: Configuration) {
     }
 
     companion object {
-        private val CATEGORY = "commands"
+        val CATEGORY = "commands"
         private val PLAYERS_KEY = "Players"
     }
 }

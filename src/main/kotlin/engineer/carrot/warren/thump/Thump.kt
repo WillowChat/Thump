@@ -24,7 +24,14 @@ import net.minecraftforge.fml.common.event.FMLServerStoppedEvent
 import java.io.File
 
 @Suppress("UNUSED", "UNUSED_PARAMETER")
-@Mod(modid = Reference.MOD_ID, name = Reference.MOD_NAME, version = Reference.MOD_VERSION, modLanguage = "kotlin", modLanguageAdapter = "engineer.carrot.warren.thump.CarrotKotlinAdapter", acceptableRemoteVersions = "*", acceptedMinecraftVersions = "[1.11]")
+@Mod(modid = Reference.MOD_ID,
+        name = Reference.MOD_NAME,
+        version = Reference.MOD_VERSION,
+        modLanguage = "kotlin",
+        modLanguageAdapter = "engineer.carrot.warren.thump.CarrotKotlinAdapter",
+        acceptableRemoteVersions = "*",
+        acceptedMinecraftVersions = "[1.11]",
+        guiFactory = "engineer.carrot.warren.thump.config.ThumpModGuiFactory")
 object Thump : IThumpServicePlugins, IThumpMinecraftSink, IThumpServiceSink {
 
     @Mod.Instance(Reference.MOD_ID)

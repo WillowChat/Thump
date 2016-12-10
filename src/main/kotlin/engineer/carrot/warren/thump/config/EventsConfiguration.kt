@@ -36,7 +36,7 @@ class EventsConfiguration(configuration: Configuration) {
         }
 
         companion object {
-            private val CATEGORY = "events.minecraft"
+            val CATEGORY = "events.minecraft"
             private val PLAYER_JOINED_KEY = "PlayerJoined"
             private val PLAYER_LEFT_KEY = "PlayerLeft"
             private val PLAYER_ACHIEVEMENT_KEY = "PlayerAchievement"
