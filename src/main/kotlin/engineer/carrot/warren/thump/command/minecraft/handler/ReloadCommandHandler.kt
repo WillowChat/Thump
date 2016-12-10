@@ -8,7 +8,7 @@ import engineer.carrot.warren.thump.plugin.IThumpServicePlugins
 import net.minecraft.command.ICommandSender
 import net.minecraft.util.text.TextComponentString
 
-class ReloadCommandHandler(private val servicePlugins: IThumpServicePlugins) : ICommandHandler {
+class ReloadCommandHandler : ICommandHandler {
 
     override val command: String
         get() = COMMAND_NAME
@@ -17,22 +17,8 @@ class ReloadCommandHandler(private val servicePlugins: IThumpServicePlugins) : I
         LogHelper.info("Player '{}' triggered a reload (stopping and starting services - the server might lag for a few seconds)...", sender.name)
         sender.sendMessage(TextComponentString("Reloading Thump (stopping and starting services - the server might lag for a few seconds)..."))
 
-        servicePlugins.stopAll()
+        Thump.reloadConfiguration()
 
-        LogHelper.info("Stopped services, reloading configurations...")
-        sender.sendMessage(TextComponentString("Stopped services, reloading configurations..."))
-
-        Thump.configuration.loadAllConfigurations()
-        Thump.configuration.saveAllConfigurations()
-
-        servicePlugins.reconfigureAll()
-
-        LogHelper.info("Reloading services...")
-        sender.sendMessage(TextComponentString("Reloading services..."))
-
-        servicePlugins.startAll()
-
-        LogHelper.info("Reload complete!")
         sender.sendMessage(TextComponentString("Thump reloaded! Check services with /thump status"))
     }
 

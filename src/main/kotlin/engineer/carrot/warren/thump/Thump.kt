@@ -11,16 +11,19 @@ import engineer.carrot.warren.thump.helper.PlayerHelper
 import engineer.carrot.warren.thump.minecraft.MinecraftEventsHandler
 import engineer.carrot.warren.thump.plugin.IThumpServicePlugins
 import engineer.carrot.warren.thump.plugin.ThumpPluginDiscoverer
+import engineer.carrot.warren.thump.plugin.irc.IrcServicePlugin
 import engineer.carrot.warren.thump.proxy.CommonProxy
 import net.minecraft.util.text.ITextComponent
 import net.minecraft.util.text.TextComponentString
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.common.config.Configuration
+import net.minecraftforge.fml.client.event.ConfigChangedEvent
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.common.SidedProxy
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent
 import net.minecraftforge.fml.common.event.FMLServerStoppedEvent
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import java.io.File
 
 @Suppress("UNUSED", "UNUSED_PARAMETER")
@@ -47,6 +50,8 @@ object Thump : IThumpServicePlugins, IThumpMinecraftSink, IThumpServiceSink {
 
     lateinit var baseServiceConfigDirectory: File
 
+    private var serverStarted = false
+
     @Mod.EventHandler
     fun preInit(event: FMLPreInitializationEvent) {
         val modConfigDirectory = File(event.modConfigurationDirectory, "thump")
@@ -66,6 +71,44 @@ object Thump : IThumpServicePlugins, IThumpMinecraftSink, IThumpServiceSink {
 
         val handler = MinecraftEventsHandler(this)
         MinecraftForge.EVENT_BUS.register(handler)
+
+        MinecraftForge.EVENT_BUS.register(object {
+            @SubscribeEvent
+            fun onConfigChanged(event: ConfigChangedEvent.OnConfigChangedEvent) {
+                if (event.modID == Reference.MOD_ID) {
+                    LogHelper.info("Config changed - saving to file")
+
+                    if (Thump.configuration.minecraftGeneralConfiguration.hasChanged()) {
+                        Thump.configuration.minecraftGeneralConfiguration.save()
+                    }
+
+                    if (IrcServicePlugin.configuration.configuration.hasChanged()) {
+                        IrcServicePlugin.configuration.configuration.save()
+                    }
+
+                    reloadConfiguration()
+                }
+            }
+        })
+    }
+
+    fun reloadConfiguration() {
+        if (serverStarted) {
+            LogHelper.info("Stopped services, reloading configurations...")
+            this.stopAll()
+        }
+
+        Thump.configuration.loadAllConfigurations()
+        Thump.configuration.saveAllConfigurations()
+
+        this.reconfigureAll()
+
+        if (serverStarted) {
+            LogHelper.info("Reloading services...")
+            this.startAll()
+        }
+
+        LogHelper.info("Reload complete!")
     }
 
     @Mod.EventHandler
@@ -75,6 +118,8 @@ object Thump : IThumpServicePlugins, IThumpMinecraftSink, IThumpServiceSink {
         event.registerServerCommand(command)
 
         startAll()
+
+        serverStarted = true
     }
 
     @Mod.EventHandler
@@ -82,6 +127,8 @@ object Thump : IThumpServicePlugins, IThumpMinecraftSink, IThumpServiceSink {
         LogHelper.info("server stopping - stopping all connections")
 
         servicePlugins.values.forEach(IThumpServicePlugin::stop)
+
+        serverStarted = false
     }
 
     // IThumpServicePlugins

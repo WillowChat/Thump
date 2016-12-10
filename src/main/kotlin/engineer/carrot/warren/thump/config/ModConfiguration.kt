@@ -6,7 +6,7 @@ import net.minecraftforge.fml.client.config.IConfigElement
 import java.io.File
 
 class ModConfiguration {
-    private lateinit var minecraftGeneralConfiguration: Configuration
+    lateinit var minecraftGeneralConfiguration: Configuration
 
     lateinit var events: EventsConfiguration
 

@@ -20,7 +20,7 @@ class CommandThump(private val servicePlugins: IThumpServicePlugins) : CommandBa
         handlers.clear()
         serviceHandlers.clear()
 
-        handlers.put("reload", ReloadCommandHandler(servicePlugins))
+        handlers.put("reload", ReloadCommandHandler())
         handlers.put("status", StatusCommandHandler(servicePlugins))
 
         serviceHandlers.putAll(pluginCommandHandlers.filterNot { handlers.containsKey(it.key) })
