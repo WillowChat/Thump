@@ -24,13 +24,15 @@ val kotlinVersion by project
 val projectTitle = "Thump"
 
 buildscript {
+    val buildscriptKotlinVersion = "1.1-M03"
+
     repositories {
         gradleScriptKotlin()
         maven { setUrl("http://files.minecraftforge.net/maven") }
     }
 
     dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.1-M02")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$buildscriptKotlinVersion")
         classpath("net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT")
         classpath("com.github.jengelman.gradle.plugins:shadow:1.2.3")
     }
@@ -134,10 +136,10 @@ project.artifacts.add("archives", project.tasks.getByName("shadowJar") as Shadow
 
 if (project.hasProperty("DEPLOY_DIR")) {
     configure<PublishingExtension> {
-        mavenDeploy(this.repositories) { setUrl("file://${project.property("DEPLOY_DIR")}") }
+        this.repositories.maven({ setUrl("file://${project.property("DEPLOY_DIR")}") })
 
         publications {
-            it.create<MavenPublication>("mavenJava") {
+            create<MavenPublication>("mavenJava") {
                 from(components.getByName("java"))
 
                 artifact(deobfTask)
@@ -154,8 +156,6 @@ fun sourceSets(name: String) = (project.property("sourceSets") as SourceSetConta
 fun Project.jar(setup: Jar.() -> Unit) = (project.tasks.getByName("jar") as Jar).setup()
 fun Project.reobf(setup: TaskSingleReobf.() -> Unit) = (project.tasks.getByName(UserConstants.TASK_REOBF) as TaskSingleReobf).setup()
 fun Project.processResources(setup: ProcessResources.() -> Unit) = (project.tasks.getByName("processResources") as ProcessResources).setup()
-fun mavenDeploy(repositoryHandler: RepositoryHandler, configuration: MavenArtifactRepository.() -> Unit) =
-        repositoryHandler.maven({ it.configuration() })
 fun DependencyHandler.compile(dependencyNotation: Any, setup: ModuleDependency.() -> Unit) =
         (add("compile", dependencyNotation) as ModuleDependency).setup()
 fun shadowJar() = (project.tasks.findByName("shadowJar") as ShadowJar)

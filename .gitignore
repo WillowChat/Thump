@@ -75,3 +75,4 @@ gradle-app.setting
 hs_err_pid*
 
 run/
+classes/
