@@ -1,9 +1,6 @@
-import org.apache.commons.io.FileUtils
 import org.gradle.api.Project
 import org.gradle.api.artifacts.ModuleDependency
 import org.gradle.api.artifacts.dsl.DependencyHandler
-import org.gradle.api.artifacts.dsl.RepositoryHandler
-import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.SourceSetContainer
@@ -12,7 +9,6 @@ import org.gradle.language.jvm.tasks.ProcessResources
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import net.minecraftforge.gradle.user.*
 import org.gradle.api.NamedDomainObjectContainer
-import java.io.File
 
 val minecraftVersion by project
 val forgeVersion by project
@@ -71,39 +67,30 @@ version = "$minecraftVersion-$thumpVersion$buildNumberAddition"
 group = "engineer.carrot.warren.thump"
 project.setProperty("archivesBaseName", projectTitle)
 
+val modVersion = "$minecraftVersion-$forgeVersion"
+
 minecraft {
-    version = "$minecraftVersion-$forgeVersion"
-    mappings = mcpMappings
+    version = modVersion
+    mappings = mcpMappings as String
     runDir = "run"
+    replace(mapOf("@VERSION@" to project.version))
 }
 
 processResources {
-    // Dummy task to be able to trigger manual token replacement
-
     val projectVersion = project.version as String
     val minecraftVersion = minecraftVersion as String
 
     inputs.property("version", projectVersion)
-    inputs.property("version", minecraftVersion)
-}
+    inputs.property("mcversion", minecraftVersion)
 
-project.tasks.getByName("processResources").doLast {
-    val projectVersion = project.version as String
-    val minecraftVersion = minecraftVersion as String
+    from(sourceSets("main").resources.srcDirs) {
+        include("mcmod.info")
 
-    val processResourcesFiles = project.tasks.getByName("processResources").outputs.files.asFileTree
+        expand(mapOf("version" to project.version, "minecraft_version" to minecraftVersion))
+    }
 
-    processResourcesFiles.filter {
-        val exists = it.exists()
-        val directory = it.isDirectory()
-        val isMcModInfo = it.name == "mcmod.info"
-
-        exists && !directory && isMcModInfo
-    }.forEach {
-        var content = FileUtils.readFileToString(it)
-        content = content.replace("\${version}", projectVersion)
-        content = content.replace("\${minecraft_version}", minecraftVersion)
-        FileUtils.writeStringToFile(it, content)
+    from(sourceSets("main").resources.srcDirs) {
+        exclude("mcmod.info")
     }
 }
 
@@ -151,6 +138,7 @@ if (project.hasProperty("DEPLOY_DIR")) {
     }
 }
 
+fun minecraft() = the<UserBaseExtension>()
 fun Project.minecraft(setup: UserBaseExtension.() -> Unit) = the<UserBaseExtension>().setup()
 fun sourceSets(name: String) = (project.property("sourceSets") as SourceSetContainer).getByName(name)
 fun Project.jar(setup: Jar.() -> Unit) = (project.tasks.getByName("jar") as Jar).setup()
