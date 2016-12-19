@@ -21,7 +21,7 @@ enum class WrapperState { READY, RUNNING, RECONNECTING }
 
 data class ReconnectionState(val shouldReconnect: Boolean, var forciblyDisabled: Boolean, val delaySeconds: Int, val maxConsecutive: Int, var currentReconnectCount: Int = 0)
 
-data class ConfigurationState(val server: String, val port: Int, val useTLS: Boolean, val nickname: String, val channels: Map<String, String?>, val shouldLogIncomingLines: Boolean, val fingerprints: Set<String>?, val sasl: SaslConfiguration?, val nickserv: NickServConfiguration?)
+data class ConfigurationState(val server: String, val port: Int, val useTLS: Boolean, val nickname: String, val serverPassword: String? = null, val channels: Map<String, String?>, val shouldLogIncomingLines: Boolean, val fingerprints: Set<String>?, val sasl: SaslConfiguration?, val nickserv: NickServConfiguration?)
 
 interface IWrapper {
     fun start(): Boolean
@@ -82,7 +82,7 @@ class IrcRunnerWrapper(override val id: String, ircServerConfiguration: IrcServe
             null
         }
 
-        return ConfigurationState(ircServerConfiguration.server, ircServerConfiguration.port, ircServerConfiguration.useTLS, ircServerConfiguration.nickname, ircServerConfiguration.channels, generalConfiguration.logRawIRCLinesToServerConsole, fingerprints, saslConfiguration, nickservConfiguration)
+        return ConfigurationState(ircServerConfiguration.server, ircServerConfiguration.port, ircServerConfiguration.useTLS, ircServerConfiguration.nickname, ircServerConfiguration.serverPassword, ircServerConfiguration.channels, generalConfiguration.logRawIRCLinesToServerConsole, fingerprints, saslConfiguration, nickservConfiguration)
     }
 
     private fun generateReconnectState(ircServerConfiguration: IrcServerConfiguration): ReconnectionState {
@@ -133,7 +133,7 @@ class IrcRunnerWrapper(override val id: String, ircServerConfiguration: IrcServe
             else -> "thump"
         }
 
-        val factory = WarrenFactory(ServerConfiguration(configuration.server, configuration.port, configuration.useTLS, configuration.fingerprints), UserConfiguration(configuration.nickname, user, configuration.sasl, configuration.nickserv),
+        val factory = WarrenFactory(ServerConfiguration(configuration.server, configuration.port, configuration.useTLS, configuration.fingerprints, configuration.serverPassword), UserConfiguration(configuration.nickname, user, configuration.sasl, configuration.nickserv),
                 ChannelsConfiguration(configuration.channels), EventConfiguration(events, configuration.shouldLogIncomingLines))
 
         return factory.create()

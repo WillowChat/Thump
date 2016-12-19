@@ -17,7 +17,7 @@ import engineer.carrot.warren.warren.event.PrivateMessageEvent
 class MessageHandler(private val sink: IThumpMinecraftSink, private val wrapper: IWrapper, private val formatter: IServiceChatFormatter) {
 
     fun onChannelMessage(event: ChannelMessageEvent) {
-        val nick = event.user.nick
+        val nick = event.user.name
 
         if (shouldIgnore(nick)) {
             LogHelper.debug("ignoring channel message from $nick as they're ignored for connection ${wrapper.id}")
@@ -47,7 +47,7 @@ class MessageHandler(private val sink: IThumpMinecraftSink, private val wrapper:
     }
 
     fun onChannelAction(event: ChannelActionEvent) {
-        val nick = event.user.nick
+        val nick = event.user.name
 
         if (shouldIgnore(nick)) {
             LogHelper.debug("ignoring channel action from $nick as they're ignored for connection ${wrapper.id}")
