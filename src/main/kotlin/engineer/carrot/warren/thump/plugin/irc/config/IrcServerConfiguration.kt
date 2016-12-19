@@ -13,6 +13,7 @@ class IrcServerConfiguration(id: String, configuration: Configuration) {
     var port = 6697
     var nickname = "thump-server"
     var channels: Map<String, String?> = HashMap()
+    var serverPassword: String? = null
     var ignoredNicks: Set<String> = HashSet()
 
     // Nickserv
@@ -48,6 +49,12 @@ class IrcServerConfiguration(id: String, configuration: Configuration) {
             this.channels = Maps.newHashMap()
         } else {
             this.channels = parseChannels(Sets.newHashSet(*channels))
+        }
+        val rawServerPassword = configuration.getString(SERVER_PASSWORD_KEY, category, "", "")
+        if (rawServerPassword == "") {
+            this.serverPassword = null
+        } else {
+            this.serverPassword = rawServerPassword
         }
         val ignoredNicks = configuration.getStringList(IGNORED_NICKS_KEY, category, emptyArray(), "")
         if (ignoredNicks.size == 1 && ignoredNicks[0].isEmpty()) {
@@ -112,6 +119,7 @@ class IrcServerConfiguration(id: String, configuration: Configuration) {
         private val PORT_MAX = 65535
         private val NICKNAME_KEY = "Nickname"
         private val CHANNELS_KEY = "Channels"
+        private val SERVER_PASSWORD_KEY = "ServerPassword"
         private val IGNORED_NICKS_KEY = "IgnoredNicks"
         private val IDENTIFY_WITH_NICKSERV_KEY = "IdentifyWithNickserv"
         private val NICKSERV_ACCOUNT_KEY = "NickservAccount"
