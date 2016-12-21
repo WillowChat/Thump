@@ -27,8 +27,8 @@ buildscript {
     val buildscriptKotlinVersion = "1.1-M04"
 
     repositories {
-        gradleScriptKotlin()
         maven { setUrl("http://dl.bintray.com/kotlin/kotlin-eap-1.1") }
+        gradleScriptKotlin()
         maven { setUrl("http://files.minecraftforge.net/maven") }
     }
 
@@ -48,9 +48,9 @@ apply {
 }
 
 repositories {
+    maven { setUrl("http://dl.bintray.com/kotlin/kotlin-eap-1.1") }
     gradleScriptKotlin()
     maven { setUrl("https://maven.hopper.bunnies.io/") }
-    maven { setUrl("http://dl.bintray.com/kotlin/kotlin-eap-1.1") }
 }
 
 dependencies {
