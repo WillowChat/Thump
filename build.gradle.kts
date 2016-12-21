@@ -28,6 +28,7 @@ buildscript {
 
     repositories {
         gradleScriptKotlin()
+        maven { setUrl("http://dl.bintray.com/kotlin/kotlin-eap-1.1") }
         maven { setUrl("http://files.minecraftforge.net/maven") }
     }
 
@@ -49,6 +50,7 @@ apply {
 repositories {
     gradleScriptKotlin()
     maven { setUrl("https://maven.hopper.bunnies.io/") }
+    maven { setUrl("http://dl.bintray.com/kotlin/kotlin-eap-1.1") }
 }
 
 dependencies {
