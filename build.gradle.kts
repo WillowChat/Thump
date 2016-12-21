@@ -20,7 +20,7 @@ val kotlinVersion by project
 val projectTitle = "Thump"
 
 buildscript {
-    val buildscriptKotlinVersion = "1.1-M03"
+    val buildscriptKotlinVersion = "1.1-M04"
 
     repositories {
         gradleScriptKotlin()
