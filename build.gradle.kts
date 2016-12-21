@@ -24,13 +24,15 @@ val kotlinVersion by project
 val projectTitle = "Thump"
 
 buildscript {
+    val buildscriptKotlinVersion = "1.1-M04"
+
     repositories {
         gradleScriptKotlin()
         maven { setUrl("http://files.minecraftforge.net/maven") }
     }
 
     dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.1-M02")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$buildscriptKotlinVersion")
         classpath("net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT")
         classpath("com.github.jengelman.gradle.plugins:shadow:1.2.3")
     }
