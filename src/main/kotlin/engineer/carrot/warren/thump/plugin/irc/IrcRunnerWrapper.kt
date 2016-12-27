@@ -45,7 +45,7 @@ class IrcRunnerWrapper(override val id: String, ircServerConfiguration: IrcServe
 
     val configuration: ConfigurationState
     @Volatile override var state: WrapperState = WrapperState.READY
-    @Volatile private var currentRunner: IrcRunner? = null
+    @Volatile private var currentRunner: IrcConnection? = null
 
     @Volatile private var currentThread: Thread? = null
     override val nickname: String?
@@ -89,7 +89,7 @@ class IrcRunnerWrapper(override val id: String, ircServerConfiguration: IrcServe
         return ReconnectionState(shouldReconnect = ircServerConfiguration.shouldReconnectAutomatically, forciblyDisabled = false, delaySeconds = ircServerConfiguration.automaticReconnectDelaySeconds, maxConsecutive = ircServerConfiguration.maxConsecutiveReconnectAttempts)
     }
 
-    private fun createRunner(): IrcRunner {
+    private fun createRunner(): IrcConnection {
         val events = WarrenEventDispatcher()
         events.on(ChannelMessageEvent::class) {
             MessageHandler(sink, this, formatter).onChannelMessage(it)
