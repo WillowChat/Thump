@@ -46,13 +46,13 @@ apply {
 repositories {
     maven { setUrl("http://dl.bintray.com/kotlin/kotlin-eap-1.1") }
     gradleScriptKotlin()
-    maven { setUrl("https://maven.hopper.bunnies.io/") }
+    maven { setUrl("https://maven.ci.carrot.codes") }
 }
 
 dependencies {
     compile(kotlin("stdlib"))
 
-    compile("engineer.carrot.warren.warren:Warren:$warrenVersion") {
+    compile("chat.willow.warren:Warren:$warrenVersion") {
         exclude(mapOf("group" to "org.slf4j"))
     }
 

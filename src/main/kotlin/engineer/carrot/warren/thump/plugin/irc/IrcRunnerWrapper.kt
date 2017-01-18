@@ -8,11 +8,11 @@ import engineer.carrot.warren.thump.plugin.irc.config.IrcServerConfiguration
 import engineer.carrot.warren.thump.plugin.irc.config.IrcServicePluginGeneralConfiguration
 import engineer.carrot.warren.thump.plugin.irc.handler.LifecycleHandler
 import engineer.carrot.warren.thump.plugin.irc.handler.MessageHandler
-import engineer.carrot.warren.warren.*
-import engineer.carrot.warren.warren.event.*
-import engineer.carrot.warren.warren.event.internal.SendSomethingEvent
-import engineer.carrot.warren.warren.state.IrcState
-import engineer.carrot.warren.warren.state.LifecycleState
+import chat.willow.warren.*
+import chat.willow.warren.event.*
+import chat.willow.warren.event.internal.SendSomethingEvent
+import chat.willow.warren.state.IrcState
+import chat.willow.warren.state.LifecycleState
 import net.minecraftforge.fml.common.FMLCommonHandler
 import net.minecraftforge.fml.relauncher.Side
 import kotlin.concurrent.thread

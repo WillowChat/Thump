@@ -9,10 +9,10 @@ import engineer.carrot.warren.thump.helper.TokenHelper
 import engineer.carrot.warren.thump.plugin.irc.IWrapper
 import engineer.carrot.warren.thump.plugin.irc.IrcServicePlugin
 import engineer.carrot.warren.thump.plugin.irc.command.chat.CommandPlayers
-import engineer.carrot.warren.warren.event.ChannelActionEvent
-import engineer.carrot.warren.warren.event.ChannelMessageEvent
-import engineer.carrot.warren.warren.event.PrivateActionEvent
-import engineer.carrot.warren.warren.event.PrivateMessageEvent
+import chat.willow.warren.event.ChannelActionEvent
+import chat.willow.warren.event.ChannelMessageEvent
+import chat.willow.warren.event.PrivateActionEvent
+import chat.willow.warren.event.PrivateMessageEvent
 
 class MessageHandler(private val sink: IThumpMinecraftSink, private val wrapper: IWrapper, private val formatter: IServiceChatFormatter) {
 
