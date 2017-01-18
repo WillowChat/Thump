@@ -66,7 +66,7 @@ dependencies {
 val buildNumberAddition = if(project.hasProperty("BUILD_NUMBER")) { ".${project.property("BUILD_NUMBER")}" } else { "" }
 
 version = "$minecraftVersion-$thumpVersion$buildNumberAddition"
-group = "engineer.carrot.warren.thump"
+group = "chat.willow.thump"
 project.setProperty("archivesBaseName", projectTitle)
 
 val modVersion = "$minecraftVersion-$forgeVersion"
@@ -96,13 +96,13 @@ processResources {
     }
 }
 
-shadowJar().relocate("engineer.carrot.warren.warren", "engineer.carrot.warren.thump.repack.warren")
-shadowJar().relocate("engineer.carrot.warren.kale", "engineer.carrot.warren.thump.repack.kale")
+shadowJar().relocate("chat.willow.warren", "chat.willow.thump.repack.warren")
+shadowJar().relocate("chat.willow.kale", "chat.willow.thump.repack.kale")
 shadowJar().relocate("org.slf4j", "chat.willow.thump.helper.slf4j")
-shadowJar().relocate("com.squareup", "engineer.carrot.warren.thump.repack.com.squareup")
-shadowJar().relocate("okio", "engineer.carrot.warren.thump.repack.com.squareup")
-shadowJar().relocate("kotlin", "engineer.carrot.warren.thump.repack.kotlin")
-shadowJar().relocate("org.jetbrains.annotations", "engineer.carrot.warren.thump.repack.annotations")
+shadowJar().relocate("com.squareup", "chat.willow.warren.thump.repack.com.squareup")
+shadowJar().relocate("okio", "chat.willow.thump.repack.com.squareup")
+shadowJar().relocate("kotlin", "chat.willow.thump.repack.kotlin")
+shadowJar().relocate("org.jetbrains.annotations", "chat.willow.thump.repack.annotations")
 shadowJar().classifier = ""
 
 (project.extensions.findByName(UserConstants.EXT_REOBF) as NamedDomainObjectContainer<IReobfuscator>).create("shadowJar")
