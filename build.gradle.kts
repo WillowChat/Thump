@@ -98,7 +98,7 @@ processResources {
 
 shadowJar().relocate("engineer.carrot.warren.warren", "engineer.carrot.warren.thump.repack.warren")
 shadowJar().relocate("engineer.carrot.warren.kale", "engineer.carrot.warren.thump.repack.kale")
-shadowJar().relocate("org.slf4j", "engineer.carrot.warren.thump.slf4j")
+shadowJar().relocate("org.slf4j", "chat.willow.thump.helper.slf4j")
 shadowJar().relocate("com.squareup", "engineer.carrot.warren.thump.repack.com.squareup")
 shadowJar().relocate("okio", "engineer.carrot.warren.thump.repack.com.squareup")
 shadowJar().relocate("kotlin", "engineer.carrot.warren.thump.repack.kotlin")
