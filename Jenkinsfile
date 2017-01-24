@@ -43,6 +43,10 @@ pipeline {
         }
 
         stage('Deploy') {
+            agent {
+                label 'maven'
+            }
+
             steps {
                 sh "./gradlew publishMavenJavaPublicationToMavenRepository -PBUILD_NUMBER=${env.BUILD_NUMBER} -PDEPLOY_DIR=/var/www/maven.hopper.bunnies.io --no-daemon"
             }
