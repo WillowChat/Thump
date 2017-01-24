@@ -39,6 +39,8 @@ pipeline {
             steps {
                 archive includes: 'build/libs/*.jar'
                 junit 'build/test-results/**/*.xml'
+
+                stash includes: 'build/**/*', name: 'build', useDefaultExcludes: false
             }
         }
 
@@ -48,6 +50,7 @@ pipeline {
             }
 
             steps {
+                unstash 'build'
                 sh "./gradlew publishMavenJavaPublicationToMavenRepository -PBUILD_NUMBER=${env.BUILD_NUMBER} -PDEPLOY_DIR=/var/www/maven.hopper.bunnies.io --no-daemon"
             }
         }
