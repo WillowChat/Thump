@@ -35,20 +35,15 @@ pipeline {
             }
         }
 
-        stage('Archive') {
+        stage('Archive & Deploy') {
             steps {
-                archive includes: 'build/libs/*.jar'
-                junit 'build/test-results/**/*.xml'
-            }
-        }
-
-        stage('Deploy') {
-            agent {
-                label 'maven'
-            }
-
-            steps {
-                sh "./gradlew publishMavenJavaPublicationToMavenRepository -PBUILD_NUMBER=${env.BUILD_NUMBER} -PDEPLOY_DIR=/var/www/maven.hopper.bunnies.io --no-daemon"
+                parallel(
+                    archive: { archive includes: 'build/libs/*.jar' },
+                    junit: { junit 'build/test-results/**/*.xml' },
+                    maven: {
+                        sh "./gradlew publishMavenJavaPublicationToMavenRepository -PBUILD_NUMBER=${env.BUILD_NUMBER} -PDEPLOY_URL=scp://maven.ci.carrot.codes:/var/www/maven.hopper.bunnies.io --no-daemon"
+                    }
+                )
             }
         }
     }

@@ -123,9 +123,9 @@ project.artifacts.add("archives", deobfTask)
 project.artifacts.add("archives", sourcesTask)
 project.artifacts.add("archives", project.tasks.getByName("shadowJar") as ShadowJar)
 
-if (project.hasProperty("DEPLOY_DIR")) {
+if (project.hasProperty("DEPLOY_URL")) {
     configure<PublishingExtension> {
-        this.repositories.maven({ setUrl("file://${project.property("DEPLOY_DIR")}") })
+        this.repositories.maven({ setUrl("${project.property("DEPLOY_URL")}") })
 
         publications {
             create<MavenPublication>("mavenJava") {
