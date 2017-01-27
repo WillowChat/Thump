@@ -1,7 +1,5 @@
 pipeline {
-    agent {
-        label: 'maven'
-    }
+    agent any
 
     post {
         success {
