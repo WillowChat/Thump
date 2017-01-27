@@ -8,6 +8,11 @@ object StringHelper {
         override fun matches(c: Char): Boolean {
             when (c) {
                 '\u200b' -> return true
+                0x0f.toChar() -> return true // Formatting: reset
+                0x1d.toChar() -> return true // Formatting: italics
+                0x1f.toChar() -> return true // Formatting: underline
+                0x03.toChar() -> return true // Formatting: colour
+                0x16.toChar() -> return true // Formatting: reverse colour
                 else -> return false
             }
         }
