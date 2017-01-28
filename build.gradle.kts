@@ -101,7 +101,7 @@ shadowJar().relocate("chat.willow.kale", "chat.willow.thump.repack.kale")
 shadowJar().relocate("org.slf4j", "chat.willow.thump.helper.slf4j")
 shadowJar().relocate("com.squareup", "chat.willow.warren.thump.repack.com.squareup")
 shadowJar().relocate("okio", "chat.willow.thump.repack.com.squareup")
-shadowJar().relocate("kotlin", "chat.willow.thump.repack.kotlin")
+shadowJar().relocate("kotlin", "engineer.carrot.warren.thump.repack.kotlin")
 shadowJar().relocate("org.jetbrains.annotations", "chat.willow.thump.repack.annotations")
 shadowJar().classifier = ""
 
