@@ -1,9 +1,7 @@
 #!/usr/bin/env groovy
 
 pipeline {
-    agent {
-        label 'maven'
-    }
+    agent any
 
     post {
         success {
@@ -37,16 +35,28 @@ pipeline {
             }
         }
 
-        stage('Archive & Deploy') {
+        stage('Archive') {
             steps {
                 parallel(
                     archive: { archive includes: 'build/libs/*.jar' },
                     junit: { junit 'build/test-results/**/*.xml' },
                     maven: {
-                        sh "./gradlew publishMavenJavaPublicationToMavenRepository -PBUILD_NUMBER=${env.BUILD_NUMBER} -PDEPLOY_URL=file:///var/www/maven.hopper.bunnies.io/ --no-daemon"
+                        sh "./gradlew generatePomFileForMavenJavaPublication --no-daemon"
+
+                        stash includes: 'build/publications/mavenJava/pom-default.xml,build/libs/*.jar', name: 'maven_artifacts', useDefaultExcludes: false
                     }
                 )
             }
+        }
+
+        stage('Deploy') {
+            agent {
+                label 'maven_repo'
+            }
+
+            unstash 'maven_artifacts'
+
+            sh "find build/libs -name Thump\\*.jar | xargs -I '{}' mvn install:install-file -Dfile={} -DpomFile=build/publications/mavenJava/pom-default.xml -DlocalRepositoryPath=/var/www/maven.hopper.bunnies.io"
         }
     }
 }

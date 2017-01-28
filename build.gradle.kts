@@ -9,6 +9,7 @@ import org.gradle.language.jvm.tasks.ProcessResources
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import net.minecraftforge.gradle.user.*
 import org.gradle.api.NamedDomainObjectContainer
+import org.gradle.api.publish.maven.tasks.GenerateMavenPom
 
 val minecraftVersion by project
 val forgeVersion by project
@@ -123,19 +124,18 @@ project.artifacts.add("archives", deobfTask)
 project.artifacts.add("archives", sourcesTask)
 project.artifacts.add("archives", project.tasks.getByName("shadowJar") as ShadowJar)
 
-if (project.hasProperty("DEPLOY_URL")) {
-    configure<PublishingExtension> {
-        this.repositories.maven({ setUrl("${project.property("DEPLOY_URL")}") })
+configure<PublishingExtension> {
+    val deployUrl = if (project.hasProperty("DEPLOY_URL")) { project.property("DEPLOY_URL") } else { project.buildDir.absolutePath }
+    this.repositories.maven({ setUrl("$deployUrl") })
 
-        publications {
-            create<MavenPublication>("mavenJava") {
-                from(components.getByName("java"))
+    publications {
+        create<MavenPublication>("mavenJava") {
+            from(components.getByName("java"))
 
-                artifact(deobfTask)
-                artifact(sourcesTask)
+            artifact(deobfTask)
+            artifact(sourcesTask)
 
-                artifactId = projectTitle
-            }
+            artifactId = projectTitle
         }
     }
 }
