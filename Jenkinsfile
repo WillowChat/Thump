@@ -59,7 +59,9 @@ pipeline {
 
                 unstash 'maven_artifacts'
 
-                sh "find build/libs -name Thump\\*.jar | xargs -I '{}' mvn install:install-file -Dfile={} -DpomFile=build/publications/mavenJava/pom-default.xml -DlocalRepositoryPath=/var/www/maven.hopper.bunnies.io"
+                sh "mvn install:install-file -Dfile=build/libs/Thump*${env.BUILD_NUMBER}.jar -DpomFile=build/publications/mavenJava/pom-default.xml -DlocalRepositoryPath=/var/www/maven.hopper.bunnies.io"
+                sh "mvn install:install-file -Dfile=build/libs/Thump*sources.jar -Dclassifier=sources -DpomFile=build/publications/mavenJava/pom-default.xml -DlocalRepositoryPath=/var/www/maven.hopper.bunnies.io"
+                sh "mvn install:install-file -Dfile=build/libs/Thump*deobf.jar -Dclassifier=deobf -DpomFile=build/publications/mavenJava/pom-default.xml -DlocalRepositoryPath=/var/www/maven.hopper.bunnies.io"
             }
         }
     }
