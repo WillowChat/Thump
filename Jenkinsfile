@@ -41,7 +41,7 @@ pipeline {
                     archive: { archive includes: 'build/libs/*.jar' },
                     junit: { junit 'build/test-results/**/*.xml' },
                     maven: {
-                        sh "./gradlew generatePomFileForMavenJavaPublication --no-daemon"
+                        sh "./gradlew generatePomFileForMavenJavaPublication -PBUILD_NUMBER=${env.BUILD_NUMBER} --no-daemon"
 
                         stash includes: 'build/publications/mavenJava/pom-default.xml,build/libs/*.jar', name: 'maven_artifacts', useDefaultExcludes: false
                     }
@@ -62,8 +62,8 @@ pipeline {
                 sh "ls -lR build"
 
                 sh "find build/libs -name Thump\\*${env.BUILD_NUMBER}.jar | head -n 1 | xargs -I '{}' mvn install:install-file -Dfile={} -DpomFile=build/publications/mavenJava/pom-default.xml -DlocalRepositoryPath=/var/www/maven.hopper.bunnies.io"
-                sh "find build/libs -name Thump\\*deobf.jar | head -n 1 | xargs -I '{}' mvn install:install-file -Dfile={} -Dclassifier=sources -DpomFile=build/publications/mavenJava/pom-default.xml -DlocalRepositoryPath=/var/www/maven.hopper.bunnies.io"
-                sh "find build/libs -name Thump\\*sources.jar | head -n 1 | xargs -I '{}' mvn install:install-file -Dfile={} -Dclassifier=deobf -DpomFile=build/publications/mavenJava/pom-default.xml -DlocalRepositoryPath=/var/www/maven.hopper.bunnies.io"
+                sh "find build/libs -name Thump\\*sources.jar | head -n 1 | xargs -I '{}' mvn install:install-file -Dfile={} -Dclassifier=sources -DpomFile=build/publications/mavenJava/pom-default.xml -DlocalRepositoryPath=/var/www/maven.hopper.bunnies.io"
+                sh "find build/libs -name Thump\\*deobf.jar | head -n 1 | xargs -I '{}' mvn install:install-file -Dfile={} -Dclassifier=deobf -DpomFile=build/publications/mavenJava/pom-default.xml -DlocalRepositoryPath=/var/www/maven.hopper.bunnies.io"
             }
         }
     }
