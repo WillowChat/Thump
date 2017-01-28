@@ -1,6 +1,6 @@
 package engineer.carrot.warren.thump.plugin.irc
 
-import engineer.carrot.warren.kale.irc.message.rfc1459.PrivMsgMessage
+import chat.willow.kale.irc.message.rfc1459.PrivMsgMessage
 import engineer.carrot.warren.thump.api.IServiceChatFormatter
 import engineer.carrot.warren.thump.api.IThumpMinecraftSink
 import engineer.carrot.warren.thump.helper.LogHelper
@@ -8,11 +8,11 @@ import engineer.carrot.warren.thump.plugin.irc.config.IrcServerConfiguration
 import engineer.carrot.warren.thump.plugin.irc.config.IrcServicePluginGeneralConfiguration
 import engineer.carrot.warren.thump.plugin.irc.handler.LifecycleHandler
 import engineer.carrot.warren.thump.plugin.irc.handler.MessageHandler
-import engineer.carrot.warren.warren.*
-import engineer.carrot.warren.warren.event.*
-import engineer.carrot.warren.warren.event.internal.SendSomethingEvent
-import engineer.carrot.warren.warren.state.IrcState
-import engineer.carrot.warren.warren.state.LifecycleState
+import chat.willow.warren.*
+import chat.willow.warren.event.*
+import chat.willow.warren.event.internal.SendSomethingEvent
+import chat.willow.warren.state.IrcState
+import chat.willow.warren.state.LifecycleState
 import net.minecraftforge.fml.common.FMLCommonHandler
 import net.minecraftforge.fml.relauncher.Side
 import kotlin.concurrent.thread
@@ -45,7 +45,7 @@ class IrcRunnerWrapper(override val id: String, ircServerConfiguration: IrcServe
 
     val configuration: ConfigurationState
     @Volatile override var state: WrapperState = WrapperState.READY
-    @Volatile private var currentRunner: IrcRunner? = null
+    @Volatile private var currentRunner: IrcConnection? = null
 
     @Volatile private var currentThread: Thread? = null
     override val nickname: String?
@@ -89,7 +89,7 @@ class IrcRunnerWrapper(override val id: String, ircServerConfiguration: IrcServe
         return ReconnectionState(shouldReconnect = ircServerConfiguration.shouldReconnectAutomatically, forciblyDisabled = false, delaySeconds = ircServerConfiguration.automaticReconnectDelaySeconds, maxConsecutive = ircServerConfiguration.maxConsecutiveReconnectAttempts)
     }
 
-    private fun createRunner(): IrcRunner {
+    private fun createRunner(): IrcConnection {
         val events = WarrenEventDispatcher()
         events.on(ChannelMessageEvent::class) {
             MessageHandler(sink, this, formatter).onChannelMessage(it)

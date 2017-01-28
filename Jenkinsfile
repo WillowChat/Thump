@@ -1,3 +1,5 @@
+#!/usr/bin/env groovy
+
 pipeline {
     agent any
 
@@ -23,26 +25,45 @@ pipeline {
 
         stage('Setup') {
             steps {
-                sh "./gradlew clean setupCIWorkspace --no-daemon"
+                sh "./gradlew clean setupCIWorkspace --no-daemon -Dorg.gradle.jvmargs=-Xmx1024m"
             }
         }
 
         stage('Build') {
             steps {
-                sh "./gradlew build -PBUILD_NUMBER=${env.BUILD_NUMBER} --no-daemon"
+                sh "./gradlew build -PBUILD_NUMBER=${env.BUILD_NUMBER} --no-daemon -Dorg.gradle.jvmargs=-Xmx1024m"
             }
         }
 
         stage('Archive') {
             steps {
-                archive includes: 'build/libs/*.jar'
-                junit 'build/test-results/**/*.xml'
+                parallel(
+                    archive: { archive includes: 'build/libs/*.jar' },
+                    junit: { junit 'build/test-results/**/*.xml' },
+                    maven: {
+                        sh "./gradlew generatePomFileForMavenJavaPublication -PBUILD_NUMBER=${env.BUILD_NUMBER} --no-daemon"
+
+                        stash includes: 'build/publications/mavenJava/pom-default.xml,build/libs/*.jar', name: 'maven_artifacts', useDefaultExcludes: false
+                    }
+                )
             }
         }
 
         stage('Deploy') {
+            agent {
+                label 'maven_repo'
+            }
+
             steps {
-                sh "./gradlew publishMavenJavaPublicationToMavenRepository -PBUILD_NUMBER=${env.BUILD_NUMBER} -PDEPLOY_DIR=/var/www/maven.hopper.bunnies.io --no-daemon"
+                sh "rm -Rv build || true"
+
+                unstash 'maven_artifacts'
+
+                sh "ls -lR build"
+
+                sh "find build/libs -name Thump\\*${env.BUILD_NUMBER}.jar | head -n 1 | xargs -I '{}' mvn install:install-file -Dfile={} -DpomFile=build/publications/mavenJava/pom-default.xml -DlocalRepositoryPath=/var/www/maven.hopper.bunnies.io"
+                sh "find build/libs -name Thump\\*sources.jar | head -n 1 | xargs -I '{}' mvn install:install-file -Dfile={} -Dclassifier=sources -DpomFile=build/publications/mavenJava/pom-default.xml -DlocalRepositoryPath=/var/www/maven.hopper.bunnies.io"
+                sh "find build/libs -name Thump\\*deobf.jar | head -n 1 | xargs -I '{}' mvn install:install-file -Dfile={} -Dclassifier=deobf -DpomFile=build/publications/mavenJava/pom-default.xml -DlocalRepositoryPath=/var/www/maven.hopper.bunnies.io"
             }
         }
     }

@@ -1,9 +1,6 @@
-import org.apache.commons.io.FileUtils
 import org.gradle.api.Project
 import org.gradle.api.artifacts.ModuleDependency
 import org.gradle.api.artifacts.dsl.DependencyHandler
-import org.gradle.api.artifacts.dsl.RepositoryHandler
-import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.SourceSetContainer
@@ -12,7 +9,6 @@ import org.gradle.language.jvm.tasks.ProcessResources
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import net.minecraftforge.gradle.user.*
 import org.gradle.api.NamedDomainObjectContainer
-import java.io.File
 
 val minecraftVersion by project
 val forgeVersion by project
@@ -50,13 +46,13 @@ apply {
 repositories {
     maven { setUrl("http://dl.bintray.com/kotlin/kotlin-eap-1.1") }
     gradleScriptKotlin()
-    maven { setUrl("https://maven.hopper.bunnies.io/") }
+    maven { setUrl("https://maven.ci.carrot.codes") }
 }
 
 dependencies {
     compile(kotlin("stdlib"))
 
-    compile("engineer.carrot.warren.warren:Warren:$warrenVersion") {
+    compile("chat.willow.warren:Warren:$warrenVersion") {
         exclude(mapOf("group" to "org.slf4j"))
     }
 
@@ -70,52 +66,43 @@ dependencies {
 val buildNumberAddition = if(project.hasProperty("BUILD_NUMBER")) { ".${project.property("BUILD_NUMBER")}" } else { "" }
 
 version = "$minecraftVersion-$thumpVersion$buildNumberAddition"
-group = "engineer.carrot.warren.thump"
+group = "chat.willow.thump"
 project.setProperty("archivesBaseName", projectTitle)
 
+val modVersion = "$minecraftVersion-$forgeVersion"
+
 minecraft {
-    version = "$minecraftVersion-$forgeVersion"
-    mappings = mcpMappings
+    version = modVersion
+    mappings = mcpMappings as String
     runDir = "run"
+    replace(mapOf("@VERSION@" to project.version))
 }
 
 processResources {
-    // Dummy task to be able to trigger manual token replacement
-
     val projectVersion = project.version as String
     val minecraftVersion = minecraftVersion as String
 
     inputs.property("version", projectVersion)
-    inputs.property("version", minecraftVersion)
-}
+    inputs.property("mcversion", minecraftVersion)
 
-project.tasks.getByName("processResources").doLast {
-    val projectVersion = project.version as String
-    val minecraftVersion = minecraftVersion as String
+    from(sourceSets("main").resources.srcDirs) {
+        include("mcmod.info")
 
-    val processResourcesFiles = project.tasks.getByName("processResources").outputs.files.asFileTree
+        expand(mapOf("version" to project.version, "minecraft_version" to minecraftVersion))
+    }
 
-    processResourcesFiles.filter {
-        val exists = it.exists()
-        val directory = it.isDirectory()
-        val isMcModInfo = it.name == "mcmod.info"
-
-        exists && !directory && isMcModInfo
-    }.forEach {
-        var content = FileUtils.readFileToString(it)
-        content = content.replace("\${version}", projectVersion)
-        content = content.replace("\${minecraft_version}", minecraftVersion)
-        FileUtils.writeStringToFile(it, content)
+    from(sourceSets("main").resources.srcDirs) {
+        exclude("mcmod.info")
     }
 }
 
-shadowJar().relocate("engineer.carrot.warren.warren", "engineer.carrot.warren.thump.repack.warren")
-shadowJar().relocate("engineer.carrot.warren.kale", "engineer.carrot.warren.thump.repack.kale")
-shadowJar().relocate("org.slf4j", "engineer.carrot.warren.thump.slf4j")
-shadowJar().relocate("com.squareup", "engineer.carrot.warren.thump.repack.com.squareup")
-shadowJar().relocate("okio", "engineer.carrot.warren.thump.repack.com.squareup")
-shadowJar().relocate("kotlin", "engineer.carrot.warren.thump.repack.kotlin")
-shadowJar().relocate("org.jetbrains.annotations", "engineer.carrot.warren.thump.repack.annotations")
+shadowJar().relocate("chat.willow.warren", "chat.willow.thump.repack.warren")
+shadowJar().relocate("chat.willow.kale", "chat.willow.thump.repack.kale")
+shadowJar().relocate("org.slf4j", "chat.willow.thump.helper.slf4j")
+shadowJar().relocate("com.squareup", "chat.willow.warren.thump.repack.com.squareup")
+shadowJar().relocate("okio", "chat.willow.thump.repack.com.squareup")
+shadowJar().relocate("kotlin", "chat.willow.thump.repack.kotlin")
+shadowJar().relocate("org.jetbrains.annotations", "chat.willow.thump.repack.annotations")
 shadowJar().classifier = ""
 
 (project.extensions.findByName(UserConstants.EXT_REOBF) as NamedDomainObjectContainer<IReobfuscator>).create("shadowJar")
@@ -136,30 +123,28 @@ project.artifacts.add("archives", deobfTask)
 project.artifacts.add("archives", sourcesTask)
 project.artifacts.add("archives", project.tasks.getByName("shadowJar") as ShadowJar)
 
-if (project.hasProperty("DEPLOY_DIR")) {
-    configure<PublishingExtension> {
-        mavenDeploy(this.repositories) { setUrl("file://${project.property("DEPLOY_DIR")}") }
+configure<PublishingExtension> {
+    val deployUrl = if (project.hasProperty("DEPLOY_URL")) { project.property("DEPLOY_URL") } else { project.buildDir.absolutePath }
+    this.repositories.maven({ setUrl("$deployUrl") })
 
-        publications {
-            it.create<MavenPublication>("mavenJava") {
-                from(components.getByName("java"))
+    publications {
+        create<MavenPublication>("mavenJava") {
+            from(components.getByName("java"))
 
-                artifact(deobfTask)
-                artifact(sourcesTask)
+            artifact(deobfTask)
+            artifact(sourcesTask)
 
-                artifactId = projectTitle
-            }
+            artifactId = projectTitle
         }
     }
 }
 
+fun minecraft() = the<UserBaseExtension>()
 fun Project.minecraft(setup: UserBaseExtension.() -> Unit) = the<UserBaseExtension>().setup()
 fun sourceSets(name: String) = (project.property("sourceSets") as SourceSetContainer).getByName(name)
 fun Project.jar(setup: Jar.() -> Unit) = (project.tasks.getByName("jar") as Jar).setup()
 fun Project.reobf(setup: TaskSingleReobf.() -> Unit) = (project.tasks.getByName(UserConstants.TASK_REOBF) as TaskSingleReobf).setup()
 fun Project.processResources(setup: ProcessResources.() -> Unit) = (project.tasks.getByName("processResources") as ProcessResources).setup()
-fun mavenDeploy(repositoryHandler: RepositoryHandler, configuration: MavenArtifactRepository.() -> Unit) =
-        repositoryHandler.maven({ it.configuration() })
 fun DependencyHandler.compile(dependencyNotation: Any, setup: ModuleDependency.() -> Unit) =
         (add("compile", dependencyNotation) as ModuleDependency).setup()
 fun shadowJar() = (project.tasks.findByName("shadowJar") as ShadowJar)
