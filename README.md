@@ -12,11 +12,11 @@ See the [Curse Forge](https://minecraft.curseforge.com/projects/thump) page for 
 
 Check the [Issues](https://github.com/WillowChat/Thump/issues) for an idea of what needs doing before the next milestone is released.
 
-Development builds are published at https://hopper.bunnies.io/job/Thump/. Documentation will be on the [wiki](https://github.com/WillowChat/Thump/wiki).
+Development builds are published at https://ci.carrot.codes/job/Willow/job/Thump/. Documentation is on the [wiki](https://github.com/WillowChat/Thump/wiki).
 
 It's mostly written in Kotlin. Sometimes the mixture of Forge, Java and Kotlin doesn't work well (for example, logging) - in these cases, it's written in Java.
 
-## Why should you use this mod?
+## Features
 
 * It's geared towards admins setting up simple server links, with sensible configuration defaults
 * If you don't like the defaults, there are configuration options for almost everything
