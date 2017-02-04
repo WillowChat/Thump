@@ -1,11 +1,14 @@
 # Thump
 
 ## Introduction
+
+[![](http://cf.way2muchnoise.eu/full_thump_downloads.svg)](https://minecraft.curseforge.com/projects/thump)
+
 Thump is a simple, highly configurable Minecraft chat multiplexer with built in IRC support.
 
 It uses [Warren](https://github.com/WillowChat/Warren) and [Kale](https://github.com/WillowChat/Kale), two IRCv3.2, unit tested IRC frameworks written in Kotlin.
 
-See the [Curse Forge](http://minecraft.curseforge.com/mc-mods/231124-thump) page for current features.
+See the [Curse Forge](https://minecraft.curseforge.com/projects/thump) page for current features.
 
 Check the [Issues](https://github.com/WillowChat/Thump/issues) for an idea of what needs doing before the next milestone is released.
 
