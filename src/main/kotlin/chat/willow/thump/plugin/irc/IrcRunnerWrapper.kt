@@ -45,17 +45,17 @@ class IrcRunnerWrapper(override val id: String, ircServerConfiguration: IrcServe
 
     val configuration: ConfigurationState
     @Volatile override var state: WrapperState = WrapperState.READY
-    @Volatile private var currentRunner: IrcConnection? = null
+    @Volatile private var currentClient: IWarrenClient? = null
 
     @Volatile private var currentThread: Thread? = null
     override val nickname: String?
-        get() = currentRunner?.state?.connection?.nickname
+        get() = currentClient?.state?.connection?.nickname
 
     override val channels: Set<String>?
-        get() = currentRunner?.state?.channels?.joined?.all?.keys
+        get() = currentClient?.state?.channels?.joined?.all?.keys
 
     override val ircState: IrcState?
-        get() = currentRunner?.state
+        get() = currentClient?.state
 
     init {
         reconnectState = generateReconnectState(ircServerConfiguration)
@@ -89,31 +89,50 @@ class IrcRunnerWrapper(override val id: String, ircServerConfiguration: IrcServe
         return ReconnectionState(shouldReconnect = ircServerConfiguration.shouldReconnectAutomatically, forciblyDisabled = false, delaySeconds = ircServerConfiguration.automaticReconnectDelaySeconds, maxConsecutive = ircServerConfiguration.maxConsecutiveReconnectAttempts)
     }
 
-    private fun createRunner(): IrcConnection {
-        val events = WarrenEventDispatcher()
-        events.on(ChannelMessageEvent::class) {
+    private fun createClient(): IWarrenClient {
+        val fingerprints = configuration.fingerprints
+        if (fingerprints != null && fingerprints.isEmpty()) {
+            LogHelper.warn("DANGER ZONE: making runner for $id with the \"accept all certificates\" option - it's not secure! Add the expected certificate authority to your Java trust store, or use certificate fingerprints instead!")
+        }
+
+        val userString = when (FMLCommonHandler.instance().side) {
+            Side.CLIENT -> "thumpClnt"
+            Side.SERVER -> "thumpSrv"
+            else -> "thump"
+        }
+
+        val client = WarrenClient.build {
+            server = ServerConfiguration(configuration.server, configuration.port, configuration.useTLS, configuration.fingerprints, configuration.serverPassword)
+            user = UserConfiguration(configuration.nickname, userString, configuration.sasl, configuration.nickserv)
+            channels = ChannelsConfiguration(configuration.channels)
+            events {
+               fireIncomingLineEvent = configuration.shouldLogIncomingLines
+            }
+        }
+
+        client.events.on(ChannelMessageEvent::class) {
             MessageHandler(sink, this, formatter).onChannelMessage(it)
         }
 
-        events.on(ChannelActionEvent::class) {
+        client.events.on(ChannelActionEvent::class) {
             MessageHandler(sink, this, formatter).onChannelAction(it)
         }
 
-        events.on(PrivateMessageEvent::class) {
+        client.events.on(PrivateMessageEvent::class) {
             MessageHandler(sink, this, formatter).onPrivateMessage(it)
         }
 
-        events.on(PrivateActionEvent::class) {
+        client.events.on(PrivateActionEvent::class) {
             MessageHandler(sink, this, formatter).onPrivateAction(it)
         }
 
         if (configuration.shouldLogIncomingLines) {
-            events.on(RawIncomingLineEvent::class) {
+            client.events.on(RawIncomingLineEvent::class) {
                 LogHelper.info("$id >> ${it.line}")
             }
         }
 
-        events.on(ConnectionLifecycleEvent::class) {
+        client.events.on(ConnectionLifecycleEvent::class) {
             when(it.lifecycle) {
                 LifecycleState.CONNECTED -> reconnectState.currentReconnectCount = 0
                 else -> Unit
@@ -122,46 +141,33 @@ class IrcRunnerWrapper(override val id: String, ircServerConfiguration: IrcServe
             LifecycleHandler(this, sink).onConnectionLifecycleChanged(it)
         }
 
-        val fingerprints = configuration.fingerprints
-        if (fingerprints != null && fingerprints.isEmpty()) {
-            LogHelper.warn("DANGER ZONE: making runner for $id with the \"accept all certificates\" option - it's not secure! Add the expected certificate authority to your Java trust store, or use certificate fingerprints instead!")
-        }
-
-        val user = when (FMLCommonHandler.instance().side) {
-            Side.CLIENT -> "thumpClnt"
-            Side.SERVER -> "thumpSrv"
-            else -> "thump"
-        }
-
-        val factory = WarrenFactory(ServerConfiguration(configuration.server, configuration.port, configuration.useTLS, configuration.fingerprints, configuration.serverPassword), UserConfiguration(configuration.nickname, user, configuration.sasl, configuration.nickserv),
-                ChannelsConfiguration(configuration.channels), EventConfiguration(events, configuration.shouldLogIncomingLines))
-
-        return factory.create()
+        return client
     }
 
     override fun sendRaw(line: String): Boolean {
-        val runner = currentRunner
+        val runner = currentClient
         if (runner == null) {
             LogHelper.info("$id not sending raw line because the irc runner isn't running: $line")
             return false
         }
 
-        runner.eventSink.add { runner.sink.writeRaw(line) }
+        runner.send(line)
+
         return true
     }
 
     override fun sendMessage(target: String, message: String) {
-        val runner = currentRunner
+        val runner = currentClient
         if (runner == null) {
             LogHelper.info("$id not sending message because the irc runner isn't running: $target $message")
             return
         }
 
-        runner.eventSink.add(SendSomethingEvent(PrivMsgMessage(target = target, message = message), runner.sink))
+        runner.send(PrivMsgMessage(target = target, message = message))
     }
 
     override fun sendMessageToAll(message: String) {
-        val channels = currentRunner?.state?.channels?.joined?.all?.keys
+        val channels = currentClient?.state?.channels?.joined?.all?.keys
         if (channels == null) {
             LogHelper.info("$id couldn't get channels, not sending message $message")
             return
@@ -210,18 +216,18 @@ class IrcRunnerWrapper(override val id: String, ircServerConfiguration: IrcServe
             state = WrapperState.RUNNING
         }
 
-        val runner = createRunner()
-        currentRunner = runner
+        val runner = createClient()
+        currentClient = runner
 
         val thread = thread(name = "Thump - $id") {
-            runner.run()
+            runner.start()
 
             LogHelper.info("$id irc runner thread ended normally")
 
             onStoppedRunning()
         }
 
-        thread.setUncaughtExceptionHandler { thread, exception ->
+        thread.setUncaughtExceptionHandler { _, exception ->
             LogHelper.info("$id irc runner thread ended with exception: $exception")
 
             onStoppedRunning()
@@ -251,7 +257,7 @@ class IrcRunnerWrapper(override val id: String, ircServerConfiguration: IrcServe
         }
 
         state = WrapperState.RECONNECTING
-        currentRunner = null
+        currentClient = null
         currentThread = null
 
         val delayMs = reconnectState.delaySeconds * 1000L
@@ -273,7 +279,7 @@ class IrcRunnerWrapper(override val id: String, ircServerConfiguration: IrcServe
     private fun resetStateRunnerAndThreads() {
         state = WrapperState.READY
 
-        currentRunner = null
+        currentClient = null
         currentThread = null
     }
 }
