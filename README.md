@@ -20,6 +20,11 @@ It's mostly written in Kotlin. Sometimes the mixture of Forge, Java and Kotlin d
 * You can "live reload" the mod without restarting your server - change your configuration and do `/thump reload`
 * [Warren](https://github.com/WillowChat/Warren) and [Kale](https://github.com/WillowChat/Kale) provide a great foundation for a stable IRC bridge
 
+## Support
+
+<a href="https://patreon.com/carrotcodes"><img src="https://s3.amazonaws.com/patreon_public_assets/toolbox/patreon.png" align="left" width="160" ></a>
+If you use this library and you'd like to support my open-source work, please consider tipping through [Patreon](https://patreon.com/carrotcodes).
+
 ## Building
 This mod uses Forge's Gradle wrapper for pretty easy setup and building. There are better guides around the internet for using it, and I don't do anything particularly special.
 
