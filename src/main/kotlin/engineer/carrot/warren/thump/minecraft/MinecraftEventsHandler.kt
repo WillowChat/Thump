@@ -27,7 +27,10 @@ class MinecraftEventsHandler(private val sink: IThumpServiceSink) {
             return
         }
 
-        val message = TokenHelper().addUserToken(StringHelper.obfuscateNameIfNecessary(event.username)).addMessageToken(event.message).applyTokens(Thump.configuration.formats.minecraft.playerMessage)
+        val playerName = event.player.displayName.unformattedText
+        val chatMessage = event.component.unformattedText.removePrefix("<$playerName> ")
+
+        val message = TokenHelper().addUserToken(StringHelper.obfuscateNameIfNecessary(playerName)).addMessageToken(chatMessage).applyTokens(Thump.configuration.formats.minecraft.playerMessage)
         sink.sendToAllServices(message)
     }
 
@@ -45,7 +48,7 @@ class MinecraftEventsHandler(private val sink: IThumpServiceSink) {
                 return
             }
 
-            val message = TokenHelper().addUserToken(StringHelper.obfuscateNameIfNecessary(event.sender.name)).addMessageToken(Joiner.on(" ").join(event.parameters)).applyTokens(Thump.configuration.formats.minecraft.playerAction)
+            val message = TokenHelper().addUserToken(StringHelper.obfuscateNameIfNecessary(event.sender.displayName.unformattedText)).addMessageToken(Joiner.on(" ").join(event.parameters)).applyTokens(Thump.configuration.formats.minecraft.playerAction)
             sink.sendToAllServices(message)
 
             return
@@ -60,7 +63,7 @@ class MinecraftEventsHandler(private val sink: IThumpServiceSink) {
                 return
             }
 
-            val message = TokenHelper().addUserToken(StringHelper.obfuscateNameIfNecessary(event.sender.name)).addMessageToken(Joiner.on(" ").join(event.parameters)).applyTokens(Thump.configuration.formats.minecraft.playerMessage)
+            val message = TokenHelper().addUserToken(StringHelper.obfuscateNameIfNecessary(event.sender.displayName.unformattedText)).addMessageToken(Joiner.on(" ").join(event.parameters)).applyTokens(Thump.configuration.formats.minecraft.playerMessage)
             sink.sendToAllServices(message)
         }
     }
@@ -71,7 +74,7 @@ class MinecraftEventsHandler(private val sink: IThumpServiceSink) {
             return
         }
 
-        val message = TokenHelper().addUserToken(StringHelper.obfuscateNameIfNecessary(event.player.displayNameString)).applyTokens(Thump.configuration.formats.minecraft.playerJoined)
+        val message = TokenHelper().addUserToken(StringHelper.obfuscateNameIfNecessary(event.player.displayName.unformattedText)).applyTokens(Thump.configuration.formats.minecraft.playerJoined)
         sink.sendToAllServices(message)
     }
 
@@ -81,7 +84,7 @@ class MinecraftEventsHandler(private val sink: IThumpServiceSink) {
             return
         }
 
-        val message = TokenHelper().addUserToken(StringHelper.obfuscateNameIfNecessary(event.player.displayNameString)).applyTokens(Thump.configuration.formats.minecraft.playerLeft)
+        val message = TokenHelper().addUserToken(StringHelper.obfuscateNameIfNecessary(event.player.displayName.unformattedText)).applyTokens(Thump.configuration.formats.minecraft.playerLeft)
         sink.sendToAllServices(message)
     }
 
@@ -100,7 +103,7 @@ class MinecraftEventsHandler(private val sink: IThumpServiceSink) {
 
         var unformattedText = deathMessage.unformattedText
         if (Thump.configuration.general.obfuscateUserSourceFromMinecraft) {
-            val playerDisplayName = player.displayNameString
+            val playerDisplayName = player.displayName.unformattedText
             val obfuscatedName = StringHelper.obfuscateString(playerDisplayName)
 
             unformattedText = unformattedText.replace(playerDisplayName, obfuscatedName)
