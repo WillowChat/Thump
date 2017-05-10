@@ -18,7 +18,7 @@ object CommandPlayers {
             return
         }
 
-        val names = players.map { StringHelper.obfuscateNameIfNecessary(it.displayNameString) }
+        val names = players.map { StringHelper.obfuscateNameIfNecessary(it.displayName.unformattedText) }
 
         val message = TokenHelper().addMessageToken(Joiner.on(", ").join(names)).applyTokens(Thump.configuration.formats.minecraft.playersOnline)
         sink.sendToAllServices(message)

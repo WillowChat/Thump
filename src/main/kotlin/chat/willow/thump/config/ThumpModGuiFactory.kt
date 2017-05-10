@@ -5,6 +5,19 @@ import net.minecraft.client.gui.GuiScreen
 import net.minecraftforge.fml.client.IModGuiFactory
 
 class ThumpModGuiFactory : IModGuiFactory {
+
+    override fun createConfigGui(parentScreen: GuiScreen?): GuiScreen? {
+        if (parentScreen == null) {
+            return null
+        }
+
+        return ThumpModConfigGui(parentScreen)
+    }
+
+    override fun hasConfigGui(): Boolean {
+        return true
+    }
+
     override fun initialize(minecraftInstance: Minecraft?) {
 
     }
