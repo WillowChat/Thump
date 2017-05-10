@@ -4,7 +4,7 @@
     "description": "A simple, highly configurable Minecraft chat multiplexer with built in IRC support",
     "version": "${version}",
     "mcversion": "${minecraft_version}",
-    "url": "http://minecraft.curseforge.com/mc-mods/231124-thump",
+    "url": "https://github.com/WillowChat/Thump",
     "updateUrl": "",
     "authorList": ["carrot"],
     "credits": "carrot",
