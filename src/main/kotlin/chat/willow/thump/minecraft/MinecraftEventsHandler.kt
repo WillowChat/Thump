@@ -13,7 +13,6 @@ import net.minecraft.util.text.TextComponentTranslation
 import net.minecraftforge.event.CommandEvent
 import net.minecraftforge.event.ServerChatEvent
 import net.minecraftforge.event.entity.living.LivingDeathEvent
-import net.minecraftforge.event.entity.player.AchievementEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import net.minecraftforge.fml.common.gameevent.PlayerEvent
 
@@ -118,34 +117,35 @@ class MinecraftEventsHandler(private val sink: IThumpServiceSink) {
         return source.getDeathMessage(player)
     }
 
-    @SubscribeEvent
-    fun onAchievementEvent(event: AchievementEvent) {
-        if (!Thump.configuration.events.minecraft.playerAchievement) {
-            return
-        }
-
-        val achievement = event.achievement
-        val entityPlayer = event.entityPlayer as? EntityPlayerMP ?: return
-        val statFile = entityPlayer.statFile
-
-        if (!statFile.canUnlockAchievement(achievement) || statFile.hasAchievementUnlocked(achievement)) {
-            return
-        }
-
-        val playerDisplayNameComponent = entityPlayer.displayName
-
-        val achievementMessage = TextComponentTranslation("chat.type.achievement", playerDisplayNameComponent, achievement.createChatComponent())
-
-        var unformattedText = achievementMessage.unformattedText
-        if (Thump.configuration.general.obfuscateUserSourceFromMinecraft) {
-            val playerDisplayName = playerDisplayNameComponent.unformattedText
-            val obfuscatedName = StringHelper.obfuscateString(playerDisplayName)
-
-            unformattedText = unformattedText.replace(playerDisplayName, obfuscatedName)
-        }
-
-        val message = TokenHelper().addMessageToken(unformattedText).applyTokens(Thump.configuration.formats.minecraft.playerAchievement)
-        sink.sendToAllServices(message)
-    }
+// TODO: Figure out what Forge is doing with Advancements
+//    @SubscribeEvent
+//    fun onAchievementEvent(event: AchievementEvent) {
+//        if (!Thump.configuration.events.minecraft.playerAchievement) {
+//            return
+//        }
+//
+//        val achievement = event.achievement
+//        val entityPlayer = event.entityPlayer as? EntityPlayerMP ?: return
+//        val statFile = entityPlayer.statFile
+//
+//        if (!statFile.canUnlockAchievement(achievement) || statFile.hasAchievementUnlocked(achievement)) {
+//            return
+//        }
+//
+//        val playerDisplayNameComponent = entityPlayer.displayName
+//
+//        val achievementMessage = TextComponentTranslation("chat.type.achievement", playerDisplayNameComponent, achievement.createChatComponent())
+//
+//        var unformattedText = achievementMessage.unformattedText
+//        if (Thump.configuration.general.obfuscateUserSourceFromMinecraft) {
+//            val playerDisplayName = playerDisplayNameComponent.unformattedText
+//            val obfuscatedName = StringHelper.obfuscateString(playerDisplayName)
+//
+//            unformattedText = unformattedText.replace(playerDisplayName, obfuscatedName)
+//        }
+//
+//        val message = TokenHelper().addMessageToken(unformattedText).applyTokens(Thump.configuration.formats.minecraft.playerAchievement)
+//        sink.sendToAllServices(message)
+//    }
 
 }

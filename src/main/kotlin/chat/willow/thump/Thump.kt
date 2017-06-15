@@ -33,7 +33,7 @@ import java.io.File
         modLanguage = "kotlin",
         modLanguageAdapter = "chat.willow.thump.CarrotKotlinAdapter",
         acceptableRemoteVersions = "*",
-        acceptedMinecraftVersions = "[1.11,1.11.2]",
+        acceptedMinecraftVersions = "[1.12]",
         guiFactory = "chat.willow.thump.config.ThumpModGuiFactory")
 object Thump : IThumpServicePlugins, IThumpMinecraftSink, IThumpServiceSink {
 
